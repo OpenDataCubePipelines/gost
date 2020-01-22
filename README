@@ -1,1 +1,3 @@
 Temporary repo for code relating to the integration tests for the Raijin -> Gadi migration.
+
+Some intricaies when specifying the test and reference directories

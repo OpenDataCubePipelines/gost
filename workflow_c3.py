@@ -15,6 +15,8 @@ from mpi4py import MPI
 import yaml
 import pandas
 import rasterio
+import logging
+import structlog
 
 from wagl.tiling import scatter
 from wagl.scripts.wagl_residuals import distribution
@@ -22,6 +24,25 @@ from wagl.hdf5 import write_dataframe
 
 from utils import FmaskCategories, evaluate2, evaluate_fmask, evaluate_nulls, data_mask
 # from mpi_logger import LOG
+from ed35ea88ba0627e0f7dfdf115a3bf4d1 import mpi_logger
+
+# configure structlog to log in a specific way
+structlog.configure(
+    processors=mpi_logger.COMMON_PROCESSORS,
+    logger_factory=structlog.stdlib.LoggerFactory()
+)
+# I/O handler
+LOG_FNAME = "info.log"
+HANDLER = mpi_logger.MPIFileHandler(LOG_FNAME)
+FORMATTER = logging.Formatter('%(message)s')
+HANDLER.setFormatter(FORMATTER)
+
+# initialise a logger
+LOGGER = logging.getLogger('info')
+LOGGER.setLevel(logging.INFO)
+LOGGER.addHandler(HANDLER)
+
+LOG = structlog.get_logger('info')
 
 
 @click.command()
@@ -32,6 +53,7 @@ from utils import FmaskCategories, evaluate2, evaluate_fmask, evaluate_nulls, da
 @click.option("--outdir", type=click.Path(file_okay=False, writable=True),
               help="The base output directory.")
 def main(reference_dir, test_dir, outdir):
+    log = LOG.bind()
     # comm info
     comm = MPI.COMM_WORLD
 
@@ -48,13 +70,17 @@ def main(reference_dir, test_dir, outdir):
 
     if not outdir.exists():
         if rank == 0:
+            log.info('creating output directory')
             outdir.mkdir()
 
     # locate yaml documents
     yaml_fnames = list(test_dir.rglob('*.odc-metadata.yaml'))
+    if not yaml_fnames:
+        log.warning('no yaml docs found')
 
     # scatter work across processes
     fnames = scatter(yaml_fnames, n_proc)[rank]
+    log.info('processing {} documents'.format(len(fnames)))
 
     # results
     records = {
@@ -104,6 +130,7 @@ def main(reference_dir, test_dir, outdir):
             ref_fname = reference_dir.joinpath(*sub_path, tif_name)
 
             if not ref_fname.exists():
+                log.info('reference measurement not found', ref_measurement=ref_fname, test_measurement=test_fname)
                 continue
 
             ref_ds = rasterio.open(ref_fname)
@@ -166,6 +193,7 @@ def main(reference_dir, test_dir, outdir):
 
     # create dataframes
     if rank == 0:
+        log.info('appending dataframes')
         df = pandas.DataFrame(appended_records[0])
         for record in appended_records[1:]:
             df = df.append(pandas.DataFrame(record))
@@ -175,10 +203,12 @@ def main(reference_dir, test_dir, outdir):
             fmask_df = fmask_df.append(pandas.DataFrame(record))
 
         # reset to a unique index
+        log.info('reset dataframe index')
         df.reset_index(drop=True, inplace=True)
         fmask_df.reset_index(drop=True, inplace=True)
 
         # save each table
+        log.info('saving dataframes to tables')
         out_fname = outdir.joinpath('raijin-gadi-C3-comparison.h5')
         with h5py.File(str(out_fname), 'w') as fid:
             write_dataframe(df, 'RESULTS', fid)

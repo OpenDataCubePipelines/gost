@@ -24,25 +24,27 @@ from wagl.hdf5 import write_dataframe
 
 from utils import FmaskCategories, evaluate2, evaluate_fmask, evaluate_nulls, data_mask
 # from mpi_logger import LOG
-from ed35ea88ba0627e0f7dfdf115a3bf4d1 import mpi_logger
+# from ed35ea88ba0627e0f7dfdf115a3bf4d1 import mpi_logger
+from eede0bc6ab557cf3d6084ba3b63e6c1c import mpi_logger as mlog
+# >>> from mpi_logger import MPIStreamIO, MPILoggerFactory, DEFAULT_PROCESSORS
 
 # configure structlog to log in a specific way
-structlog.configure(
-    processors=mpi_logger.COMMON_PROCESSORS,
-    logger_factory=structlog.stdlib.LoggerFactory()
-)
+# structlog.configure(
+#     processors=mpi_logger.COMMON_PROCESSORS,
+#     logger_factory=structlog.stdlib.LoggerFactory()
+# )
 # I/O handler
-LOG_FNAME = "info.log"
-HANDLER = mpi_logger.MPIFileHandler(LOG_FNAME)
-FORMATTER = logging.Formatter('%(message)s')
-HANDLER.setFormatter(FORMATTER)
+# LOG_FNAME = "info.log"
+# HANDLER = mpi_logger.MPIFileHandler(LOG_FNAME)
+# FORMATTER = logging.Formatter('%(message)s')
+# HANDLER.setFormatter(FORMATTER)
 
 # initialise a logger
-LOGGER = logging.getLogger('info')
-LOGGER.setLevel(logging.INFO)
-LOGGER.addHandler(HANDLER)
+# LOGGER = logging.getLogger('info')
+# LOGGER.setLevel(logging.INFO)
+# LOGGER.addHandler(HANDLER)
 
-LOG = structlog.get_logger('info')
+# LOG = structlog.get_logger('info')
 
 
 @click.command()
@@ -53,7 +55,16 @@ LOG = structlog.get_logger('info')
 @click.option("--outdir", type=click.Path(file_okay=False, writable=True),
               help="The base output directory.")
 def main(reference_dir, test_dir, outdir):
-    log = LOG.bind()
+    # initialise the output stream for loggin
+    out_stream = mlog.MPIStreamIO('status.log')
+    structlog.configure(
+        processors=mlog.DEFAULT_PROCESSORS,
+        logger_factor=mlog.MPILoggerFactory(out_stream)
+    )
+
+    log = structlog.get_logger()
+    # log = LOG.bind()
+
     # comm info
     comm = MPI.COMM_WORLD
 
@@ -74,12 +85,16 @@ def main(reference_dir, test_dir, outdir):
             outdir.mkdir()
 
     # locate yaml documents
-    yaml_fnames = list(test_dir.rglob('*.odc-metadata.yaml'))
-    if not yaml_fnames:
-        log.warning('no yaml docs found')
+    if rank == 0:
+        yaml_fnames = list(test_dir.rglob('*.odc-metadata.yaml'))
+        if not yaml_fnames:
+            log.warning('no yaml docs found')
+        blocks = scatter(yaml_fnames, n_proc)
+    else:
+        blocks = None
 
-    # scatter work across processes
-    fnames = scatter(yaml_fnames, n_proc)[rank]
+    # split work across all processors
+    fnames = comm.scatter(blocks, root=0)
     log.info('processing {} documents'.format(len(fnames)))
 
     # results

@@ -8,5 +8,5 @@
 
 module load wagl/gadi-test-5.4.0
 
-python merge.py --indir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results4 --outdir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results4
-python aggregate.py --indir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results4 --outdir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results4
+python merge.py --indir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results5 --outdir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results5
+python aggregate.py --indir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results5 --outdir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results5

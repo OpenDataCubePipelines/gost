@@ -9,4 +9,4 @@
 module load wagl/gadi-test-5.4.0
 module load openmpi
 
-mpiexec -n 240 python comparison.py --reference-dir /g/data/xu18/ga --test-dir /g/data/v10/testing_ground/jps547/gadi-test/C3/pkgdir/ga_ls8c_ard_3 --outdir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results4
+mpiexec -n 240 python workflow_c3.py --reference-dir /g/data/xu18/ga --test-dir /g/data/v10/testing_ground/jps547/gadi-test/C3/pkgdir/ga_ls8c_ard_3 --outdir /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results5

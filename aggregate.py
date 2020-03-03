@@ -18,38 +18,45 @@ from wagl.hdf5 import write_dataframe, read_h5_table
 
 
 @click.command()
-@click.option("--indir", type=click.Path(file_okay=False, readable=True),
-              help="The base input directory.")
+@click.option("--pathname1",
+              help="The pathname for the wagl comparison input file.",
+              type=click.Path(file_okay=True, dir_okay=False))
+@click.option("--pathname2",
+              help="The pathname for the fmask comparison input file.",
+              type=click.Path(file_okay=True, dir_okay=False))
 @click.option("--outdir", type=click.Path(file_okay=False, writable=True),
-              help="The base output directory.")
-def main(indir, outdir):
-    """Do some quick summary stats."""
-    indir = Path(indir)
+              help=("The base output directory to contain the summarised "
+                    "statistics."))
+def main(pathname1, pathname2, outdir):
+    """Produce summary statistics for the wagl and Fmask outputs."""
+    pathname1 = Path(pathname1)
+    pathname2 = Path(pathname2)
     outdir = Path(outdir)
 
     if not outdir.exists():
         outdir.mkdir()
 
-    fname = indir.joinpath('raijin-gadi-C3-comparison.geojson')
-    gdf = geopandas.read_file(str(fname))
+    # wagl results
+    gdf = geopandas.read_file(str(pathname1))
 
     pivot = pandas.pivot_table(gdf, index=['measurement'],
                                values=['minv', 'maxv'], aggfunc=numpy.min)
-    out_fname = outdir.joinpath('min-aggregate-results-minmax.csv')
-    pivot.to_csv(str(out_fname))
+    out_pathname = outdir.joinpath('min-aggregate-wagl-results-minmax.csv')
+    pivot.to_csv(str(out_pathname))
 
     pivot = pandas.pivot_table(gdf, index=['measurement'],
                                values=['minv', 'maxv'], aggfunc=numpy.max)
-    out_fname = outdir.joinpath('max-aggregate-results-minmax.csv')
-    pivot.to_csv(str(out_fname))
+    out_pathname = outdir.joinpath('max-aggregate-wagl-results-minmax.csv')
+    pivot.to_csv(str(out_pathname))
 
     pivot = pandas.pivot_table(gdf, index=['measurement'],
                                values=['percent_different'], aggfunc=numpy.max)
-    out_fname = outdir.joinpath('max-aggregate-results-percent-different.csv')
-    pivot.to_csv(str(out_fname))
+    fname = 'max-aggregate-wagl-results-percent-different.csv'
+    out_pathname = outdir.joinpath(fname)
+    pivot.to_csv(str(out_pathname))
 
-    fname = indir.joinpath('raijin-gadi-C3-fmask-comparison.geojson')
-    gdf = geopandas.read_file(str(fname))
+    # fmask results
+    gdf = geopandas.read_file(str(pathname2))
 
     null = [i for i in gdf.columns if 'null_2' in i]
     clear = [i for i in gdf.columns if 'clear_2' in i]

@@ -89,6 +89,9 @@ def main(reference_dir, test_dir, out_pathname, pattern):
     valid_yamls = comm.gather(valid_yamls, root=0)
 
     if rank == 0:
+        log.info('valid_yamls', documents=valid_yamls)
+        valid_yamls = sum(valid_yamls, [])
+        log.info('valid_yamls', documents=valid_yamls)
         blocks = scatter(valid_yamls, n_proc)
     else:
         blocks = None
@@ -110,13 +113,15 @@ def main(reference_dir, test_dir, out_pathname, pattern):
     if rank == 0:
         log.info('appending dataframes')
         if appended_records:
-            df = pandas.DataFrame(appended_records[0])
-            for record in appended_records[1:]:
+            flattened = sum(appended_records, [])
+            df = pandas.DataFrame(flattened[0])
+            for record in flattened[1:]:
                 df = df.append(pandas.DataFrame(record))
 
         if appended_fmask_records:
-            fmask_df = pandas.DataFrame(appended_fmask_records[0])
-            for record in appended_fmask_records[1:]:
+            flattened = sum(appended_fmask_records, [])
+            fmask_df = pandas.DataFrame(flattened[0])
+            for record in flattened[1:]:
                 fmask_df = fmask_df.append(pandas.DataFrame(record))
 
         # reset to a unique index

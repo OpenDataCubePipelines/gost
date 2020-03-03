@@ -27,8 +27,6 @@ from eede0bc6ab557cf3d6084ba3b63e6c1c import mpi_logger as mlog
               readable=True), help="The base reference directory.")
 @click.option("--test-dir", type=click.Path(file_okay=False, readable=True),
               help="The base test directory.")
-@click.option("--outdir", type=click.Path(file_okay=False, writable=True),
-              help="The base output directory.")
 @click.option("--out-pathname", help="The pathname for the output file.",
               type=click.Path(file_okay=True, dir_okay=False))
 @click.option("--pattern", type=click.STRING, required=True,

@@ -22,6 +22,7 @@ from wagl.tiling import scatter
 from wagl.scripts.wagl_residuals import distribution
 from wagl.hdf5 import write_dataframe
 
+from digest_yaml import Digestyaml
 from utils import FmaskCategories, evaluate2, evaluate_fmask, evaluate_nulls, data_mask
 # from mpi_logger import LOG
 # from ed35ea88ba0627e0f7dfdf115a3bf4d1 import mpi_logger
@@ -79,8 +80,10 @@ def main(reference_dir, test_dir, outdir):
     reference_dir = Path(reference_dir)
     outdir = Path(outdir)
 
-    if not outdir.exists():
-        if rank == 0:
+    product_dir_name = reference_dir.name
+
+    if rank == 0:
+        if not outdir.exists():
             log.info('creating output directory')
             outdir.mkdir()
 
@@ -89,9 +92,24 @@ def main(reference_dir, test_dir, outdir):
         yaml_fnames = list(test_dir.rglob('*.odc-metadata.yaml'))
         if not yaml_fnames:
             log.warning('no yaml docs found')
-        blocks = scatter(yaml_fnames, n_proc)
+
+        # check for existence
+        valid_yamls = []
+        for fname in yaml_fnames:
+            path_parts = fname.parent.parts
+            idx = path_parts.index(product_dir_name)
+            sub_path = path_parts[idx:]
+            ref_fname = reference_dir.joinpath(*sub_path, fname.name)
+            if ref_fname.exists():
+                valid_yamls.append(fname)
+            else:
+                log.warning("skipping", reference_fname=ref_fname, test_fname=fname)
+
+        blocks = scatter(valid_yamls, n_proc)
     else:
         blocks = None
+
+    comm.Barrier()
 
     # split work across all processors
     fnames = comm.scatter(blocks, root=0)
@@ -131,16 +149,14 @@ def main(reference_dir, test_dir, outdir):
             fmask_records[key] = []
 
     for fname in fnames:
-        with open(fname) as src:
-            doc = yaml.load(src)
+        doc = Digestyaml(fname)
 
-        product = doc['product']['name']
         path_parts = fname.parent.parts
-        idx = path_parts.index(product)
+        idx = path_parts.index(product_dir_name)
         sub_path = path_parts[idx:]
 
-        for meas in doc['measurements']:
-            tif_name = doc['measurements'][meas]['path']
+        for meas in doc.measurements:
+            tif_name = doc.measurements[meas]['path']
             test_fname = fname.parent.joinpath(tif_name)
             ref_fname = reference_dir.joinpath(*sub_path, tif_name)
 
@@ -152,14 +168,10 @@ def main(reference_dir, test_dir, outdir):
             test_ds = rasterio.open(test_fname)
 
             # compute results
-            if meas == 'oa_fmask':
+            if meas in ['oa_fmask', 'fmask']:
                 # the idea here is to analyse the categorical data differently
-                fmask_records['granule'].append(
-                    doc['properties']['landsat:landsat_scene_id']
-                )
-                fmask_records['region_code'].append(
-                    doc['properties']['odc:region_code']
-                )
+                fmask_records['granule'].append(doc.granule)
+                fmask_records['region_code'].append(doc.region_code)
                 fmask_records['reference_fname'].append(str(ref_fname))
                 fmask_records['test_fname'].append(str(test_fname))
                 fmask_records['size'].append(numpy.prod(ref_ds.shape))
@@ -177,12 +189,10 @@ def main(reference_dir, test_dir, outdir):
                 h = distribution(diff)
 
                 # store results
-                records['granule'].append(
-                    doc['properties']['landsat:landsat_scene_id']
-                )
+                records['granule'].append(doc.granule)
                 records['reference_fname'].append(str(ref_fname))
                 records['test_fname'].append(str(test_fname))
-                records['region_code'].append(doc['properties']['odc:region_code'])
+                records['region_code'].append(doc.region_code)
                 records['size'].append(diff.size)
                 records['measurement'].append(meas)
                 records['minv'].append(h['omin'] / 100)

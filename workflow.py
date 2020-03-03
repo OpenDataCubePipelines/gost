@@ -66,20 +66,30 @@ def main(reference_dir, test_dir, out_pathname, pattern):
         yaml_fnames = list(test_dir.rglob(pattern))
         if not yaml_fnames:
             log.warning('no yaml docs found')
+        blocks = scatter(yaml_fnames, n_proc)
+    else:
+        blocks = None
 
-        # check for existence
-        valid_yamls = []
-        for fname in yaml_fnames:
-            path_parts = fname.parent.parts
-            idx = path_parts.index(product_dir_name)
-            sub_path = path_parts[idx:]
-            ref_fname = reference_dir.joinpath(*sub_path, fname.name)
-            if ref_fname.exists():
-                valid_yamls.append(fname)
-            else:
-                log.warning("skipping document", reference_fname=ref_fname,
-                            test_fname=fname)
+    yaml_fnames = comm.scatter(blocks, root=0
 
+
+    # check for existence
+    # TODO; scatter existing list and find valid yamls, then collect
+    valid_yamls = []
+    for fname in yaml_fnames:
+        path_parts = fname.parent.parts
+        idx = path_parts.index(product_dir_name)
+        sub_path = path_parts[idx:]
+        ref_fname = reference_dir.joinpath(*sub_path, fname.name)
+        if ref_fname.exists():
+            valid_yamls.append(fname)
+        else:
+            log.warning("skipping document", reference_fname=ref_fname,
+                        test_fname=fname)
+
+    valid_yamls = comm.gather(valid_yamls, root=0)
+
+    if rank == 0:
         blocks = scatter(valid_yamls, n_proc)
     else:
         blocks = None

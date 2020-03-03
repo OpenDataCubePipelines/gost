@@ -103,7 +103,8 @@ def main(reference_dir, test_dir, out_pathname, pattern):
     log.info('processing {} documents'.format(len(yaml_pathnames)))
 
     # process
-    records, fmask_records = process_yamls(yaml_pathnames, reference_dir)
+    records, fmask_records = process_yamls(yaml_pathnames, reference_dir,
+                                           product_dir_name)
 
     # gather records from all workers
     appended_records = comm.gather(records, root=0)

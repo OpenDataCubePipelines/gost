@@ -18,9 +18,8 @@ from digest_yaml import Digestyaml
 LOG = structlog.get_logger()
 
 
-def process_yamls(yaml_pathnames, reference_dir):
+def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
     reference_dir = Path(reference_dir)
-    product_dir_name = reference_dir.name
 
     # results
     records = {

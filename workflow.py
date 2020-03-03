@@ -54,7 +54,7 @@ def main(reference_dir, test_dir, out_pathname, pattern):
     test_dir = Path(test_dir)
     reference_dir = Path(reference_dir)
     out_pathname = Path(out_pathname)
-    product_dir_name = reference_dir.name
+    product_dir_name = test_dir.name
 
     if rank == 0:
         if not out_pathname.parent.exists():
@@ -70,8 +70,7 @@ def main(reference_dir, test_dir, out_pathname, pattern):
     else:
         blocks = None
 
-    yaml_fnames = comm.scatter(blocks, root=0
-
+    yaml_fnames = comm.scatter(blocks, root=0)
 
     # check for existence
     # TODO; scatter existing list and find valid yamls, then collect

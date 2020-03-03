@@ -26,8 +26,6 @@ FRAMING = {
 @click.command()
 @click.option("--pathname", help="The pathname of the input file.",
               type=click.Path(file_okay=True, dir_okay=False))
-@click.option("--outdir", type=click.Path(file_okay=False, writable=True),
-              help="The base output directory.")
 @click.option("--out-pathname1",
               help="The pathname for the wagl comparison output file.",
               type=click.Path(file_okay=True, dir_okay=False))

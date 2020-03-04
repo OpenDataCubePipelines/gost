@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -P u46
+#PBS -P v10
 #PBS -W umask=017
 #PBS -q express
 #PBS -l walltime=00:05:00,mem=4GB,ncpus=1

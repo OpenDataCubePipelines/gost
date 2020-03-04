@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -P u46
+#PBS -P v10
 #PBS -W umask=017
 #PBS -q express
 #PBS -l walltime=00:15:00,mem=960GB,ncpus=240,jobfs=2GB,other=pernodejobfs

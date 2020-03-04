@@ -89,9 +89,7 @@ def main(reference_dir, test_dir, out_pathname, pattern):
     valid_yamls = comm.gather(valid_yamls, root=0)
 
     if rank == 0:
-        log.info('valid_yamls', documents=valid_yamls)
         valid_yamls = sum(valid_yamls, [])
-        log.info('valid_yamls', documents=valid_yamls)
         blocks = scatter(valid_yamls, n_proc)
     else:
         blocks = None

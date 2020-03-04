@@ -113,8 +113,13 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                 records['region_code'].append(doc.region_code)
                 records['size'].append(diff.size)
                 records['measurement'].append(meas)
-                records['minv'].append(h['omin'] / 100)
-                records['maxv'].append(h['omax'] / 100)
+                if 'nbar' in meas or meas in ['1', '2', '3', '4', '5', '6', '7']:
+                    # get difference as a percent reflectance (0->100)
+                    records['minv'].append(h['omin'] / 100)
+                    records['maxv'].append(h['omax'] / 100)
+                else:
+                    records['minv'].append(h['omin'])
+                    records['maxv'].append(h['omax'])
                 records['percent_different'].append(
                     (diff != 0).sum() / diff.size * 100
                 )

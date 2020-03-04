@@ -29,13 +29,15 @@ from eede0bc6ab557cf3d6084ba3b63e6c1c import mpi_logger as mlog
               help="The base test directory.")
 @click.option("--out-pathname", help="The pathname for the output file.",
               type=click.Path(file_okay=True, dir_okay=False))
+@click.option("--log-pathname", help="The pathname for the output log file.",
+              type=click.Path(file_okay=True, dir_okay=False))
 @click.option("--pattern", type=click.STRING, required=True,
               help=("Pattern to use for a recursive glob search. "
                     "Examples include: *.odc-metadata.yaml, ga-metadata.yaml, "
                     "ARD-METADATA.yaml"))
-def main(reference_dir, test_dir, out_pathname, pattern):
+def main(reference_dir, test_dir, out_pathname, log_pathname, pattern):
     # initialise the output stream for logging
-    out_stream = mlog.MPIStreamIO('status.log')
+    out_stream = mlog.MPIStreamIO(log_pathname)
     structlog.configure(
         processors=mlog.DEFAULT_PROCESSORS,
         logger_factory=mlog.MPILoggerFactory(out_stream)

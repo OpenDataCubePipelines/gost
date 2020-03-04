@@ -114,15 +114,13 @@ def main(reference_dir, test_dir, out_pathname, pattern):
     if rank == 0:
         log.info('appending dataframes')
         if appended_records:
-            flattened = sum(appended_records, [])
-            df = pandas.DataFrame(flattened[0])
-            for record in flattened[1:]:
+            df = pandas.DataFrame(appended_records[0])
+            for record in appended_records[1:]:
                 df = df.append(pandas.DataFrame(record))
 
         if appended_fmask_records:
-            flattened = sum(appended_fmask_records, [])
-            fmask_df = pandas.DataFrame(flattened[0])
-            for record in flattened[1:]:
+            fmask_df = pandas.DataFrame(appended_fmask_records[0])
+            for record in appended_fmask_records[1:]:
                 fmask_df = fmask_df.append(pandas.DataFrame(record))
 
         # reset to a unique index

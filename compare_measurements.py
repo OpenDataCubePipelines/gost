@@ -113,6 +113,7 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                 records['region_code'].append(doc.region_code)
                 records['size'].append(diff.size)
                 records['measurement'].append(meas)
+
                 if 'nbar' in meas or meas in ['1', '2', '3', '4', '5', '6', '7']:
                     # get difference as a percent reflectance (0->100)
                     records['minv'].append(h['omin'] / 100)
@@ -120,6 +121,7 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                 else:
                     records['minv'].append(h['omin'])
                     records['maxv'].append(h['omax'])
+
                 records['percent_different'].append(
                     (diff != 0).sum() / diff.size * 100
                 )
@@ -132,7 +134,12 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                 p2_idx = numpy.searchsorted(cdf, 0.99)
 
                 # percentiles from cumulative distribution
-                records['percentile_90'].append(h['loc'][p1_idx])
-                records['percentile_99'].append(h['loc'][p2_idx])
+                if 'nbar' in meas or meas in ['1', '2', '3', '4', '5', '6', '7']:
+                    # get difference as a percent reflectance (0->100)
+                    records['percentile_90'].append(h['loc'][p1_idx] / 100)
+                    records['percentile_99'].append(h['loc'][p2_idx] / 100)
+                else:
+                    records['percentile_90'].append(h['loc'][p1_idx])
+                    records['percentile_99'].append(h['loc'][p2_idx])
 
     return records, fmask_records

@@ -2,7 +2,7 @@
 #PBS -P v10
 #PBS -W umask=017
 #PBS -q express
-#PBS -l walltime=00:30:00,mem=960GB,ncpus=240,jobfs=2GB,other=pernodejobfs
+#PBS -l walltime=01:00:00,mem=960GB,ncpus=240,jobfs=2GB,other=pernodejobfs
 #PBS -l wd
 #PBS -l storage=scratch/da82+gdata/da82+scratch/v10+gdata/v10+scratch/xu18+gdata/xu18+scratch/if87+gdata/if87
 

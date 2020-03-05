@@ -10,8 +10,8 @@ module use /g/data/v10/private/modules/modulefiles
 module use /g/data/v10/public/modules/modulefiles
 module load wagl/5.4.1
 
-python merge.py --pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/c3-raijin-gadi-comparison.h5 --out-pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/merge-general-results-c3.geojsonl --framing WRS2 --dataset-name GENERAL_RESULTS
-python merge.py --pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/c3-raijin-gadi-comparison.h5 --out-pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/merge-fmask-results-c3.geojsonl --framing WRS2 --dataset-name FMASK_RESULTS
+python merge.py --pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/c3-raijin-gadi-comparison.h5 --out-pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/merge-general-results-c3.geojsonl --framing WRS2 --dataset-name GENERAL-RESULTS
+python merge.py --pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/c3-raijin-gadi-comparison.h5 --out-pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/merge-fmask-results-c3.geojsonl --framing WRS2 --dataset-name FMASK-RESULTS
 python merge.py --pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/c3-raijin-gadi-comparison.h5 --out-pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/merge-contiguity-results-c3.geojsonl --framing WRS2 --dataset-name CONTIGUITY-RESULTS
 python merge.py --pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/c3-raijin-gadi-comparison.h5 --out-pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/merge-shadow-results-c3.geojsonl --framing WRS2  --dataset-name SHADOW-RESULTS
 

@@ -13,6 +13,9 @@ import numpy
 from idl_functions import histogram
 
 
+FMT = '{}_2_{}'
+
+
 class FmaskCategories(Enum):
     NULL = 0
     CLEAR = 1
@@ -29,7 +32,62 @@ class ContiguityCategories(Enum):
 
 class TerrainShadowCategories(Enum):
     SHADED = 0
-    UNSHADED = 0
+    UNSHADED = 1
+
+
+class Records:
+    def __init__(self):
+        self.granule = []
+        self.reference_fname = []
+        self.test_fname = []
+        self.measurement = []
+        self.size = []
+        self.region_code = []
+
+    @property
+    def records(self):
+        return self.__dict__
+
+
+class GeneralRecords(Records):
+    def __init__(self):
+        super(GeneralRecords, self).__init__()
+
+        self.minv = []
+        self.maxv = []
+        self.percent_different = []
+        self.percentile_90 = []
+        self.percentile_99 = []
+        self.percent_data_2_null = []
+        self.percent_null_2_data = []
+
+
+class CategoricalRecords(Records):
+    def __init__(self, categories):
+        super(CategoricalRecords, self).__init__()
+
+        for category in categories:
+            for category2 in categories:
+                name = FMT.format(
+                    category.name.lower(),
+                    category2.name.lower()
+                )
+                setattr(self, name, [])
+
+
+class FmaskRecords(CategoricalRecords):
+    def __init__(self):
+        super(FmaskRecords, self).__init__(FmaskCategories)
+
+
+class ContiguityRecords(CategoricalRecords):
+    def __init__(self):
+        super(ContiguityRecords, self).__init__(ContiguityCategories)
+
+
+class TerrainShadowRecords(CategoricalRecords):
+    def __init__(self):
+        super(TerrainShadowRecords, self).__init__(TerrainShadowCategories)
 
 
 def evaluate(ref_ds, test_ds):

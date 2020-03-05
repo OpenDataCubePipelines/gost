@@ -26,50 +26,38 @@ FRAMING = {
 @click.command()
 @click.option("--pathname", help="The pathname of the input file.",
               type=click.Path(file_okay=True, dir_okay=False))
-@click.option("--out-pathname1",
-              help="The pathname for the wagl comparison output file.",
-              type=click.Path(file_okay=True, dir_okay=False))
-@click.option("--out-pathname2",
-              help="The pathname for the fmask comparison output file.",
+@click.option("--out-pathname",
+              help="The pathname for the comparison output file.",
               type=click.Path(file_okay=True, dir_okay=False))
 @click.option("--framing", help="The grid framing definition to use.",
               type=click.Choice(["WRS2", "MGRS"]))
-def main(pathname, out_pathname1, out_pathname2, framing):
+@click.option("--dataset-name",
+              help="The dataset name to access from the input HDF5 file.")
+def main(pathname, out_pathname, framing, dataset_name):
     """
     Output files will be created as GeoJSONSeq (JSONLines).
     As such, a filename extension of .geojsonl should be used.
     """
 
     pathname = Path(pathname)
-    out_pathname1 = Path(out_pathname1)
-    out_pathname2 = Path(out_pathname2)
+    out_pathname = Path(out_pathname)
     framing_pathname = FRAMING[framing]
 
-    if not out_pathname1.parent.exists():
-        out_pathname1.parent.mkdir()
-
-    if not out_pathname2.parent.exists():
-        out_pathname1.parent.mkdir()
+    if not out_pathname.parent.exists():
+        out_pathname.parent.mkdir()
 
     # read each table
     with h5py.File(str(pathname), 'r') as fid:
-        df = read_h5_table(fid, 'WAGL-RESULTS')
-        fmask_df = read_h5_table(fid, 'FMASK-RESULTS')
+        df = read_h5_table(fid, dataset_name)
 
     # table merge based on region code
     framing_df = geopandas.read_file(framing_pathname)
     new_df = pandas.merge(df, framing_df, how='left', left_on=['region_code'],
                           right_on=['region_code'])
-    new_fmask_df = pandas.merge(fmask_df, framing_df, how='left',
-                                left_on=['region_code'],
-                                right_on=['region_code'])
 
     # save geojson
     gdf = geopandas.GeoDataFrame(new_df, crs=framing_df.crs)
-    gdf.to_file(str(out_pathname1), driver='GeoJSONSeq')
-
-    gdf = geopandas.GeoDataFrame(new_fmask_df, crs=framing_df.crs)
-    gdf.to_file(str(out_pathname2), driver='GeoJSONSeq')
+    gdf.to_file(str(out_pathname), driver='GeoJSONSeq')
 
 
 if __name__ == '__main__':

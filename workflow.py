@@ -103,40 +103,60 @@ def main(reference_dir, test_dir, out_pathname, log_pathname, pattern):
     log.info('processing {} documents'.format(len(yaml_pathnames)))
 
     # process
-    records, fmask_records = process_yamls(yaml_pathnames, reference_dir,
-                                           product_dir_name)
+    results = process_yamls(yaml_pathnames, reference_dir, product_dir_name)
+    general_recs, fmask_recs, contiguity_recs, shadow_records = results
 
     # gather records from all workers
-    appended_records = comm.gather(records, root=0)
-    appended_fmask_records = comm.gather(fmask_records, root=0)
+    general_records = comm.gather(results[0], root=0)
+    fmask_records = comm.gather(results[1], root=0)
+    contiguity_records = comm.gather(results[2], root=0)
+    shadow_records = comm.gather(results[3], root=0)
 
-    # create dataframes
+    # create dataframes for each set of results
     if rank == 0:
         log.info('appending dataframes')
-        if appended_records:
-            df = pandas.DataFrame(appended_records[0])
-            for record in appended_records[1:]:
-                df = df.append(pandas.DataFrame(record))
+        if general_records:
+            general_df = pandas.DataFrame(general_records[0])
+            for record in general_records[1:]:
+                general_df = general_df.append(pandas.DataFrame(record))
 
-        if appended_fmask_records:
-            fmask_df = pandas.DataFrame(appended_fmask_records[0])
-            for record in appended_fmask_records[1:]:
+        if fmask_records:
+            fmask_df = pandas.DataFrame(fmask_records[0])
+            for record in fmask_records[1:]:
                 fmask_df = fmask_df.append(pandas.DataFrame(record))
+
+        if contiguity_records:
+            contiguity_df = pandas.DataFrame(contiguity_records[0])
+            for record in contiguity_records[1:]:
+                contiguity_df = contiguity_df.append(pandas.DataFrame(record))
+
+        if shadow_records:
+            shadow_df = pandas.DataFrame(shadow_records[0])
+            for record in shadow_records[1:]:
+                shadow_df = shadow_df.append(pandas.DataFrame(record))
 
         # reset to a unique index
         log.info('reset dataframe index')
-        if appended_records:
-            df.reset_index(drop=True, inplace=True)
-        if appended_fmask_records:
+        if general_records:
+            general_df.reset_index(drop=True, inplace=True)
+        if fmask_records:
             fmask_df.reset_index(drop=True, inplace=True)
+        if contiguity_records:
+            contiguity_df.reset_index(drop=True, inplace=True)
+        if shadow_records:
+            shadow_df.reset_index(drop=True, inplace=True)
 
         # save each table
         log.info('saving dataframes to tables')
         with h5py.File(str(out_pathname), 'w') as fid:
-            if appended_records:
-                write_dataframe(df, 'WAGL-RESULTS', fid)
-            if appended_fmask_records:
+            if general_records:
+                write_dataframe(general_df, 'GENERAL-RESULTS', fid)
+            if fmask_records:
                 write_dataframe(fmask_df, 'FMASK-RESULTS', fid)
+            if contiguity_records:
+                write_dataframe(contiguity_df, 'CONTIGUITY-RESULTS', fid)
+            if shadow_records:
+                write_dataframe(shadow_df, 'SHADOW-RESULTS', fid)
 
 
 if __name__ == '__main__':

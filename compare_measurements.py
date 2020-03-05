@@ -2,57 +2,30 @@
 
 from pathlib import Path
 import numpy
-import h5py
-import yaml
-import pandas
 import rasterio
 import structlog
 
 from wagl.scripts.wagl_residuals import distribution
-from wagl.hdf5 import write_dataframe
 
-from utils import FmaskCategories, evaluate2, evaluate_fmask, evaluate_nulls
+from utils import ContiguityCategories, FmaskCategories
+from utils import TerrainShadowCategories, GeneralRecords
+from utils import FmaskRecords, TerrainShadowRecords, ContiguityRecords
+from utils import evaluate2, evaluate_nulls, evaluate_categories
 from digest_yaml import Digestyaml
 
 
+BAND_IDS = ['1', '2', '3', '4', '5', '6', '7']
 LOG = structlog.get_logger()
 
 
 def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
     reference_dir = Path(reference_dir)
 
-    # results
-    records = {
-        'granule': [],
-        'reference_fname': [],
-        'test_fname': [],
-        'measurement': [],
-        'minv': [],
-        'maxv': [],
-        'percent_different': [],
-        'percentile_90': [],
-        'percentile_99': [],
-        'percent_data_2_null': [],
-        'percent_null_2_data': [],
-        'size': [],
-        'region_code': [],
-    }
-
-    # fmask results (this is a crappy way to setup the output ...)
-    # but this is a temp job to get something going
-    fmask_records = {
-        'granule': [],
-        'reference_fname': [],
-        'test_fname': [],
-        'measurement': [],
-        'size': [],
-        'region_code': [],
-    }
-    for category in FmaskCategories:
-        fmt = '{}_2_{}'
-        for category2 in FmaskCategories:
-            key = fmt.format(category.name.lower(), category2.name.lower())
-            fmask_records[key] = []
+    # initialise placeholders for the results
+    general_records = GeneralRecords()
+    fmask_records = FmaskRecords()
+    contiguity_records = ContiguityRecords()
+    shadow_records = TerrainShadowRecords()
 
     for pathname in yaml_pathnames:
         LOG.info('processing document', yaml_doc=str(pathname.name))
@@ -88,41 +61,84 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
             # compute results
             if meas in ['oa_fmask', 'fmask']:
                 # the idea here is to analyse the categorical data differently
-                fmask_records['granule'].append(doc.granule)
-                fmask_records['region_code'].append(doc.region_code)
-                fmask_records['reference_fname'].append(str(ref_fname))
-                fmask_records['test_fname'].append(str(test_fname))
-                fmask_records['size'].append(numpy.prod(ref_ds.shape))
-                fmask_records['measurement'].append(meas)
-                fmask_results = evaluate_fmask(ref_ds, test_ds)
+                fmask_records.granule.append(doc.granule)
+                fmask_records.region_code.append(doc.region_code)
+                fmask_records.reference_fname.append(str(ref_fname))
+                fmask_records.test_fname.append(str(test_fname))
+                fmask_records.size.append(numpy.prod(ref_ds.shape))
+                fmask_records.measurement.append(meas)
+
+                # categorical evaluation
+                fmask_results = evaluate_categories(
+                    ref_ds,
+                    test_ds,
+                    FmaskCategories
+                )
                 for key in fmask_results:
-                    fmask_records[key].append(fmask_results[key])
+                    value = fmask_results[key]
+                    getattr(fmask_records, key).append(value)
+            elif meas in ['oa_nbar_contiguity', 'oa_nbart_contiguity']:
+                # base records
+                contiguity_records.granule.append(doc.granule)
+                contiguity_records.region_code.append(doc.region_code)
+                contiguity_records.reference_fname.append(str(ref_fname))
+                contiguity_records.test_fname.append(str(test_fname))
+                contiguity_records.size.append(numpy.prod(ref_ds.shape))
+                contiguity_records.measurement.append(meas)
+
+                # categorical evaluation
+                contiguity_results = evaluate_categories(
+                    ref_ds,
+                    test_ds,
+                    ContiguityCategories
+                )
+                for key in contiguity_results:
+                    value = contiguity_results[key]
+                    getattr(contiguity_records, key).append(value)
+            elif meas in ['oa_combined_terrain_shadow']:
+                # base records
+                shadow_records.granule.append(doc.granule)
+                shadow_records.region_code.append(doc.region_code)
+                shadow_records.reference_fname.append(str(ref_fname))
+                shadow_records.test_fname.append(str(test_fname))
+                shadow_records.size.append(numpy.prod(ref_ds.shape))
+                shadow_records.measurement.append(meas)
+
+                # categorical evaluation
+                shadow_results = evaluate_categories(
+                    ref_ds,
+                    test_ds,
+                    TerrainShadowCategories
+                )
+                for key in shadow_results:
+                    value = shadow_results[key]
+                    getattr(shadow_records, key).append(value)
             else:
                 # null data evaluation
                 null_info = evaluate_nulls(ref_ds, test_ds)
-                records['percent_data_2_null'].append(null_info[0])
-                records['percent_null_2_data'].append(null_info[1])
+                general_records.percent_data_2_null.append(null_info[0])
+                general_records.percent_null_2_data.append(null_info[1])
 
                 diff = evaluate2(ref_ds, test_ds)
                 h = distribution(diff)
 
                 # store results
-                records['granule'].append(doc.granule)
-                records['reference_fname'].append(str(ref_fname))
-                records['test_fname'].append(str(test_fname))
-                records['region_code'].append(doc.region_code)
-                records['size'].append(diff.size)
-                records['measurement'].append(meas)
+                general_records.granule.append(doc.granule)
+                general_records.reference_fname.append(str(ref_fname))
+                general_records.test_fname.append(str(test_fname))
+                general_records.region_code.append(doc.region_code)
+                general_records.size.append(diff.size)
+                general_records.measurement.append(meas)
 
-                if 'nbar' in meas or meas in ['1', '2', '3', '4', '5', '6', '7']:
+                if 'nbar' in meas or meas in BAND_IDS:
                     # get difference as a percent reflectance (0->100)
-                    records['minv'].append(h['omin'] / 100)
-                    records['maxv'].append(h['omax'] / 100)
+                    general_records.minv.append(h['omin'] / 100)
+                    general_records.maxv.append(h['omax'] / 100)
                 else:
-                    records['minv'].append(h['omin'])
-                    records['maxv'].append(h['omax'])
+                    general_records.minv.append(h['omin'])
+                    general_records.maxv.append(h['omax'])
 
-                records['percent_different'].append(
+                general_records.percent_different.append(
                     (diff != 0).sum() / diff.size * 100
                 )
 
@@ -132,14 +148,22 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                 cdf = numpy.cumsum(hist / hist.sum())
                 p1_idx = numpy.searchsorted(cdf, 0.9)
                 p2_idx = numpy.searchsorted(cdf, 0.99)
+                pct_90 = h['loc'][p1_idx]
+                pct_99 = h['loc'][p2_idx]
 
                 # percentiles from cumulative distribution
-                if 'nbar' in meas or meas in ['1', '2', '3', '4', '5', '6', '7']:
+                if 'nbar' in meas or meas in BAND_IDS:
                     # get difference as a percent reflectance (0->100)
-                    records['percentile_90'].append(h['loc'][p1_idx] / 100)
-                    records['percentile_99'].append(h['loc'][p2_idx] / 100)
+                    general_records.percentile_90.append(pct_90 / 100)
+                    general_records.percentile_99.append(pct_99 / 100)
                 else:
-                    records['percentile_90'].append(h['loc'][p1_idx])
-                    records['percentile_99'].append(h['loc'][p2_idx])
+                    general_records.percentile_90.append(pct_90)
+                    general_records.percentile_99.append(pct_99)
 
-    return records, fmask_records
+    results = (
+        general_records.records,
+        fmask_records.records,
+        contiguity_records,
+        shadow_records.records
+    )
+    return results

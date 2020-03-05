@@ -22,6 +22,16 @@ class FmaskCategories(Enum):
     WATER = 5
 
 
+class ContiguityCategories(Enum):
+    NON_CONTIGUOUS = 0
+    CONTIGUOUS = 1
+
+
+class TerrainShadowCategories(Enum):
+    SHADED = 0
+    UNSHADED = 0
+
+
 def evaluate(ref_ds, test_ds):
     """
     A basic implementation of a difference operator
@@ -73,6 +83,51 @@ def evaluate_fmask(ref_ds, test_ds):
     for category in FmaskCategories:
         fmt = '{}_2_{}'
         for category2 in FmaskCategories:
+            key = fmt.format(category.name.lower(), category2.name.lower())
+            result[key] = category_changes[category][category2.value]
+
+    return result
+
+
+def evaluate_categories(ref_ds, test_ds, categories):
+    """
+    A generic tool for evaluating categorical datasets.
+    """
+    values = [v.value for v in list(categories)]
+    n_values = len(values)
+    minv = min(values)
+    maxv = max(values)
+
+    # read data and reshape to 1D
+    ref_data = ref_ds.read(1).ravel()
+    test_data = test_ds.read(1).ravel()
+
+    ref_h = histogram(ref_data, minv=minv, maxv=maxv, reverse_indices='ri')
+
+    ref_hist = ref_h['histogram']
+    ref_ri = ref_h['ri']
+
+    category_changes = dict()
+
+    for category in categories:
+        i = category.value
+        # check we have data for this category
+        if ref_hist[i] == 0:
+            # no changes as nothing exists in the reference data
+            category_changes[category] = numpy.zeros((n_values,), dtype='int')
+            continue
+        idx = ref_ri[ref_ri[i]:ref_ri[i+1]]
+        values = test_data[idx]
+        h = histogram(values, minv=minv, maxv=maxv)
+        hist = h['histogram']
+        pdf = hist / numpy.sum(hist)
+        category_changes[category] = pdf * 100
+
+    # split outputs into separate records
+    result = dict()
+    for category in categories:
+        fmt = '{}_2_{}'
+        for category2 in categories:
             key = fmt.format(category.name.lower(), category2.name.lower())
             result[key] = category_changes[category][category2.value]
 

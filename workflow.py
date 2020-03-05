@@ -102,9 +102,8 @@ def main(reference_dir, test_dir, out_pathname, log_pathname, pattern):
     yaml_pathnames = comm.scatter(blocks, root=0)
     log.info('processing {} documents'.format(len(yaml_pathnames)))
 
-    # process
+    # process documents
     results = process_yamls(yaml_pathnames, reference_dir, product_dir_name)
-    general_recs, fmask_recs, contiguity_recs, shadow_records = results
 
     # gather records from all workers
     general_records = comm.gather(results[0], root=0)

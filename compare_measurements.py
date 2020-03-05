@@ -163,7 +163,7 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
     results = (
         general_records.records,
         fmask_records.records,
-        contiguity_records,
+        contiguity_records.records,
         shadow_records.records
     )
     return results

@@ -12,4 +12,4 @@ module use /g/data/v10/public/modules/modulefiles
 module load wagl/5.4.1
 module load openmpi
 
-mpiexec -n 240 python workflow.py --reference-dir /g/data/xu18/ga --test-dir /g/data/v10/testing_ground/jps547/gadi-test/C3/pkgdir/ga_ls8c_ard_3 --out-pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results7/c3-raijin-gadi-comparison.h5 --pattern '*.odc-metadata.yaml' --log-pathname status-c3.log
+mpiexec -n 240 python workflow.py --reference-dir /g/data/xu18/ga --test-dir /g/data/v10/testing_ground/jps547/gadi-test/C3/pkgdir/ga_ls8c_ard_3 --out-pathname /g/data/v10/testing_ground/jps547/gadi-test/C3/diff-results8/c3-raijin-gadi-comparison.h5 --pattern '*.odc-metadata.yaml' --log-pathname status-c3.log

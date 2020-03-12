@@ -15,7 +15,8 @@ class Digestyaml:
             try:
                 # Sentinel-2 Collection-1
                 self._granule = self._doc['lineage']['source_datasets'][key]['tile_id']
-                self._region_code = self._doc['lineage']['source_datasets'][key]['image']['tile_reference'][1:]
+                # self._region_code = self._doc['lineage']['source_datasets'][key]['image']['tile_reference'][1:]
+                self._region_code = self._granule.split('_')[-2][1:]
             except KeyError:
                 # Landsat Collection-2
                 self._granule = self._doc['lineage']['source_datasets']['level1']['usgs']['scene_id']

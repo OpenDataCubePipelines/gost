@@ -15,6 +15,20 @@ from digest_yaml import Digestyaml
 
 
 BAND_IDS = ['1', '2', '3', '4', '5', '6', '7']
+CONTIGUITY_MEASUREMENT_NAMES = [
+    'oa_nbar_contiguity',
+    'oa_nbart_contiguity',
+    'nbar_contiguity',
+    'nbart_contiguity'
+]
+SHADOW_MEASUREMENT_NAMES = [
+    'oa_combined_terrain_shadow',
+    'terrain_shadow'
+]
+FMASK_MEASUREMENT_NAMES = [
+    'oa_fmask',
+    'fmask'
+]
 LOG = structlog.get_logger()
 
 
@@ -59,7 +73,7 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
             test_ds = rasterio.open(test_fname)
 
             # compute results
-            if meas in ['oa_fmask', 'fmask']:
+            if meas in FMASK_MEASUREMENT_NAMES:
                 # the idea here is to analyse the categorical data differently
                 fmask_records.granule.append(doc.granule)
                 fmask_records.region_code.append(doc.region_code)
@@ -77,7 +91,7 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                 for key in fmask_results:
                     value = fmask_results[key]
                     getattr(fmask_records, key).append(value)
-            elif meas in ['oa_nbar_contiguity', 'oa_nbart_contiguity']:
+            elif meas in CONTIGUITY_MEASUREMENT_NAMES:
                 # base records
                 contiguity_records.granule.append(doc.granule)
                 contiguity_records.region_code.append(doc.region_code)
@@ -95,7 +109,7 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                 for key in contiguity_results:
                     value = contiguity_results[key]
                     getattr(contiguity_records, key).append(value)
-            elif meas in ['oa_combined_terrain_shadow']:
+            elif meas in SHADOW_MEASUREMENT_NAMES:
                 # base records
                 shadow_records.granule.append(doc.granule)
                 shadow_records.region_code.append(doc.region_code)

@@ -17,6 +17,10 @@ FMT = '{}_2_{}'
 
 
 class FmaskCategories(Enum):
+    """
+    Defines the class schema used by the Fmask datasets.
+    """
+
     NULL = 0
     CLEAR = 1
     CLOUD = 2
@@ -26,11 +30,19 @@ class FmaskCategories(Enum):
 
 
 class ContiguityCategories(Enum):
+    """
+    Defines the class schema used by the contiguity datasets.
+    """
+
     NON_CONTIGUOUS = 0
     CONTIGUOUS = 1
 
 
 class TerrainShadowCategories(Enum):
+    """
+    Defines the class schema used by the terrain shadow datasets.
+    """
+
     SHADED = 0
     UNSHADED = 1
 
@@ -50,6 +62,11 @@ class Records:
 
 
 class GeneralRecords(Records):
+    """
+    Placeholder for the general columns/fields and the list of records
+    they'll contain.
+    """
+
     def __init__(self):
         super(GeneralRecords, self).__init__()
 
@@ -63,6 +80,11 @@ class GeneralRecords(Records):
 
 
 class CategoricalRecords(Records):
+    """
+    Base class for defining the columns/fields for the categorical
+    datasets and the list of records they'll contain.
+    """
+
     def __init__(self, categories):
         super(CategoricalRecords, self).__init__()
 
@@ -76,23 +98,38 @@ class CategoricalRecords(Records):
 
 
 class FmaskRecords(CategoricalRecords):
+    """
+    Placeholder for the fmask columns/fields and the list of records
+    they'll contain.
+    """
+
     def __init__(self):
         super(FmaskRecords, self).__init__(FmaskCategories)
 
 
 class ContiguityRecords(CategoricalRecords):
+    """
+    Placeholder for the contiguity columns/fields and the list of
+    records they'll contain.
+    """
+
     def __init__(self):
         super(ContiguityRecords, self).__init__(ContiguityCategories)
 
 
 class TerrainShadowRecords(CategoricalRecords):
+    """
+    Placeholder for the terrain shadow columns/fields and the list of
+    records they'll contain.
+    """
+
     def __init__(self):
         super(TerrainShadowRecords, self).__init__(TerrainShadowCategories)
 
 
 def evaluate(ref_ds, test_ds):
     """
-    A basic implementation of a difference operator
+    A basic implementation of a difference operator.
     """
     if ref_ds.dtypes[0] == 'bool':
         result = numpy.logical_xor(ref_ds.read(1), ref_ds.read(1)).astype('uint8')
@@ -129,6 +166,7 @@ def evaluate_fmask(ref_ds, test_ds):
             # no changes as nothing exists in the reference data
             category_changes[category] = numpy.zeros((6,), dtype='int')
             continue
+
         idx = ref_ri[ref_ri[i]:ref_ri[i+1]]
         values = test_data[idx]
         h = histogram(values, minv=minv, maxv=maxv)

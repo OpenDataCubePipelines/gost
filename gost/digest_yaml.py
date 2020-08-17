@@ -6,7 +6,7 @@ import yaml
 class Digestyaml:
     def __init__(self, pathname):
         with open(str(pathname)) as src:
-            self._doc = yaml.load(src)
+            self._doc = yaml.load(src, Loader=yaml.FullLoader)
 
         if 'product_type' in self._doc:
             self._eo3 = False
@@ -33,6 +33,7 @@ class Digestyaml:
             self._granule = self._doc['properties']['landsat:landsat_scene_id']
             self._region_code = self._doc['properties']['odc:region_code']
             self._measurements = self._doc['measurements']
+            self._parent_uuid = self._doc['lineage']['level1'][0]  # assuming a single level-1 source
 
     @property
     def doc(self):
@@ -57,3 +58,7 @@ class Digestyaml:
     @property
     def measurements(self):
         return self._measurements
+
+    @property
+    def parent_uuid(self):
+        return self._parent_uuid

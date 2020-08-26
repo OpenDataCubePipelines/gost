@@ -5,7 +5,7 @@ from mpi4py import MPI
 import pandas
 import structlog
 
-from mpi_structlog import DEFAULT_PROCESSORS, MPIStreamIO, MPILoggerFactory
+from mpi_structlog.mpi_logger import DEFAULT_PROCESSORS, MPIStreamIO, MPILoggerFactory
 from wagl.tiling import scatter
 from wagl.hdf5 import read_h5_table, write_dataframe
 

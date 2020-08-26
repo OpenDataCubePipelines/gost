@@ -96,6 +96,10 @@ def _ncpus_memory(length, loading=3, node_cpus=48, node_memory=192):
     n_cpus = n_nodes * node_cpus
     memory = n_nodes * node_memory
 
+    if n_cpus > length:
+        n_cpus = length
+        memory = (node_memory / node_cpus) * n_cpus
+
     return n_cpus, memory
 
 

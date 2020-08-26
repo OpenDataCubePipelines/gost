@@ -230,7 +230,7 @@ def query_via_filepath(
     merged = pandas.merge(
         test_dataframe,
         reference_dataframe,
-        on="uuid",
+        on="level1_uuid",
         how="inner",
         suffixes=["_test", "_reference"],
     )

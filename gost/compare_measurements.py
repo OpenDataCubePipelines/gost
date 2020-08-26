@@ -7,11 +7,11 @@ import structlog
 
 from wagl.scripts.wagl_residuals import distribution
 
-from utils import ContiguityCategories, FmaskCategories
-from utils import TerrainShadowCategories, GeneralRecords
-from utils import FmaskRecords, TerrainShadowRecords, ContiguityRecords
-from utils import evaluate2, evaluate_nulls, evaluate_categories
-from digest_yaml import Digestyaml
+from gost.utils import ContiguityCategories, FmaskCategories
+from gost.utils import TerrainShadowCategories, GeneralRecords
+from gost.utils import FmaskRecords, TerrainShadowRecords, ContiguityRecords
+from gost.utils import evaluate2, evaluate_nulls, evaluate_categories
+from gost.digest_yaml import Digestyaml
 
 
 BAND_IDS = ['1', '2', '3', '4', '5', '6', '7']
@@ -29,11 +29,10 @@ FMASK_MEASUREMENT_NAMES = [
     'oa_fmask',
     'fmask'
 ]
-LOG = structlog.get_logger()
+_LOG = structlog.get_logger()
 
 
-def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
-    reference_dir = Path(reference_dir)
+def process_yamls(dataframe):
 
     # initialise placeholders for the results
     general_records = GeneralRecords()
@@ -41,44 +40,47 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
     contiguity_records = ContiguityRecords()
     shadow_records = TerrainShadowRecords()
 
-    for pathname in yaml_pathnames:
-        LOG.info('processing document', yaml_doc=str(pathname.name))
+    for i, row in dataframe.iterrows():
+        _LOG.info('processing documents', yaml_doc_test=row.yaml_pathname_test, yaml_doc_reference=row.yaml_pathname_reference)
 
-        doc = Digestyaml(pathname)
+        doc_test = Digestyaml(row.yaml_pathname_test)
+        doc_reference = Digestyaml(row.yaml_pathname_reference)
 
-        path_parts = pathname.parent.parts
-        idx = path_parts.index(product_dir_name)
-        sub_path = path_parts[idx:]
-
-        for meas in doc.measurements:
-            LOG.info(
+        for meas in doc_test.measurements:
+            _LOG.info(
                 'processing measurement',
                 measurement=meas,
-                yaml_doc=str(pathname.name)
             )
 
-            tif_name = doc.measurements[meas]['path']
-            test_fname = pathname.parent.joinpath(tif_name)
-            ref_fname = reference_dir.joinpath(*sub_path, tif_name)
+            fname_test = Path(row.yaml_pathname_test).parent.joinpath(doc_test.measurements[meas]['path'])
+            fname_reference = Path(row.yaml_pathname_reference).parent.joinpath(doc_reference.measurements[meas]['path'])
 
-            if not ref_fname.exists():
-                LOG.info(
+            if not fname_reference.exists():
+                _LOG.info(
                     'missing reference measurement',
-                    ref_measurement=ref_fname,
-                    test_measurement=test_fname
+                    measurement_reference=fname_reference,
+                    measurement_test=fname_test
                 )
                 continue
 
-            ref_ds = rasterio.open(ref_fname)
-            test_ds = rasterio.open(test_fname)
+            if not fname_test.exists():
+                _LOG.info(
+                    'missing test measurement',
+                    measurement_reference=fname_reference,
+                    measurement_test=fname_test
+                )
+                continue
+
+            ref_ds = rasterio.open(fname_reference)
+            test_ds = rasterio.open(fname_test)
 
             # compute results
             if meas in FMASK_MEASUREMENT_NAMES:
                 # the idea here is to analyse the categorical data differently
-                fmask_records.granule.append(doc.granule)
-                fmask_records.region_code.append(doc.region_code)
-                fmask_records.reference_fname.append(str(ref_fname))
-                fmask_records.test_fname.append(str(test_fname))
+                fmask_records.granule.append(doc_reference.granule)
+                fmask_records.region_code.append(doc_reference.region_code)
+                fmask_records.reference_fname.append(str(fname_reference))
+                fmask_records.test_fname.append(str(fname_test))
                 fmask_records.size.append(numpy.prod(ref_ds.shape))
                 fmask_records.measurement.append(meas)
 
@@ -93,10 +95,10 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                     getattr(fmask_records, key).append(value)
             elif meas in CONTIGUITY_MEASUREMENT_NAMES:
                 # base records
-                contiguity_records.granule.append(doc.granule)
-                contiguity_records.region_code.append(doc.region_code)
-                contiguity_records.reference_fname.append(str(ref_fname))
-                contiguity_records.test_fname.append(str(test_fname))
+                contiguity_records.granule.append(doc_reference.granule)
+                contiguity_records.region_code.append(doc_reference.region_code)
+                contiguity_records.reference_fname.append(str(fname_reference))
+                contiguity_records.test_fname.append(str(fname_test))
                 contiguity_records.size.append(numpy.prod(ref_ds.shape))
                 contiguity_records.measurement.append(meas)
 
@@ -111,10 +113,10 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                     getattr(contiguity_records, key).append(value)
             elif meas in SHADOW_MEASUREMENT_NAMES:
                 # base records
-                shadow_records.granule.append(doc.granule)
-                shadow_records.region_code.append(doc.region_code)
-                shadow_records.reference_fname.append(str(ref_fname))
-                shadow_records.test_fname.append(str(test_fname))
+                shadow_records.granule.append(doc_reference.granule)
+                shadow_records.region_code.append(doc_reference.region_code)
+                shadow_records.reference_fname.append(str(fname_reference))
+                shadow_records.test_fname.append(str(fname_test))
                 shadow_records.size.append(numpy.prod(ref_ds.shape))
                 shadow_records.measurement.append(meas)
 
@@ -137,10 +139,10 @@ def process_yamls(yaml_pathnames, reference_dir, product_dir_name):
                 h = distribution(diff)
 
                 # store results
-                general_records.granule.append(doc.granule)
-                general_records.reference_fname.append(str(ref_fname))
-                general_records.test_fname.append(str(test_fname))
-                general_records.region_code.append(doc.region_code)
+                general_records.granule.append(doc_reference.granule)
+                general_records.reference_fname.append(str(fname_reference))
+                general_records.test_fname.append(str(fname_test))
+                general_records.region_code.append(doc_reference.region_code)
                 general_records.size.append(diff.size)
                 general_records.measurement.append(meas)
 

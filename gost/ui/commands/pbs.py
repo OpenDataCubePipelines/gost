@@ -105,8 +105,8 @@ def _ncpus_memory(length, loading=3, node_cpus=48, node_memory=192):
 
 
 def _initial_query(
-    product_name_reference,
-    db_env_reference,
+    product_name_test,
+    db_env_test,
     time,
     lon,
     lat,
@@ -118,18 +118,20 @@ def _initial_query(
     """
 
     if query_filesystem:
-        path = Path(product_name_reference)
-        pattern = db_env_reference
+        _LOG.info("filesystem queries can take a while, please be patient")
+
+        path = Path(product_name_test)
+        pattern = db_env_test
 
         _LOG.info("initial filesystem query", path=str(path), pattern=pattern)
 
         n_datasets = len(list(path.rglob(pattern)))
     else:
-        dc = datacube.Datacube(env=db_env_reference)
+        dc = datacube.Datacube(env=db_env_test)
 
         _LOG.info(
             "initial database query",
-            product=product_name_reference,
+            product=product_name_test,
             time=time,
             lon=lon,
             lat=lat,
@@ -137,7 +139,7 @@ def _initial_query(
 
         n_datasets = len(
             dc.find_products(
-                product_name_reference,
+                product_name_test,
                 time=time,
                 lon=lon,
                 lat=lat,
@@ -397,8 +399,8 @@ def pbs(
 
     # an initial listing to see how many datasets we'll (at most) have to compare
     n_datasets = _initial_query(
-        product_name_reference,
-        db_env_reference,
+        product_name_test,
+        db_env_test,
         time,
         lon,
         lat,

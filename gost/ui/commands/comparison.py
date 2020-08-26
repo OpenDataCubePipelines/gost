@@ -158,6 +158,9 @@ def comparison(outdir):
     if rank == 0:
         _LOG.info("saving gqa dataframe results to tables")
 
+        if not results_fname.parent.exists():
+            results_fname.parent.mkdir(parents=True)
+
         with h5py.File(str(results_fname), "a") as fid:
             if gqa_dataframe:
                 write_dataframe(

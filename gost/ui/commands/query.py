@@ -142,5 +142,8 @@ def query_filesystem(
             dataset_name=dataset_name,
         )
 
+        if not results_fname.parent.exists():
+            results_fname.parent.mkdir(parents=True)
+
         with h5py.File(str(results_fname), "w") as fid:
             write_dataframe(results, dataset_name, fid)

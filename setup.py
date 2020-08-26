@@ -29,6 +29,7 @@ setup(
         "gost": ["data/*.zstd"],
     },
     license="MIT",
+    zip_safe=False,
     entry_points="""
         [console_scripts]
         ard-intercomparison=gost.ui.cli:entry_point

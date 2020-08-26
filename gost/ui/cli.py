@@ -1,6 +1,6 @@
 import click
 
-from .commands import comparison, merge, pbs, plotting, query, summarise
+from .commands import collate, comparison, pbs, plotting, query
 
 
 @click.group()

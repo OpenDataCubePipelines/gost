@@ -19,6 +19,10 @@ setup(
         "mpi4py",
         "click",
         "structlog",
+        "mpi-structlog",
+    ],
+    dependency_links=[
+        "git+https://github.com/sixy6e/mpi-structlog",
     ],
     license="MIT",
     entry_points="""

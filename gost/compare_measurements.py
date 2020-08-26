@@ -41,7 +41,7 @@ def process_yamls(dataframe):
     shadow_records = TerrainShadowRecords()
 
     for i, row in dataframe.iterrows():
-        _LOG.info('processing documents', yaml_doc_test=row.yaml_pathname_test, yaml_doc_reference=row.yaml_pathname_reference)
+        _LOG.info('processing document', yaml_doc_test=row.yaml_pathname_test, yaml_doc_reference=row.yaml_pathname_reference)
 
         doc_test = Digestyaml(row.yaml_pathname_test)
         doc_reference = Digestyaml(row.yaml_pathname_reference)

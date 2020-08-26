@@ -31,6 +31,9 @@ def _process_proc_info(dataframe, rank):
     gqa_results = compare_gqa.process_yamls(dataframe)
 
     # gather proc info results from each worker
+    if rank == 0:
+        _LOG.info("gathering gqa field records from all workers")
+
     gqa_records = COMM.gather(gqa_results, root=0)
 
     if rank == 0:
@@ -56,6 +59,9 @@ def _process_odc_doc(dataframe, rank):
     results = compare_measurements.process_yamls(dataframe)
 
     # gather records from all workers
+    if rank == 0:
+        _LOG.info("gathering measurement records from all workers")
+
     general_records = COMM.gather(results[0], root=0)
     fmask_records = COMM.gather(results[1], root=0)
     contiguity_records = COMM.gather(results[2], root=0)

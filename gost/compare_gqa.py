@@ -17,7 +17,7 @@ def process_yamls(dataframe):
 
     for i, row in dataframe.iterrows():
         _LOG.info(
-            "processing documents",
+            "processing document",
             yaml_doc_test=row.proc_info_pathname_test,
             yaml_doc_reference=row.proc_info_pathname_reference,
         )

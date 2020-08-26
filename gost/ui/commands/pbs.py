@@ -54,7 +54,7 @@ def _qsub(job_string, out_fname, dependency=None):
     out_fname = Path(out_fname)
 
     if not out_fname.parent.exists():
-        out_fname.parent.mkdir()
+        out_fname.parent.mkdir(parents=True)
 
     with open(out_fname, "w") as src:
         src.write(job_string)

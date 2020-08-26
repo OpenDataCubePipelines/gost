@@ -44,7 +44,7 @@ def query(
     log_fname = outdir.joinpath(DirectoryNames.LOGS.value, LogNames.QUERY.value)
 
     if not log_fname.parent.exists():
-        log_fname.parent.mkdir()
+        log_fname.parent.mkdir(parents=True)
 
     with open(log_fname, "w") as fobj:
         structlog.configure(logger_factory=structlog.PrintLoggerFactory(fobj))
@@ -119,7 +119,7 @@ def query_filesystem(
     log_fname = outdir.joinpath(DirectoryNames.LOGS.value, LogNames.QUERY.value)
 
     if not log_fname.parent.exists():
-        log_fname.parent.mkdir()
+        log_fname.parent.mkdir(parents=True)
 
     with open(log_fname, "w") as fobj:
         structlog.configure(logger_factory=structlog.PrintLoggerFactory(fobj))

@@ -29,7 +29,7 @@ QUERY_CMD = """{resources}
 ard-intercomparison query --outdir {outdir} --product-name-test {product_name_test} product-name-reference {product_name_reference} --db-env-test {db_env_test} --db-env-reference {db_env_reference} --time {time_from} {time_to}
 """
 QUERY_FS_CMD = """{resources}
-ard-intercomparison query-filesystem --outdir {outdir} --product-pathname-test {product_pathname_test} --product-pathname-reference {product_pathname_reference} --glob-pattern-test {glob_pattern_test} --glob-pattern-reference {glob_pattern_reference}
+ard-intercomparison query-filesystem --outdir {outdir} --product-pathname-test {product_pathname_test} --product-pathname-reference {product_pathname_reference} --glob-pattern-test "{glob_pattern_test}" --glob-pattern-reference "{glob_pattern_reference}"
 """
 COMPARISON_CMD = """{resources}
 mpiexec -n {ncpus} ard-intercomparison comparison --outdir {outdir}
@@ -56,13 +56,14 @@ def _qsub(job_string, out_fname, dependency=None):
     if not out_fname.parent.exists():
         out_fname.parent.mkdir(parents=True)
 
+    _LOG.info("writing pbs job to disk", out_fname=str(out_fname))
     with open(out_fname, "w") as src:
         src.write(job_string)
 
     cmd = ["qsub"]
     if dependency:
         cmd.extend(
-            ["-W", "depend=afterok:{}".format(dependency),]
+            ["-W", "depend=afterok:{}".format(dependency)]
         )
     cmd.append(out_fname.name)
 

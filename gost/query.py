@@ -180,10 +180,10 @@ def query_filepath(path, pattern):
         yaml_pathname.append(str(fname))
 
         # procssing info document
-        proc_info_pathname = fname.parent.joinpath(
+        pathname = fname.parent.joinpath(
             doc.doc["accessories"]["metadata:processor"]["path"]
         )
-        proc_info_pathname.append(str(proc_info_pathname))
+        proc_info_pathname.append(str(pathname))
 
     dataframe = pandas.DataFrame(
         {

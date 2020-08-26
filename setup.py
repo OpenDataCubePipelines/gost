@@ -19,11 +19,15 @@ setup(
         "mpi4py",
         "click",
         "structlog",
+        "datacube",
         "mpi-structlog",
     ],
     dependency_links=[
         "git+https://github.com/sixy6e/mpi-structlog",
     ],
+    package_data={
+        "gost": ["data/*.zstd"],
+    },
     license="MIT",
     entry_points="""
         [console_scripts]

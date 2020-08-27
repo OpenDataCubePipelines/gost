@@ -233,5 +233,3 @@ def comparison(outdir, compare_gqa):
         workflow = "gqa field" if compare_gqa else "product measurement"
         msg = "{} comparison processing finished".format(workflow)
         _LOG.info(msg)
-
-    COMM.Barrier()

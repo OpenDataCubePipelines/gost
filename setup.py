@@ -5,7 +5,7 @@ setup(
     version="0.0.1",
     url="https://github.com/sixy6e/gost",
     author="Josh Sixsmith",
-    description="Structured logging for MPI based Python code",
+    description="Intercomparison workflow for DEA's ARD.",
     keywords=[
         "logging", 
         "structured",

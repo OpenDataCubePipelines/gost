@@ -107,7 +107,7 @@ def _ncpus_memory(length, loading=3, node_cpus=48, node_memory=192):
         n_cpus = length
         memory = (node_memory / node_cpus) * n_cpus
 
-    return n_cpus, memory
+    return int(n_cpus), int(memory)
 
 
 def _initial_query(

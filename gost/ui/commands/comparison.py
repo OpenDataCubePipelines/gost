@@ -111,7 +111,13 @@ def _process_odc_doc(dataframe, rank):
 
 @click.command()
 @io_dir_options
-def comparison(outdir):
+@click.option(
+    "--compare-gqa",
+    default=False,
+    is_flag=True,
+    help="If set, then comapre the GQA fields and not the product measurements",
+)
+def comparison(outdir, compare_gqa):
     """
     Test and Reference product intercomparison evaluation.
     """
@@ -140,8 +146,14 @@ def comparison(outdir):
     if rank == 0:
         index = dataframe.index.values.tolist()
         blocks = scatter(index, n_processors)
+
+        # some basic attribute information
+        doc = Digestyaml(dataframe.iloc[0].yaml_pathname_reference)
+        attrs = {"framing": doc.framing, "categorical": False}
     else:
         blocks = None
+        doc = None
+        attrs = None
 
     COMM.Barrier()
 
@@ -150,73 +162,71 @@ def comparison(outdir):
 
     _LOG.info("processing {} documents".format(len(indices)))
 
-    _LOG.info("procssing proc-info documents")
-    gqa_dataframe = _process_proc_info(dataframe.iloc[indices], rank)
+    if compare_gqa:
+        _LOG.info("procssing proc-info documents")
+        gqa_dataframe = _process_proc_info(dataframe.iloc[indices], rank)
 
-    # some basic attribute information
-    if rank == 0:
-        doc = Digestyaml(dataframe.iloc[0].yaml_pathname_reference)
-        attrs = {"framing": doc.framing, "categorical": False}
+        if rank == 0:
+            _LOG.info("saving gqa dataframe results to tables")
+
+            if not results_fname.parent.exists():
+                results_fname.parent.mkdir(parents=True)
+
+            with h5py.File(str(results_fname), "a") as fid:
+                if gqa_dataframe:
+                    write_dataframe(
+                        gqa_dataframe, DatasetNames.GQA_RESULTS.value, fid, attrs=attrs
+                    )
+
     else:
-        doc = None
-        attrs = None
+        _LOG.info("processing odc-metadata documents")
+        results = _process_odc_doc(dataframe.iloc[indices], rank)
+
+        general_dataframe = results[0]
+        fmask_dataframe = results[1]
+        contiguity_dataframe = results[2]
+        shadow_dataframe = results[3]
+
+        if rank == 0:
+            # save each table
+            _LOG.info("saving dataframes to tables")
+            with h5py.File(str(results_fname), "a") as fid:
+                if general_dataframe:
+                    attrs["categorical"] = False
+                    write_dataframe(
+                        general_dataframe,
+                        DatasetNames.GENERAL_RESULTS.value,
+                        fid,
+                        attrs=attrs,
+                    )
+                if fmask_dataframe:
+                    attrs["categorical"] = True
+                    write_dataframe(
+                        fmask_dataframe,
+                        DatasetNames.FMASK_RESULTS.value,
+                        fid,
+                        attrs=attrs,
+                    )
+                if contiguity_dataframe:
+                    attrs["categorical"] = True
+                    write_dataframe(
+                        contiguity_dataframe,
+                        DatasetNames.CONTIGUITY_RESULTS.value,
+                        fid,
+                        attrs=attrs,
+                    )
+                if shadow_dataframe:
+                    attrs["categorical"] = True
+                    write_dataframe(
+                        shadow_dataframe,
+                        DatasetNames.SHADOW_RESULTS.value,
+                        fid,
+                        attrs=attrs,
+                    )
 
     if rank == 0:
-        _LOG.info("saving gqa dataframe results to tables")
-
-        if not results_fname.parent.exists():
-            results_fname.parent.mkdir(parents=True)
-
-        with h5py.File(str(results_fname), "a") as fid:
-            if gqa_dataframe:
-                write_dataframe(
-                    gqa_dataframe, DatasetNames.GQA_RESULTS.value, fid, attrs=attrs
-                )
-
-    COMM.Barrier()
-
-    _LOG.info("processing odc-metadata documents")
-    results = _process_odc_doc(dataframe.iloc[indices], rank)
-
-    general_dataframe = results[0]
-    fmask_dataframe = results[1]
-    contiguity_dataframe = results[2]
-    shadow_dataframe = results[3]
-
-    if rank == 0:
-        # save each table
-        _LOG.info("saving dataframes to tables")
-        with h5py.File(str(results_fname), "a") as fid:
-            if general_dataframe:
-                attrs["categorical"] = False
-                write_dataframe(
-                    general_dataframe,
-                    DatasetNames.GENERAL_RESULTS.value,
-                    fid,
-                    attrs=attrs,
-                )
-            if fmask_dataframe:
-                attrs["categorical"] = True
-                write_dataframe(
-                    fmask_dataframe, DatasetNames.FMASK_RESULTS.value, fid, attrs=attrs
-                )
-            if contiguity_dataframe:
-                attrs["categorical"] = True
-                write_dataframe(
-                    contiguity_dataframe,
-                    DatasetNames.CONTIGUITY_RESULTS.value,
-                    fid,
-                    attrs=attrs,
-                )
-            if shadow_dataframe:
-                attrs["categorical"] = True
-                write_dataframe(
-                    shadow_dataframe,
-                    DatasetNames.SHADOW_RESULTS.value,
-                    fid,
-                    attrs=attrs,
-                )
-
-        _LOG.info("comparison processing finished")
+        workflow = "gqa field" if compare_gqa else "product measurement"
+        msg = "{} comparison processing finished".format(workflow)
+        _LOG.info(msg)
 
     COMM.Barrier()

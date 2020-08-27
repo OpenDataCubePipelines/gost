@@ -39,7 +39,8 @@ class LogNames(Enum):
     """
 
     QUERY = "ard-intercomparison-query.log.jsonl"
-    INTERCOMPARISON = "ard-intercomparison-comparison.log.jsonl"
+    MEASUREMENT_INTERCOMPARISON = "ard-intercomparison-measurement-comparison.log.jsonl"
+    GQA_INTERCOMPARISON = "ard-intercomparison-gqa-comparison.log.jsonl"
     COLLATE = "ard-intercomparison-collate.log.jsonl"
     PLOTTING = "ard-intercomparison-plotting.log.jsonl"
 

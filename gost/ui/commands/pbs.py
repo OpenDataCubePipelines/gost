@@ -34,6 +34,9 @@ ard-intercomparison query-filesystem --outdir {outdir} --product-pathname-test {
 COMPARISON_CMD = """{resources}
 mpiexec -n {ncpus} ard-intercomparison comparison --outdir {outdir}
 """
+GQA_COMPARISON_CMD = """{resources}
+mpiexec -n {ncpus} ard-intercomparison comparison --outdir {outdir} --compare-gqa
+"""
 COLLATE_CMD = """{resources}
 ard-intercomparison collate --outdir {outdir}
 """
@@ -62,9 +65,12 @@ def _qsub(job_string, out_fname, dependency=None):
 
     cmd = ["qsub"]
     if dependency:
-        cmd.extend(
-            ["-W", "depend=afterok:{}".format(dependency)]
-        )
+        if isinstance(dependency, tuple):
+            job_dependency = ":".join(dependency)
+        else:
+            job_dependency = dependency
+        cmd.extend(["-W", "depend=afterok:{}".format(job_dependency)])
+
     cmd.append(out_fname.name)
 
     os.chdir(out_fname.parent)
@@ -139,11 +145,7 @@ def _initial_query(
 
         n_datasets = len(
             dc.find_products(
-                product_name_test,
-                time=time,
-                lon=lon,
-                lat=lat,
-                **additional_filters
+                product_name_test, time=time, lon=lon, lat=lat, **additional_filters
             )
         )
 
@@ -257,7 +259,12 @@ def _setup_comparison_pbs_job(
     env,
     outdir,
 ):
-    """Setup and submit the PBS job for comparing the test and reference data."""
+    """
+    Setup and submit the PBS jobs for comparing the test and reference data.
+    Two jobs are submitted:
+    * product measurement comparison
+    * gqa fields comparison
+    """
 
     n_cpus, memory = _ncpus_memory(n_datasets)
     comparison_resources = PBS_RESOURCES.format(
@@ -270,21 +277,35 @@ def _setup_comparison_pbs_job(
         env=env,
     )
 
-    comparison_pbs_job = COMPARISON_CMD.format(
+    # product measurement comparison job
+    measurement_pbs_job = COMPARISON_CMD.format(
         resources=comparison_resources, ncpus=n_cpus, outdir=outdir
     )
 
     out_fname = Path(outdir).joinpath(
-        DirectoryNames.PBS.value, "ard-intercomparison-comparison.bash"
+        DirectoryNames.PBS.value, "ard-intercomparison-measurement-comparison.bash"
     )
 
-    nci_job_id = _qsub(comparison_pbs_job, out_fname, dependency_jobid)
+    _LOG.info("submitting product measurement comparison pbs job")
+    measurement_job_id = _qsub(measurement_pbs_job, out_fname, dependency_jobid)
 
-    return nci_job_id
+    # gqa fields comparison job
+    gqa_pbs_job = GQA_COMPARISON_CMD.format(
+        resources=comparison_resources, ncpus=n_cpus, outdir=outdir
+    )
+
+    out_fname = Path(outdir).joinpath(
+        DirectoryNames.PBS.value, "ard-intercomparison-gqa-comparison.bash"
+    )
+
+    _LOG.info("submitting product measurement comparison pbs job")
+    gqa_job_id = _qsub(gqa_pbs_job, out_fname, dependency_jobid)
+
+    return measurement_job_id, gqa_job_id
 
 
 def _setup_collate_pbs_job(
-    dependency_jobid, project, filesystem_projects, email_construct, env, outdir,
+    dependency_jobids, project, filesystem_projects, email_construct, env, outdir,
 ):
     """Setup and submit the PBS job for collating the results of the comparison."""
 
@@ -303,7 +324,7 @@ def _setup_collate_pbs_job(
     out_fname = Path(outdir).joinpath(
         DirectoryNames.PBS.value, "ard-intercomparison-collate.bash"
     )
-    nci_job_id = _qsub(collate_pbs_job, out_fname, dependency_jobid)
+    nci_job_id = _qsub(collate_pbs_job, out_fname, dependency_jobids)
 
     return nci_job_id
 
@@ -441,15 +462,15 @@ def pbs(
         )
 
     # intercomparison job
-    _LOG.info("submitting comparison pbs job")
-    comparison_job_id = _setup_comparison_pbs_job(
+    _LOG.info("submitting comparison pbs jobs")
+    comparison_job_ids = _setup_comparison_pbs_job(
         n_datasets, query_job_id, project, fs_projects, email_construct, env, outdir
     )
 
     # collate job
     _LOG.info("submitting collate pbs job")
     collate_job_id = _setup_collate_pbs_job(
-        comparison_job_id, project, fs_projects, email_construct, env, outdir
+        comparison_job_ids, project, fs_projects, email_construct, env, outdir
     )
 
     # plotting job
@@ -461,7 +482,8 @@ def pbs(
     _LOG.info(
         "submitted PBS jobs",
         query_job=query_job_id,
-        comparison_job=comparison_job_id,
+        product_measurement_comparison_job=comparison_job_ids[0],
+        gqa_field_comparison_job=comparison_job_ids[1],
         collate_job=collate_job_id,
         plotting_job=plotting_job_id,
     )

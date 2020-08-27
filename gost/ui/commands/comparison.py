@@ -123,9 +123,14 @@ def comparison(outdir, compare_gqa):
     """
 
     outdir = Path(outdir)
-    log_fname = outdir.joinpath(
-        DirectoryNames.LOGS.value, LogNames.INTERCOMPARISON.value
-    )
+    if compare_gqa:
+        log_fname = outdir.joinpath(
+            DirectoryNames.LOGS.value, LogNames.GQA_INTERCOMPARISON.value
+        )
+    else:
+        log_fname = outdir.joinpath(
+            DirectoryNames.LOGS.value, LogNames.MEASUREMENT_INTERCOMPARISON.value
+        )
 
     out_stream = MPIStreamIO(str(log_fname))
     structlog.configure(

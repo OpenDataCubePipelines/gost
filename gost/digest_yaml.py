@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import yaml
+import structlog
+
+_LOG = structlog.get_logger()
 
 
 class Digestyaml:
@@ -81,12 +84,13 @@ class DigestProcInfo:
         with open(str(pathname)) as src:
             self._doc = yaml.load(src, Loader=yaml.FullLoader)
 
+        self._pathname = pathname
         self._eo3 = True
         self._gqa = self._doc["gqa"]
         self._final_qa_count = {"final_qa_count": self._gqa["final_qa_count"]}
-        self._colors = {
-            "colors_{}".format(key): value for key, value in self._gqa["colors"].items()
-        }
+
+        self._handle_color_field()
+
         self._abs = {
             "abs_{}".format(key): value
             for key, value in self._gqa["residual"]["abs"].items()
@@ -129,9 +133,37 @@ class DigestProcInfo:
             for key, value in prop.items():
                 self._fields[key] = value
 
+    def _handle_color_field(self):
+        """
+        If GQA failed, then no color field is recorded. This is to prevent an
+        error and still be able to process the record.
+        """
+        if "colors" not in self._gqa:
+            _LOG.info(
+                "no colors field in GQA info; inserting 0 as a replacement",
+                gqa_error_message=self._gqa["error_message"],
+                document_pathname=self._pathname,
+            )
+            self._colors = {
+                "blue": 0,
+                "green": 0,
+                "red": 0,
+                "teal": 0,
+                "yellow": 0,
+            }
+        else:
+            self._colors = {
+                "colors_{}".format(key): value
+                for key, value in self._gqa["colors"].items()
+            }
+
     @property
     def doc(self):
         return self._doc
+
+    @property
+    def pathname(self):
+        return self._pathname
 
     @property
     def eo3(self):

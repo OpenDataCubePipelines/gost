@@ -26,13 +26,14 @@ def process_yamls(dataframe):
         proc_info_test = DigestProcInfo(row.proc_info_pathname_test)
         proc_info_reference = DigestProcInfo(row.proc_info_pathname_reference)
 
+        results["region_code"].append(doc_reference.region_code)
+        results["granule"].append(doc_reference.granule)
+        results["reference_pathname"].append(row.proc_info_pathname_reference)
+        results["test_pathname"].append(row.proc_info_pathname_test)
+
         for field in proc_info_test.fields:
             results[field].append(
                 proc_info_reference.fields[field] - proc_info_test.fields[field]
             )
-            results["region_code"].append(doc_reference.region_code)
-            results["granule"].append(doc_reference.granule)
-            results["reference_pathname"].append(row.proc_info_pathname_reference)
-            results["test_pathname"].append(row.proc_info_pathname_test)
 
     return results

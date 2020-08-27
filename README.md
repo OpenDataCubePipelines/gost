@@ -128,6 +128,7 @@ Query via filesystem
 
 If data hasn't been indexed into an Open Data Cube instance, datasets can still be discovered using the filesystem.
 In this instance we need to use glob to discover the datasets. For example, "*/*/2019/05/*/*.odc-metadata.yaml", will look for data under the May 2019 directory structure which is organised (in this example) as *base/product_name/year/month/day/<data>*.
+The *--time* options, do nothing in this instance, and are simply required to be populated.
 Depending on how much data there is, the filesystem query could be slower to discover datasets.
 
 ```bash

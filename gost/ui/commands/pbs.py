@@ -170,7 +170,7 @@ def _setup_query_db_pbs_job(
     """Setup and submit the PBS job for querying the required data."""
     query_resources = PBS_RESOURCES.format(
         project=project,
-        walltime="00:10:00",
+        walltime="00:15:00",
         memory=4,
         ncpus=1,
         filesystem_projects=filesystem_projects,
@@ -224,7 +224,7 @@ def _setup_query_filesystem_pbs_job(
 
     query_resources = PBS_RESOURCES.format(
         project=project,
-        walltime="00:10:00",
+        walltime="00:15:00",
         memory=4,
         ncpus=1,
         filesystem_projects=filesystem_projects,
@@ -269,7 +269,7 @@ def _setup_comparison_pbs_job(
     n_cpus, memory = _ncpus_memory(n_datasets)
     comparison_resources = PBS_RESOURCES.format(
         project=project,
-        walltime="00:30:00",
+        walltime="00:45:00",
         memory=memory,
         ncpus=n_cpus,
         filesystem_projects=filesystem_projects,
@@ -311,7 +311,7 @@ def _setup_collate_pbs_job(
 
     collate_resources = PBS_RESOURCES.format(
         project=project,
-        walltime="00:10:00",
+        walltime="00:15:00",
         memory=4,
         ncpus=1,
         filesystem_projects=filesystem_projects,
@@ -336,7 +336,7 @@ def _setup_plotting_pbs_job(
 
     plotting_resources = PBS_RESOURCES.format(
         project=project,
-        walltime="00:30:00",
+        walltime="00:45:00",
         memory=4,
         ncpus=1,
         filesystem_projects=filesystem_projects,

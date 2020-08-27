@@ -23,7 +23,7 @@ setup(
         "mpi-structlog",
     ],
     dependency_links=[
-        "git+https://github.com/sixy6e/mpi-structlog",
+        "git+https://github.com/sixy6e/mpi-structlog@develop#egg=mpi_structlog",
     ],
     package_data={
         "gost": ["data/*.zstd"],

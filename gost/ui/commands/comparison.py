@@ -41,13 +41,15 @@ def _process_proc_info(dataframe, rank):
 
         if gqa_records:
             gqa_df = pandas.DataFrame(gqa_records[0])
-            for record in gqa_df[1:]:
+            for record in gqa_records[1:]:
                 gqa_df = gqa_df.append(pandas.DataFrame(record))
 
-        # reset to a unique index
-        _LOG.info("reset gqa results dataframe index")
-        if gqa_records:
+            # reset to a unique index
+            _LOG.info("reset gqa results dataframe index")
             gqa_df.reset_index(drop=True, inplace=True)
+
+        else:
+            gqa_df = pandas.DataFrame()
 
     else:
         gqa_df = None
@@ -75,31 +77,45 @@ def _process_odc_doc(dataframe, rank):
             for record in general_records[1:]:
                 general_df = general_df.append(pandas.DataFrame(record))
 
+            _LOG.info("reset general dataframe index")
+            general_df.reset_index(drop=True, inplace=True)
+
+        else:
+            general_df = pandas.DataFrame()
+
         if fmask_records:
             fmask_df = pandas.DataFrame(fmask_records[0])
             for record in fmask_records[1:]:
                 fmask_df = fmask_df.append(pandas.DataFrame(record))
+
+            _LOG.info("reset fmask dataframe index")
+            fmask_df.reset_index(drop=True, inplace=True)
+
+        else:
+            fmask_df = pandas.DataFrame()
 
         if contiguity_records:
             contiguity_df = pandas.DataFrame(contiguity_records[0])
             for record in contiguity_records[1:]:
                 contiguity_df = contiguity_df.append(pandas.DataFrame(record))
 
+            _LOG.info("reset contiguity dataframe index")
+            contiguity_df.reset_index(drop=True, inplace=True)
+
+        else:
+            contiguity_df = pandas.DataFrame()
+
         if shadow_records:
             shadow_df = pandas.DataFrame(shadow_records[0])
             for record in shadow_records[1:]:
                 shadow_df = shadow_df.append(pandas.DataFrame(record))
 
-        # reset to a unique index
-        _LOG.info("reset dataframe index")
-        if general_records:
-            general_df.reset_index(drop=True, inplace=True)
-        if fmask_records:
-            fmask_df.reset_index(drop=True, inplace=True)
-        if contiguity_records:
-            contiguity_df.reset_index(drop=True, inplace=True)
-        if shadow_records:
+            _LOG.info("reset shadow dataframe index")
             shadow_df.reset_index(drop=True, inplace=True)
+
+        else:
+            shadow_df = pandas.DataFrame()
+
     else:
         general_df = None
         fmask_df = None
@@ -178,10 +194,9 @@ def comparison(outdir, compare_gqa):
                 results_fname.parent.mkdir(parents=True)
 
             with h5py.File(str(results_fname), "a") as fid:
-                if gqa_dataframe:
-                    write_dataframe(
-                        gqa_dataframe, DatasetNames.GQA_RESULTS.value, fid, attrs=attrs
-                    )
+                write_dataframe(
+                    gqa_dataframe, DatasetNames.GQA_RESULTS.value, fid, attrs=attrs
+                )
 
     else:
         _LOG.info("processing odc-metadata documents")
@@ -196,38 +211,34 @@ def comparison(outdir, compare_gqa):
             # save each table
             _LOG.info("saving dataframes to tables")
             with h5py.File(str(results_fname), "a") as fid:
-                if general_dataframe:
-                    attrs["categorical"] = False
-                    write_dataframe(
-                        general_dataframe,
-                        DatasetNames.GENERAL_RESULTS.value,
-                        fid,
-                        attrs=attrs,
-                    )
-                if fmask_dataframe:
-                    attrs["categorical"] = True
-                    write_dataframe(
-                        fmask_dataframe,
-                        DatasetNames.FMASK_RESULTS.value,
-                        fid,
-                        attrs=attrs,
-                    )
-                if contiguity_dataframe:
-                    attrs["categorical"] = True
-                    write_dataframe(
-                        contiguity_dataframe,
-                        DatasetNames.CONTIGUITY_RESULTS.value,
-                        fid,
-                        attrs=attrs,
-                    )
-                if shadow_dataframe:
-                    attrs["categorical"] = True
-                    write_dataframe(
-                        shadow_dataframe,
-                        DatasetNames.SHADOW_RESULTS.value,
-                        fid,
-                        attrs=attrs,
-                    )
+                attrs["categorical"] = False
+                write_dataframe(
+                    general_dataframe,
+                    DatasetNames.GENERAL_RESULTS.value,
+                    fid,
+                    attrs=attrs,
+                )
+
+                attrs["categorical"] = True
+                write_dataframe(
+                    fmask_dataframe, DatasetNames.FMASK_RESULTS.value, fid, attrs=attrs,
+                )
+
+                attrs["categorical"] = True
+                write_dataframe(
+                    contiguity_dataframe,
+                    DatasetNames.CONTIGUITY_RESULTS.value,
+                    fid,
+                    attrs=attrs,
+                )
+
+                attrs["categorical"] = True
+                write_dataframe(
+                    shadow_dataframe,
+                    DatasetNames.SHADOW_RESULTS.value,
+                    fid,
+                    attrs=attrs,
+                )
 
     if rank == 0:
         workflow = "gqa field" if compare_gqa else "product measurement"

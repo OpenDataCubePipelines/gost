@@ -181,10 +181,10 @@ def comparison(outdir, compare_gqa):
     # equally partition the work across all procesors
     indices = COMM.scatter(blocks, root=0)
 
-    _LOG.info("processing {} documents".format(len(indices)))
-
     if compare_gqa:
-        _LOG.info("procssing proc-info documents")
+        if rank == 0:
+            _LOG.info("procssing proc-info documents")
+
         gqa_dataframe = _process_proc_info(dataframe.iloc[indices], rank)
 
         if rank == 0:
@@ -199,7 +199,8 @@ def comparison(outdir, compare_gqa):
                 )
 
     else:
-        _LOG.info("processing odc-metadata documents")
+        if rank == 0:
+            _LOG.info("processing odc-metadata documents")
         results = _process_odc_doc(dataframe.iloc[indices], rank)
 
         general_dataframe = results[0]

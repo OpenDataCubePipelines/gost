@@ -145,11 +145,14 @@ class DigestProcInfo:
                 document_pathname=self._pathname,
             )
             self._colors = {
-                "blue": 0,
-                "green": 0,
-                "red": 0,
-                "teal": 0,
-                "yellow": 0,
+                "colors_{}".format(key): 0
+                for key in [
+                    "blue",
+                    "green",
+                    "red",
+                    "teal",
+                    "yellow",
+                ]
             }
         else:
             self._colors = {

@@ -70,8 +70,8 @@ class GeneralRecords(Records):
     def __init__(self):
         super(GeneralRecords, self).__init__()
 
-        self.minv = []
-        self.maxv = []
+        self.min_residual = []
+        self.min_residual = []
         self.percent_different = []
         self.percentile_90 = []
         self.percentile_99 = []

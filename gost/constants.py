@@ -54,6 +54,7 @@ class DirectoryNames(Enum):
     PBS = "pbs"
     RESULTS = "results"
     PLOTS = "plots"
+    REPORT = "report"
 
 
 class FileNames(Enum):
@@ -72,6 +73,7 @@ class FileNames(Enum):
     CONTIGUITY_SUMMARISED = "summarised-contiguity.csv"
     SHADOW_SUMMARISED = "summarised-shadow.csv"
     GQA_SUMMARISED = "summarised-gqa.csv"
+    REPORT = "{sensor}-{sr_type}-residuals-analysis.tex"
 
 
 class DatasetNames(Enum):

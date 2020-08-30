@@ -75,7 +75,7 @@ def summarise(geo_dataframe, categorical):
         cols = [i for i in geo_dataframe.columns if "_2_" in i]
     else:
         _LOG.info("summarising generic datasets")
-        cols = ["minv", "maxv", "percent_different"]
+        cols = ["min_residual", "max_residual", "percent_different"]
 
     pivot = pandas.pivot_table(
         geo_dataframe, index=["measurement"], values=cols, aggfunc=SUMMARISE_FUNCS

@@ -148,11 +148,11 @@ def process_yamls(dataframe):
 
                 if 'nbar' in meas or meas in BAND_IDS:
                     # get difference as a percent reflectance (0->100)
-                    general_records.minv.append(h['omin'] / 100)
-                    general_records.maxv.append(h['omax'] / 100)
+                    general_records.min_residual.append(h['omin'] / 100)
+                    general_records.max_residual.append(h['omax'] / 100)
                 else:
-                    general_records.minv.append(h['omin'])
-                    general_records.maxv.append(h['omax'])
+                    general_records.min_residual.append(h['omin'])
+                    general_records.max_residual.append(h['omax'])
 
                 general_records.percent_different.append(
                     (diff != 0).sum() / diff.size * 100

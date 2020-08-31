@@ -88,7 +88,8 @@ def plotting(
         _LOG.info("opening geometry framing results file", fname=str(results_fname))
         gdf = geopandas.read_file(results_fname)
 
-        plot_png(gdf, outdir)
+        plots_outdir = outdir.joinpath(DirectoryNames.PLOTS.value)
+        plot_png(gdf, plots_outdir)
 
         # this needs reworking so we can cater for sentinel-2
         granule = gdf.iloc[0].granule

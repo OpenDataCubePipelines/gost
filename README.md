@@ -40,10 +40,19 @@ This task is to collate and summarise the results computed by the comparison tas
 Results are merged with the spatial framing that the satellite acquisitions are comprised of; WRS2 for Landsat, and MGRS for Sentinel-2. This enables a user to spatially visualise the results in order to identify any spatial trends, patterns or highlighted regions worth further investigation.
 The summary statistics simply provide the user with a quick overview for all measurements over the entire spatial area. Useful as the first go-to in identifying any extreme instances in the statistics, that can be further investigated.
 
-Plotting
---------
+Plotting and Reporting
+----------------------
 
-Provides the user with maps of the results of the comparison.
+Provides the user with maps of the results of the comparison, as well as a basic LaTeX document containing plots of:
+
+* minimum residual
+* maximum residual
+* 90th percentile of the residual
+* 99th percentile of the residual
+* percentage of pixels with a residual != 0
+
+for each of the reflectance measurements.
+
 
 ## Examples of use
 

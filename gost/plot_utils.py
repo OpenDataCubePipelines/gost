@@ -59,7 +59,7 @@ def plot_png(gdf, outdir):
 
             gdf.plot(column=column, cmap=colourmap, legend=False, ax=axes)
 
-            norm = colors.Normalize(vmin=gdf[column].min(), vmax=gdf[column].max())
+            norm = colors.Normalize(vmin=grp[column].min(), vmax=grp[column].max())
             colourbar = plt.cm.ScalarMappable(norm=norm, cmap=colourmap)
 
             ax_cbar = fig.colorbar(colourbar, ax=axes)

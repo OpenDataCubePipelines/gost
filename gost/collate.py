@@ -42,8 +42,8 @@ def merge_framing(dataframe, framing):
 
     # read required framing geometry
     with open(framing_pathname, "rb") as src:
-        cctx = zstandard.ZstdDecompressor()
-        framing_dataframe = geopandas.read_file(cctx.stream_reader(src))
+        dctx = zstandard.ZstdDecompressor()
+        framing_dataframe = geopandas.read_file(dctx.stream_reader(src))
 
     _LOG.info("merging intercomparison results with framing geometry")
 

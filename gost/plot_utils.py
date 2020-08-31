@@ -25,8 +25,8 @@ def plot_png(gdf, outdir):
     """
     # read the TM_WORLD_BORDERS dataset
     with open(TM_WORLD_BORDERS_FNAME, "rb") as src:
-        cctx = zstandard.ZstdDecompressor()
-        tm_gdf = geopandas.read_file(cctx.stream_reader(src))
+        dctx = zstandard.ZstdDecompressor()
+        tm_gdf = geopandas.read_file(dctx.stream_reader(src))
 
     for name, grp in gdf.groupby("measurement"):
 

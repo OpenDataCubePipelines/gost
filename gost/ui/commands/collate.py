@@ -17,7 +17,6 @@ from gost.collate import merge_framing, summarise
 from ._shared_commands import io_dir_options
 
 
-structlog.configure(processors=LOG_PROCESSORS)
 _LOG = structlog.get_logger()
 
 
@@ -37,7 +36,9 @@ def collate(outdir):
         log_fname.parent.mkdir(parents=True)
 
     with open(log_fname, "w") as fobj:
-        structlog.configure(logger_factory=structlog.PrintLoggerFactory(fobj))
+        structlog.configure(
+            logger_factory=structlog.PrintLoggerFactory(fobj), processors=LOG_PROCESSORS
+        )
 
         comparison_results_fname = outdir.joinpath(
             DirectoryNames.RESULTS.value, FileNames.RESULTS.value

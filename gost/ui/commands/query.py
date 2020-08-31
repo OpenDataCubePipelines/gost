@@ -15,7 +15,6 @@ from gost.query import query_products, query_via_filepath
 from ._shared_commands import io_dir_options, db_query_options
 
 
-structlog.configure(processors=LOG_PROCESSORS)
 _LOG = structlog.get_logger()
 
 
@@ -47,7 +46,9 @@ def query(
         log_fname.parent.mkdir(parents=True)
 
     with open(log_fname, "w") as fobj:
-        structlog.configure(logger_factory=structlog.PrintLoggerFactory(fobj))
+        structlog.configure(
+            logger_factory=structlog.PrintLoggerFactory(fobj), processors=LOG_PROCESSORS
+        )
 
         results = query_products(
             product_name_test,

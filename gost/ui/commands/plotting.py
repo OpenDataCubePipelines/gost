@@ -4,13 +4,10 @@ import structlog
 import geopandas
 
 from gost.constants import (
-    DatasetNames,
     DirectoryNames,
     FileNames,
     LOG_PROCESSORS,
     LogNames,
-    MergeLookup,
-    SummaryLookup,
 )
 from gost.plot_utils import plot_png
 from ._shared_commands import io_dir_options, db_query_options
@@ -34,7 +31,9 @@ def plotting(
         log_fname.parent.mkdir(parents=True)
 
     with open(log_fname, "w") as fobj:
-        structlog.configure(logger_factory=structlog.PrintLoggerFactory(fobj))
+        structlog.configure(
+            logger_factory=structlog.PrintLoggerFactory(fobj), processors=LOG_PROCESSORS
+        )
 
         results_fname = outdir.joinpath(
             DirectoryNames.RESULTS.value, FileNames.GENERAL_FRAMING.value

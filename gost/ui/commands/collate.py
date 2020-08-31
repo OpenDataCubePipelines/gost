@@ -77,6 +77,10 @@ def collate(outdir):
                 _LOG.info("saving as GeoJSON", out_fname=str(out_fname))
                 geo_dataframe.to_file(str(out_fname), driver="GeoJSONSeq")
 
+                if dataset_name == DatasetNames.GQA_RESULTS:
+                    _LOG.info("skipping summarising task for GQA results")
+                    continue
+
                 _LOG.info("summarising")
 
                 summary_dataframe = summarise(geo_dataframe, categorical)

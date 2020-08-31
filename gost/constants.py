@@ -34,6 +34,12 @@ FRAMING = {
 TM_WORLD_BORDERS_FNAME = pkg_resources.resource_filename(
     "gost", "data/TM_WORLD_BORDERS-0.3.geojsonl.zstd"
 )
+LANDSAT_LATEX_TEMPLATE_FNAME = pkg_resources.resource_filename(
+    "gost", "data/landsat-template.txt.zstd"
+)
+LANDSAT_CA_LATEX_TEMPLATE_FNAME = pkg_resources.resource_filename(
+    "gost", "data/landsat-coastal-aerosol-template.txt.zstd"
+)
 
 
 class LogNames(Enum):
@@ -76,7 +82,8 @@ class FileNames(Enum):
     CONTIGUITY_SUMMARISED = "summarised-contiguity.csv"
     SHADOW_SUMMARISED = "summarised-shadow.csv"
     GQA_SUMMARISED = "summarised-gqa.csv"
-    REPORT = "{sensor}-{sr_type}-residuals-analysis.tex"
+    NBAR_REPORT = "nbar-residuals-analysis.tex"
+    NBART_REPORT = "nbart-residuals-analysis.tex"
 
 
 class DatasetNames(Enum):

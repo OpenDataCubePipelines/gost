@@ -31,6 +31,9 @@ FRAMING = {
     "WRS2": WRS2_FNAME,
     "MGRS": MGRS_FNAME,
 }
+TM_WORLD_BORDERS_FNAME = pkg_resources.resource_filename(
+    "gost", "data/TM_WORLD_BORDERS-0.3.geojsonl.zstd"
+)
 
 
 class LogNames(Enum):

@@ -3,6 +3,7 @@ from pathlib import Path
 import click
 import structlog
 import geopandas
+from typing import Tuple
 import zstandard
 
 from gost.constants import (
@@ -19,7 +20,7 @@ from ._shared_commands import io_dir_options
 _LOG = structlog.get_logger()
 
 
-def _latex_documents(coastal=False):
+def _latex_documents(coastal: bool = False) -> Tuple(str, str):
     """Utility to create the latex document strings."""
 
     _LOG.info("reading Landsat LaTeX template")
@@ -64,8 +65,8 @@ def _latex_documents(coastal=False):
 @click.command()
 @io_dir_options
 def plotting(
-    outdir,
-):
+    outdir: str,
+) -> None:
     """
     Using the framing geometry, plot the results of the intercomparison evaluation.
     """

@@ -4,7 +4,7 @@ from .commands import collate, comparison, pbs, plotting, query
 
 
 @click.group()
-def entry_point():
+def entry_point() -> None:
     """
     Entry point for the whole command module.
     """

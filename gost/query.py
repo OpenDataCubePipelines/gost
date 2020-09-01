@@ -13,13 +13,21 @@ from pathlib import Path
 import datacube
 import pandas
 import structlog
+from typing import Any, Dict, Optional, Tuple
 
 from gost.digest_yaml import Digestyaml
 
 _LOG = structlog.get_logger()
 
 
-def query_db(env, product_name, time, lon, lat, additional_filters):
+def query_db(
+    env: str,
+    product_name: str,
+    time: Optional[Tuple[str, str]] = None,
+    lon: Optional[Tuple[str, str]] = None,
+    lat: Optional[Tuple[str, str]] = None,
+    additional_filters: Optional[Dict[str, Any]] = None,
+) -> pandas.DataFrmae:
     """
     Generic datacube query wrapper.
 
@@ -87,15 +95,15 @@ def query_db(env, product_name, time, lon, lat, additional_filters):
 
 
 def query_products(
-    product_name_test,
-    product_name_reference,
-    db_env_test,
-    db_env_reference,
-    time,
-    lon,
-    lat,
-    additional_filters,
-):
+    product_name_test: str,
+    product_name_reference: str,
+    db_env_test: str,
+    db_env_reference: str,
+    time: Optional[Tuple[str, str]] = None,
+    lon: Optional[Tuple[str, str]] = None,
+    lat: Optional[Tuple[str, str]] = None,
+    additional_filters: Optional[Dict[str, Any]] = None,
+) -> pandas.DataFrame:
     """
     Queries an ODC Database for both the test and reference products,
     then merges the results based on a common ancestor uuid.
@@ -151,7 +159,7 @@ def query_products(
     return merged
 
 
-def query_filepath(path, pattern):
+def query_filepath(path: str, pattern: str) -> pandas.DataFrame:
     """
     Find datasets by globbing the filesystem.
 
@@ -169,7 +177,9 @@ def query_filepath(path, pattern):
     proc_info_pathname = []
 
     _LOG.info(
-        "finding datasets", path=path, pattern=pattern,
+        "finding datasets",
+        path=path,
+        pattern=pattern,
     )
 
     for fname in files:
@@ -197,8 +207,11 @@ def query_filepath(path, pattern):
 
 
 def query_via_filepath(
-    test_directory, reference_directory, test_pattern, reference_pattern
-):
+    test_directory: str,
+    reference_directory: str,
+    test_pattern: str,
+    reference_pattern: str,
+) -> pandas.DataFrame:
     """
     Find the test and reference datasets by globbing the filesystem.
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 A temporary script that at least fleshes out some basic stats/tests
 that might be useful.
@@ -9,11 +7,13 @@ scripts will be designed and executed properly.
 
 from enum import Enum
 import numpy
+from typing import Any, Dict, List, Tuple, Union
+import rasterio
 
 from idl_functions import histogram
 
 
-FMT = '{}_2_{}'
+FMT: str = "{}_2_{}"
 
 
 class FmaskCategories(Enum):
@@ -57,7 +57,7 @@ class Records:
         self.region_code = []
 
     @property
-    def records(self):
+    def records(self) -> Dict[str, List[Any, ...]]:
         return self.__dict__
 
 
@@ -90,10 +90,7 @@ class CategoricalRecords(Records):
 
         for category in categories:
             for category2 in categories:
-                name = FMT.format(
-                    category.name.lower(),
-                    category2.name.lower()
-                )
+                name = FMT.format(category.name.lower(), category2.name.lower())
                 setattr(self, name, [])
 
 
@@ -127,18 +124,22 @@ class TerrainShadowRecords(CategoricalRecords):
         super(TerrainShadowRecords, self).__init__(TerrainShadowCategories)
 
 
-def evaluate(ref_ds, test_ds):
+def evaluate(
+    ref_ds: rasterio.io.DatasetReader, test_ds: rasterio.io.DatasetReader
+) -> numpy.ndarray:
     """
     A basic implementation of a difference operator.
     """
-    if ref_ds.dtypes[0] == 'bool':
-        result = numpy.logical_xor(ref_ds.read(1), ref_ds.read(1)).astype('uint8')
+    if ref_ds.dtypes[0] == "bool":
+        result = numpy.logical_xor(ref_ds.read(1), ref_ds.read(1)).astype("uint8")
     else:
         result = ref_ds.read(1) - test_ds.read(1)
     return result
 
 
-def evaluate_fmask(ref_ds, test_ds):
+def evaluate_fmask(
+    ref_ds: rasterio.io.DatasetReader, test_ds: rasterio.io.DatasetReader
+) -> Dict[str, float]:
     """
     A basic tool to evaluate each category of Fmask and build a
     distribution of category change. eg what pixels were identified as
@@ -152,10 +153,10 @@ def evaluate_fmask(ref_ds, test_ds):
     ref_data = ref_ds.read(1).ravel()
     test_data = test_ds.read(1).ravel()
 
-    ref_h = histogram(ref_data, minv=minv, maxv=maxv, reverse_indices='ri')
+    ref_h = histogram(ref_data, minv=minv, maxv=maxv, reverse_indices="ri")
 
-    ref_hist = ref_h['histogram']
-    ref_ri = ref_h['ri']
+    ref_hist = ref_h["histogram"]
+    ref_ri = ref_h["ri"]
 
     category_changes = dict()
 
@@ -164,20 +165,20 @@ def evaluate_fmask(ref_ds, test_ds):
         # check we have data for this category
         if ref_hist[i] == 0:
             # no changes as nothing exists in the reference data
-            category_changes[category] = numpy.zeros((6,), dtype='int')
+            category_changes[category] = numpy.zeros((6,), dtype="int")
             continue
 
-        idx = ref_ri[ref_ri[i]:ref_ri[i+1]]
+        idx = ref_ri[ref_ri[i] : ref_ri[i + 1]]
         values = test_data[idx]
         h = histogram(values, minv=minv, maxv=maxv)
-        hist = h['histogram']
+        hist = h["histogram"]
         pdf = hist / numpy.sum(hist)
         category_changes[category] = pdf * 100
 
     # split outputs into separate records
     result = dict()
     for category in FmaskCategories:
-        fmt = '{}_2_{}'
+        fmt = "{}_2_{}"
         for category2 in FmaskCategories:
             key = fmt.format(category.name.lower(), category2.name.lower())
             result[key] = category_changes[category][category2.value]
@@ -185,7 +186,11 @@ def evaluate_fmask(ref_ds, test_ds):
     return result
 
 
-def evaluate_categories(ref_ds, test_ds, categories):
+def evaluate_categories(
+    ref_ds: rasterio.io.DatasetReader,
+    test_ds: rasterio.io.DatasetReader,
+    categories: Union[FmaskRecords, ContiguityRecords, TerrainShadowRecords],
+) -> Dict[str, float]:
     """
     A generic tool for evaluating categorical datasets.
     """
@@ -198,10 +203,10 @@ def evaluate_categories(ref_ds, test_ds, categories):
     ref_data = ref_ds.read(1).ravel()
     test_data = test_ds.read(1).ravel()
 
-    ref_h = histogram(ref_data, minv=minv, maxv=maxv, reverse_indices='ri')
+    ref_h = histogram(ref_data, minv=minv, maxv=maxv, reverse_indices="ri")
 
-    ref_hist = ref_h['histogram']
-    ref_ri = ref_h['ri']
+    ref_hist = ref_h["histogram"]
+    ref_ri = ref_h["ri"]
 
     category_changes = dict()
 
@@ -210,19 +215,19 @@ def evaluate_categories(ref_ds, test_ds, categories):
         # check we have data for this category
         if ref_hist[i] == 0:
             # no changes as nothing exists in the reference data
-            category_changes[category] = numpy.zeros((n_values,), dtype='int')
+            category_changes[category] = numpy.zeros((n_values,), dtype="int")
             continue
-        idx = ref_ri[ref_ri[i]:ref_ri[i+1]]
+        idx = ref_ri[ref_ri[i] : ref_ri[i + 1]]
         values = test_data[idx]
         h = histogram(values, minv=minv, maxv=maxv)
-        hist = h['histogram']
+        hist = h["histogram"]
         pdf = hist / numpy.sum(hist)
         category_changes[category] = pdf * 100
 
     # split outputs into separate records
     result = dict()
     for category in categories:
-        fmt = '{}_2_{}'
+        fmt = "{}_2_{}"
         for category2 in categories:
             key = fmt.format(category.name.lower(), category2.name.lower())
             result[key] = category_changes[category][category2.value]
@@ -230,7 +235,7 @@ def evaluate_categories(ref_ds, test_ds, categories):
     return result
 
 
-def data_mask(ds):
+def data_mask(ds: rasterio.io.DatasetReader) -> numpy.ndarray:
     """Extract a mask of data and no data; handle a couple of cases."""
     nodata = ds.nodata
     if nodata is None:
@@ -245,7 +250,9 @@ def data_mask(ds):
     return mask
 
 
-def evaluate2(ref_ds, test_ds):
+def evaluate2(
+    ref_ds: rasterio.io.DatasetReader, test_ds: rasterio.io.DatasetReader
+) -> numpy.ndarray:
     """A basic difference operator where data exists at both index locations"""
     ref_mask = data_mask(ref_ds)
     test_mask = data_mask(test_ds)
@@ -257,7 +264,9 @@ def evaluate2(ref_ds, test_ds):
     return result
 
 
-def evaluate_nulls(ref_ds, test_ds):
+def evaluate_nulls(
+    ref_ds: rasterio.io.DatasetReader, test_ds: rasterio.io.DatasetReader
+) -> Tuple[float, float]:
     """
     A basic eval for checking if null locations have changed.
     eg, data pixel to null pixel and vice versa.

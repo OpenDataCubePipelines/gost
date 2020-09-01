@@ -4,6 +4,7 @@ import h5py
 from mpi4py import MPI
 import pandas
 import structlog
+from typing import Any, Optional, Tuple
 
 from mpi_structlog.mpi_logger import DEFAULT_PROCESSORS, MPIStreamIO, MPILoggerFactory
 from wagl.tiling import scatter
@@ -27,7 +28,7 @@ COMM = MPI.COMM_WORLD
 _LOG = structlog.get_logger()
 
 
-def _process_proc_info(dataframe, rank):
+def _process_proc_info(dataframe: pandas.DataFrame, rank: int) -> Optional[pandas.DataFrame]:
     gqa_results = compare_gqa.process_yamls(dataframe)
 
     # gather proc info results from each worker
@@ -57,7 +58,7 @@ def _process_proc_info(dataframe, rank):
     return gqa_df
 
 
-def _process_odc_doc(dataframe, rank):
+def _process_odc_doc(dataframe: pandas.DataFrame, rank: int) -> Tuple(Any, ...):
     results = compare_measurements.process_yamls(dataframe)
 
     # gather records from all workers
@@ -133,7 +134,7 @@ def _process_odc_doc(dataframe, rank):
     is_flag=True,
     help="If set, then comapre the GQA fields and not the product measurements",
 )
-def comparison(outdir, compare_gqa):
+def comparison(outdir: str, compare_gqa: bool) -> None:
     """
     Test and Reference product intercomparison evaluation.
     """

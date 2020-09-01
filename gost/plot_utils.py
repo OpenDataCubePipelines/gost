@@ -17,7 +17,7 @@ COLUMNS = [
 _LOG = structlog.get_logger()
 
 
-def plot_png(gdf, outdir):
+def plot_png(gdf: geopandas.GeoDataFrame, outdir: str) -> None:
     """
     General plotting routine of the residuals analysis.
     Currently only interested in the surface reflectance measurements,

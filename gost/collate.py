@@ -30,7 +30,7 @@ from gost.constants import SUMMARISE_FUNCS, FRAMING
 _LOG = structlog.get_logger()
 
 
-def merge_framing(dataframe, framing):
+def merge_framing(dataframe: pandas.DataFrame, framing: str) -> geopandas.GeoDataFrame:
     """
     Output files will be created as GeoJSONSeq (JSONLines).
     As such, a filename extension of .geojsonl should be used.
@@ -62,7 +62,9 @@ def merge_framing(dataframe, framing):
     return gdf
 
 
-def summarise(geo_dataframe, categorical):
+def summarise(
+    geo_dataframe: geopandas.GeoDataFrame, categorical: bool
+) -> pandas.DataFrame:
     """
     Produce summary statistics for the generic and categorical datasets.
     Essentially this is a global summary. i.e. for each measurement

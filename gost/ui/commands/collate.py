@@ -22,7 +22,7 @@ _LOG = structlog.get_logger()
 
 @click.command()
 @io_dir_options
-def collate(outdir):
+def collate(outdir: str) -> None:
     """
     Collate the results of the product comparison.
     Firstly the results are merged with the framing geometry, and second

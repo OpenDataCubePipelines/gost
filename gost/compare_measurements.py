@@ -1,9 +1,9 @@
-#!/usr/bin/env python
-
 from pathlib import Path
 import numpy
+import pandas
 import rasterio
 import structlog
+from typing import Any, Dict, List, Tuple
 
 from wagl.scripts.wagl_residuals import distribution
 
@@ -14,25 +14,23 @@ from gost.utils import evaluate2, evaluate_nulls, evaluate_categories
 from gost.digest_yaml import Digestyaml
 
 
-BAND_IDS = ['1', '2', '3', '4', '5', '6', '7']
-CONTIGUITY_MEASUREMENT_NAMES = [
-    'oa_nbar_contiguity',
-    'oa_nbart_contiguity',
-    'nbar_contiguity',
-    'nbart_contiguity'
+BAND_IDS: List[str, str, str, str, str, str, str] = ["1", "2", "3", "4", "5", "6", "7"]
+CONTIGUITY_MEASUREMENT_NAMES: List[str, str, str, str] = [
+    "oa_nbar_contiguity",
+    "oa_nbart_contiguity",
+    "nbar_contiguity",
+    "nbart_contiguity",
 ]
-SHADOW_MEASUREMENT_NAMES = [
-    'oa_combined_terrain_shadow',
-    'terrain_shadow'
+SHADOW_MEASUREMENT_NAMES: List[str, str] = [
+    "oa_combined_terrain_shadow",
+    "terrain_shadow",
 ]
-FMASK_MEASUREMENT_NAMES = [
-    'oa_fmask',
-    'fmask'
-]
+FMASK_MEASUREMENT_NAMES: List[str, str] = ["oa_fmask", "fmask"]
 _LOG = structlog.get_logger()
 
 
-def process_yamls(dataframe):
+def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any, ...], ...]]:
+    """Process dataframe containing records to process."""
 
     # initialise placeholders for the results
     general_records = GeneralRecords()
@@ -41,33 +39,41 @@ def process_yamls(dataframe):
     shadow_records = TerrainShadowRecords()
 
     for i, row in dataframe.iterrows():
-        _LOG.info('processing document', yaml_doc_test=row.yaml_pathname_test, yaml_doc_reference=row.yaml_pathname_reference)
+        _LOG.info(
+            "processing document",
+            yaml_doc_test=row.yaml_pathname_test,
+            yaml_doc_reference=row.yaml_pathname_reference,
+        )
 
         doc_test = Digestyaml(row.yaml_pathname_test)
         doc_reference = Digestyaml(row.yaml_pathname_reference)
 
         for meas in doc_test.measurements:
             _LOG.info(
-                'processing measurement',
+                "processing measurement",
                 measurement=meas,
             )
 
-            fname_test = Path(row.yaml_pathname_test).parent.joinpath(doc_test.measurements[meas]['path'])
-            fname_reference = Path(row.yaml_pathname_reference).parent.joinpath(doc_reference.measurements[meas]['path'])
+            fname_test = Path(row.yaml_pathname_test).parent.joinpath(
+                doc_test.measurements[meas]["path"]
+            )
+            fname_reference = Path(row.yaml_pathname_reference).parent.joinpath(
+                doc_reference.measurements[meas]["path"]
+            )
 
             if not fname_reference.exists():
                 _LOG.info(
-                    'missing reference measurement',
+                    "missing reference measurement",
                     measurement_reference=fname_reference,
-                    measurement_test=fname_test
+                    measurement_test=fname_test,
                 )
                 continue
 
             if not fname_test.exists():
                 _LOG.info(
-                    'missing test measurement',
+                    "missing test measurement",
                     measurement_reference=fname_reference,
-                    measurement_test=fname_test
+                    measurement_test=fname_test,
                 )
                 continue
 
@@ -85,11 +91,7 @@ def process_yamls(dataframe):
                 fmask_records.measurement.append(meas)
 
                 # categorical evaluation
-                fmask_results = evaluate_categories(
-                    ref_ds,
-                    test_ds,
-                    FmaskCategories
-                )
+                fmask_results = evaluate_categories(ref_ds, test_ds, FmaskCategories)
                 for key in fmask_results:
                     value = fmask_results[key]
                     getattr(fmask_records, key).append(value)
@@ -104,9 +106,7 @@ def process_yamls(dataframe):
 
                 # categorical evaluation
                 contiguity_results = evaluate_categories(
-                    ref_ds,
-                    test_ds,
-                    ContiguityCategories
+                    ref_ds, test_ds, ContiguityCategories
                 )
                 for key in contiguity_results:
                     value = contiguity_results[key]
@@ -122,9 +122,7 @@ def process_yamls(dataframe):
 
                 # categorical evaluation
                 shadow_results = evaluate_categories(
-                    ref_ds,
-                    test_ds,
-                    TerrainShadowCategories
+                    ref_ds, test_ds, TerrainShadowCategories
                 )
                 for key in shadow_results:
                     value = shadow_results[key]
@@ -146,13 +144,13 @@ def process_yamls(dataframe):
                 general_records.size.append(diff.size)
                 general_records.measurement.append(meas)
 
-                if 'nbar' in meas or meas in BAND_IDS:
+                if "nbar" in meas or meas in BAND_IDS:
                     # get difference as a percent reflectance (0->100)
-                    general_records.min_residual.append(h['omin'] / 100)
-                    general_records.max_residual.append(h['omax'] / 100)
+                    general_records.min_residual.append(h["omin"] / 100)
+                    general_records.max_residual.append(h["omax"] / 100)
                 else:
-                    general_records.min_residual.append(h['omin'])
-                    general_records.max_residual.append(h['omax'])
+                    general_records.min_residual.append(h["omin"])
+                    general_records.max_residual.append(h["omax"])
 
                 general_records.percent_different.append(
                     (diff != 0).sum() / diff.size * 100
@@ -160,15 +158,15 @@ def process_yamls(dataframe):
 
                 # percentiles of the cumulative distribution
                 h = distribution(numpy.abs(diff))
-                hist = h['histogram']
+                hist = h["histogram"]
                 cdf = numpy.cumsum(hist / hist.sum())
                 p1_idx = numpy.searchsorted(cdf, 0.9)
                 p2_idx = numpy.searchsorted(cdf, 0.99)
-                pct_90 = h['loc'][p1_idx]
-                pct_99 = h['loc'][p2_idx]
+                pct_90 = h["loc"][p1_idx]
+                pct_99 = h["loc"][p2_idx]
 
                 # percentiles from cumulative distribution
-                if 'nbar' in meas or meas in BAND_IDS:
+                if "nbar" in meas or meas in BAND_IDS:
                     # get difference as a percent reflectance (0->100)
                     general_records.percentile_90.append(pct_90 / 100)
                     general_records.percentile_99.append(pct_99 / 100)
@@ -180,6 +178,6 @@ def process_yamls(dataframe):
         general_records.records,
         fmask_records.records,
         contiguity_records.records,
-        shadow_records.records
+        shadow_records.records,
     )
     return results

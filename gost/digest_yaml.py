@@ -1,13 +1,12 @@
-#!/usr/bin/env python
-
 import yaml
 import structlog
+from typing import Any, Dict
 
 _LOG = structlog.get_logger()
 
 
 class Digestyaml:
-    def __init__(self, pathname):
+    def __init__(self, pathname: str):
         with open(str(pathname)) as src:
             self._doc = yaml.load(src, Loader=yaml.FullLoader)
 
@@ -47,40 +46,40 @@ class Digestyaml:
             self._framing = "WRS2"
 
     @property
-    def doc(self):
+    def doc(self) -> Dict[str, Any]:
         return self._doc
 
     @property
-    def eo3(self):
+    def eo3(self) -> bool:
         return self._eo3
 
     @property
-    def product_name(self):
+    def product_name(self) -> str:
         return self._product_name
 
     @property
-    def granule(self):
+    def granule(self) -> str:
         return self._granule
 
     @property
-    def region_code(self):
+    def region_code(self) -> str:
         return self._region_code
 
     @property
-    def measurements(self):
+    def measurements(self) -> Dict[str, Any]:
         return self._measurements
 
     @property
-    def parent_uuid(self):
+    def parent_uuid(self) -> str:
         return self._parent_uuid
 
     @property
-    def framing(self):
+    def framing(self) -> str:
         return self._framing
 
 
 class DigestProcInfo:
-    def __init__(self, pathname):
+    def __init__(self, pathname: str):
         with open(str(pathname)) as src:
             self._doc = yaml.load(src, Loader=yaml.FullLoader)
 
@@ -161,57 +160,57 @@ class DigestProcInfo:
             }
 
     @property
-    def doc(self):
+    def doc(self) -> Dict[str, Any]:
         return self._doc
 
     @property
-    def pathname(self):
+    def pathname(self) -> str:
         return self._pathname
 
     @property
-    def eo3(self):
+    def eo3(self) -> bool:
         return self._eo3
 
     @property
-    def gqa(self):
+    def gqa(self) -> Dict[str, Any]:
         return self._gqa
 
     @property
-    def colors(self):
+    def colors(self) -> Dict[str, Any]:
         return self._colors
 
     @property
-    def final_qa_count(self):
+    def final_qa_count(self) -> int:
         return self._final_qa_count
 
     @property
-    def abs(self):
+    def abs(self) -> Dict[str, float]:
         return self._abs
 
     @property
-    def abs_iterative_mean(self):
+    def abs_iterative_mean(self) -> Dict[str, float]:
         return self._abs_iterative_mean
 
     @property
-    def iterative_mean(self):
+    def iterative_mean(self) -> Dict[str, float]:
         return self._iterative_mean
 
     @property
-    def iterative_stddev(self):
+    def iterative_stddev(self) -> Dict[str, float]:
         return self._iterative_stddev
 
     @property
-    def mean(self):
+    def mean(self) -> Dict[str, float]:
         return self._mean
 
     @property
-    def stddev(self):
+    def stddev(self) -> Dict[str, float]:
         return self._stddev
 
     @property
-    def cep90(self):
+    def cep90(self) -> float:
         return self._cep90
 
     @property
-    def fields(self):
+    def fields(self) -> Dict[str, Any]:
         return self._fields

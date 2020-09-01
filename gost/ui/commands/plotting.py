@@ -20,7 +20,7 @@ from ._shared_commands import io_dir_options
 _LOG = structlog.get_logger()
 
 
-def _latex_documents(coastal: bool = False) -> Tuple(str, str):
+def _latex_documents(coastal: bool = False) -> Tuple[str, str]:
     """Utility to create the latex document strings."""
 
     _LOG.info("reading Landsat LaTeX template")

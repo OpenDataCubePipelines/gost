@@ -58,7 +58,7 @@ def _process_proc_info(dataframe: pandas.DataFrame, rank: int) -> Optional[panda
     return gqa_df
 
 
-def _process_odc_doc(dataframe: pandas.DataFrame, rank: int) -> Tuple(Any, ...):
+def _process_odc_doc(dataframe: pandas.DataFrame, rank: int) -> Tuple[Any, ...]:
     results = compare_measurements.process_yamls(dataframe)
 
     # gather records from all workers

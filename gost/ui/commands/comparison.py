@@ -171,7 +171,7 @@ def comparison(outdir: str, compare_gqa: bool) -> None:
 
         # some basic attribute information
         doc = Digestyaml(dataframe.iloc[0].yaml_pathname_reference)
-        attrs = {"framing": doc.framing, "categorical": False}
+        attrs = {"framing": doc.framing, "thematic": False}
     else:
         blocks = None
         doc = None
@@ -213,7 +213,7 @@ def comparison(outdir: str, compare_gqa: bool) -> None:
             # save each table
             _LOG.info("saving dataframes to tables")
             with h5py.File(str(results_fname), "a") as fid:
-                attrs["categorical"] = False
+                attrs["thematic"] = False
                 write_dataframe(
                     general_dataframe,
                     DatasetNames.GENERAL_RESULTS.value,
@@ -221,12 +221,12 @@ def comparison(outdir: str, compare_gqa: bool) -> None:
                     attrs=attrs,
                 )
 
-                attrs["categorical"] = True
+                attrs["thematic"] = True
                 write_dataframe(
                     fmask_dataframe, DatasetNames.FMASK_RESULTS.value, fid, attrs=attrs,
                 )
 
-                attrs["categorical"] = True
+                attrs["thematic"] = True
                 write_dataframe(
                     contiguity_dataframe,
                     DatasetNames.CONTIGUITY_RESULTS.value,
@@ -234,7 +234,7 @@ def comparison(outdir: str, compare_gqa: bool) -> None:
                     attrs=attrs,
                 )
 
-                attrs["categorical"] = True
+                attrs["thematic"] = True
                 write_dataframe(
                     shadow_dataframe,
                     DatasetNames.SHADOW_RESULTS.value,

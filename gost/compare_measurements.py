@@ -7,10 +7,10 @@ from typing import Any, Dict, List, Tuple
 
 from wagl.scripts.wagl_residuals import distribution
 
-from gost.utils import ContiguityCategories, FmaskCategories
+from gost.utils import ContiguityThemes, FmaskThemes
 from gost.utils import TerrainShadowCategories, GeneralRecords
 from gost.utils import FmaskRecords, TerrainShadowRecords, ContiguityRecords
-from gost.utils import evaluate2, evaluate_nulls, evaluate_categories
+from gost.utils import evaluate2, evaluate_nulls, evaluate_themes
 from gost.digest_yaml import Digestyaml
 
 
@@ -82,7 +82,7 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
 
             # compute results
             if meas in FMASK_MEASUREMENT_NAMES:
-                # the idea here is to analyse the categorical data differently
+                # the idea here is to analyse the thematic data differently
                 fmask_records.granule.append(doc_reference.granule)
                 fmask_records.region_code.append(doc_reference.region_code)
                 fmask_records.reference_fname.append(str(fname_reference))
@@ -90,8 +90,8 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 fmask_records.size.append(numpy.prod(ref_ds.shape))
                 fmask_records.measurement.append(meas)
 
-                # categorical evaluation
-                fmask_results = evaluate_categories(ref_ds, test_ds, FmaskCategories)
+                # thematic evaluation
+                fmask_results = evaluate_themes(ref_ds, test_ds, FmaskThemes)
                 for key in fmask_results:
                     value = fmask_results[key]
                     getattr(fmask_records, key).append(value)
@@ -104,9 +104,9 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 contiguity_records.size.append(numpy.prod(ref_ds.shape))
                 contiguity_records.measurement.append(meas)
 
-                # categorical evaluation
-                contiguity_results = evaluate_categories(
-                    ref_ds, test_ds, ContiguityCategories
+                # thematic evaluation
+                contiguity_results = evaluate_themes(
+                    ref_ds, test_ds, ContiguityThemes
                 )
                 for key in contiguity_results:
                     value = contiguity_results[key]
@@ -120,8 +120,8 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 shadow_records.size.append(numpy.prod(ref_ds.shape))
                 shadow_records.measurement.append(meas)
 
-                # categorical evaluation
-                shadow_results = evaluate_categories(
+                # thematic evaluation
+                shadow_results = evaluate_themes(
                     ref_ds, test_ds, TerrainShadowCategories
                 )
                 for key in shadow_results:

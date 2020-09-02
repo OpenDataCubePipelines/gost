@@ -58,7 +58,7 @@ def collate(outdir: str) -> None:
 
                 dataset = fid[dataset_name.value]
                 framing = dataset.attrs["framing"]
-                categorical = dataset.attrs["categorical"]
+                thematic = dataset.attrs["thematic"]
 
                 _LOG.info(
                     "merging results with framing",
@@ -83,7 +83,7 @@ def collate(outdir: str) -> None:
 
                 _LOG.info("summarising")
 
-                summary_dataframe = summarise(geo_dataframe, categorical)
+                summary_dataframe = summarise(geo_dataframe, thematic)
 
                 out_fname = outdir.joinpath(
                     DirectoryNames.RESULTS.value,

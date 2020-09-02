@@ -63,17 +63,17 @@ def merge_framing(dataframe: pandas.DataFrame, framing: str) -> geopandas.GeoDat
 
 
 def summarise(
-    geo_dataframe: geopandas.GeoDataFrame, categorical: bool
+    geo_dataframe: geopandas.GeoDataFrame, thematic: bool
 ) -> pandas.DataFrame:
     """
-    Produce summary statistics for the generic and categorical datasets.
+    Produce summary statistics for the generic and thematic datasets.
     Essentially this is a global summary. i.e. for each measurement
     across the entire spatial extent, what is the min, max and mean
     value for each statistical measure.
     """
 
-    if categorical:
-        _LOG.info("summarising categorical datasets")
+    if thematic:
+        _LOG.info("summarising thematic datasets")
         cols = [i for i in geo_dataframe.columns if "_2_" in i]
     else:
         _LOG.info("summarising generic datasets")

@@ -16,7 +16,7 @@ from idl_functions import histogram
 FMT: str = "{}_2_{}"
 
 
-class FmaskCategories(Enum):
+class FmaskThemes(Enum):
     """
     Defines the class schema used by the Fmask datasets.
     """
@@ -29,7 +29,7 @@ class FmaskCategories(Enum):
     WATER = 5
 
 
-class ContiguityCategories(Enum):
+class ContiguityThemes(Enum):
     """
     Defines the class schema used by the contiguity datasets.
     """
@@ -38,7 +38,7 @@ class ContiguityCategories(Enum):
     CONTIGUOUS = 1
 
 
-class TerrainShadowCategories(Enum):
+class TerrainShadowThemes(Enum):
     """
     Defines the class schema used by the terrain shadow datasets.
     """
@@ -79,14 +79,14 @@ class GeneralRecords(Records):
         self.percent_null_2_data = []
 
 
-class CategoricalRecords(Records):
+class ThematicRecords(Records):
     """
-    Base class for defining the columns/fields for the categorical
+    Base class for defining the columns/fields for the thematic
     datasets and the list of records they'll contain.
     """
 
     def __init__(self, categories):
-        super(CategoricalRecords, self).__init__()
+        super(ThematicRecords, self).__init__()
 
         for category in categories:
             for category2 in categories:
@@ -94,34 +94,34 @@ class CategoricalRecords(Records):
                 setattr(self, name, [])
 
 
-class FmaskRecords(CategoricalRecords):
+class FmaskRecords(ThematicRecords):
     """
     Placeholder for the fmask columns/fields and the list of records
     they'll contain.
     """
 
     def __init__(self):
-        super(FmaskRecords, self).__init__(FmaskCategories)
+        super(FmaskRecords, self).__init__(FmaskThemes)
 
 
-class ContiguityRecords(CategoricalRecords):
+class ContiguityRecords(ThematicRecords):
     """
     Placeholder for the contiguity columns/fields and the list of
     records they'll contain.
     """
 
     def __init__(self):
-        super(ContiguityRecords, self).__init__(ContiguityCategories)
+        super(ContiguityRecords, self).__init__(ContiguityThemes)
 
 
-class TerrainShadowRecords(CategoricalRecords):
+class TerrainShadowRecords(ThematicRecords):
     """
     Placeholder for the terrain shadow columns/fields and the list of
     records they'll contain.
     """
 
     def __init__(self):
-        super(TerrainShadowRecords, self).__init__(TerrainShadowCategories)
+        super(TerrainShadowRecords, self).__init__(TerrainShadowThemes)
 
 
 def evaluate(
@@ -142,12 +142,12 @@ def evaluate_fmask(
 ) -> Dict[str, float]:
     """
     A basic tool to evaluate each category of Fmask and build a
-    distribution of category change. eg what pixels were identified as
+    distribution of thematic/category change. eg what pixels were identified as
     cloud and now as clear, water, cloud shadow, snow.
     """
     # fmask category limits
-    minv = FmaskCategories.NULL.value
-    maxv = FmaskCategories.WATER.value
+    minv = FmaskThemes.NULL.value
+    maxv = FmaskThemes.WATER.value
 
     # read data and reshape to 1D
     ref_data = ref_ds.read(1).ravel()
@@ -158,14 +158,14 @@ def evaluate_fmask(
     ref_hist = ref_h["histogram"]
     ref_ri = ref_h["ri"]
 
-    category_changes = dict()
+    theme_changes = dict()
 
-    for category in FmaskCategories:
-        i = category.value
+    for theme in FmaskThemes:
+        i = theme.value
         # check we have data for this category
         if ref_hist[i] == 0:
             # no changes as nothing exists in the reference data
-            category_changes[category] = numpy.zeros((6,), dtype="int")
+            theme_changes[theme] = numpy.zeros((6,), dtype="int")
             continue
 
         idx = ref_ri[ref_ri[i] : ref_ri[i + 1]]
@@ -173,28 +173,28 @@ def evaluate_fmask(
         h = histogram(values, minv=minv, maxv=maxv)
         hist = h["histogram"]
         pdf = hist / numpy.sum(hist)
-        category_changes[category] = pdf * 100
+        theme_changes[theme] = pdf * 100
 
     # split outputs into separate records
     result = dict()
-    for category in FmaskCategories:
+    for theme in FmaskThemes:
         fmt = "{}_2_{}"
-        for category2 in FmaskCategories:
-            key = fmt.format(category.name.lower(), category2.name.lower())
-            result[key] = category_changes[category][category2.value]
+        for theme2 in FmaskThemes:
+            key = fmt.format(theme.name.lower(), theme2.name.lower())
+            result[key] = theme_changes[theme][theme2.value]
 
     return result
 
 
-def evaluate_categories(
+def evaluate_themes(
     ref_ds: rasterio.io.DatasetReader,
     test_ds: rasterio.io.DatasetReader,
-    categories: Union[FmaskRecords, ContiguityRecords, TerrainShadowRecords],
+    themes: Union[FmaskThemes, ContiguityThemes, TerrainShadowThemes],
 ) -> Dict[str, float]:
     """
-    A generic tool for evaluating categorical datasets.
+    A generic tool for evaluating thematic datasets.
     """
-    values = [v.value for v in list(categories)]
+    values = [v.value for v in themes]
     n_values = len(values)
     minv = min(values)
     maxv = max(values)
@@ -208,29 +208,29 @@ def evaluate_categories(
     ref_hist = ref_h["histogram"]
     ref_ri = ref_h["ri"]
 
-    category_changes = dict()
+    theme_changes = dict()
 
-    for category in categories:
-        i = category.value
+    for theme in themes:
+        i = theme.value
         # check we have data for this category
         if ref_hist[i] == 0:
             # no changes as nothing exists in the reference data
-            category_changes[category] = numpy.zeros((n_values,), dtype="int")
+            theme_changes[theme] = numpy.zeros((n_values,), dtype="int")
             continue
         idx = ref_ri[ref_ri[i]:ref_ri[i + 1]]
         values = test_data[idx]
         h = histogram(values, minv=minv, maxv=maxv)
         hist = h["histogram"]
         pdf = hist / numpy.sum(hist)
-        category_changes[category] = pdf * 100
+        theme_changes[theme] = pdf * 100
 
     # split outputs into separate records
     result = dict()
-    for category in categories:
+    for theme in themes:
         fmt = "{}_2_{}"
-        for category2 in categories:
-            key = fmt.format(category.name.lower(), category2.name.lower())
-            result[key] = category_changes[category][category2.value]
+        for theme2 in themes:
+            key = fmt.format(theme.name.lower(), theme2.name.lower())
+            result[key] = theme_changes[theme][theme2.value]
 
     return result
 

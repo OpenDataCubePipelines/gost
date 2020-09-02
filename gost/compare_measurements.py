@@ -14,22 +14,22 @@ from gost.utils import evaluate2, evaluate_nulls, evaluate_categories
 from gost.digest_yaml import Digestyaml
 
 
-BAND_IDS: List[str, str, str, str, str, str, str] = ["1", "2", "3", "4", "5", "6", "7"]
-CONTIGUITY_MEASUREMENT_NAMES: List[str, str, str, str] = [
+BAND_IDS: List[str] = ["1", "2", "3", "4", "5", "6", "7"]
+CONTIGUITY_MEASUREMENT_NAMES: List[str] = [
     "oa_nbar_contiguity",
     "oa_nbart_contiguity",
     "nbar_contiguity",
     "nbart_contiguity",
 ]
-SHADOW_MEASUREMENT_NAMES: List[str, str] = [
+SHADOW_MEASUREMENT_NAMES: List[str] = [
     "oa_combined_terrain_shadow",
     "terrain_shadow",
 ]
-FMASK_MEASUREMENT_NAMES: List[str, str] = ["oa_fmask", "fmask"]
+FMASK_MEASUREMENT_NAMES: List[str] = ["oa_fmask", "fmask"]
 _LOG = structlog.get_logger()
 
 
-def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any, ...], ...]]:
+def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ...]:
     """Process dataframe containing records to process."""
 
     # initialise placeholders for the results

@@ -7,7 +7,7 @@ from gost.digest_yaml import DigestProcInfo, Digestyaml
 _LOG = structlog.get_logger()
 
 
-def process_yamls(dataframe: pandas.DataFrame) -> Dict[str, List[Any, ...]]:
+def process_yamls(dataframe: pandas.DataFrame) -> Dict[str, List[Any]]:
     """Compare gqa fields."""
 
     doc = DigestProcInfo(dataframe.iloc[0].proc_info_pathname_test)

@@ -57,7 +57,7 @@ class Records:
         self.region_code = []
 
     @property
-    def records(self) -> Dict[str, List[Any, ...]]:
+    def records(self) -> Dict[str, List[Any]]:
         return self.__dict__
 
 
@@ -217,7 +217,7 @@ def evaluate_categories(
             # no changes as nothing exists in the reference data
             category_changes[category] = numpy.zeros((n_values,), dtype="int")
             continue
-        idx = ref_ri[ref_ri[i] : ref_ri[i + 1]]
+        idx = ref_ri[ref_ri[i]:ref_ri[i + 1]]
         values = test_data[idx]
         h = histogram(values, minv=minv, maxv=maxv)
         hist = h["histogram"]

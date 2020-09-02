@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Tuple
 from wagl.scripts.wagl_residuals import distribution
 
 from gost.utils import ContiguityThemes, FmaskThemes
-from gost.utils import TerrainShadowCategories, GeneralRecords
+from gost.utils import TerrainShadowThemes, GeneralRecords
 from gost.utils import FmaskRecords, TerrainShadowRecords, ContiguityRecords
 from gost.utils import evaluate2, evaluate_nulls, evaluate_themes
 from gost.digest_yaml import Digestyaml

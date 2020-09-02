@@ -27,7 +27,7 @@ def query_db(
     lon: Optional[Tuple[str, str]] = None,
     lat: Optional[Tuple[str, str]] = None,
     additional_filters: Optional[Dict[str, Any]] = None,
-) -> pandas.DataFrmae:
+) -> pandas.DataFrame:
     """
     Generic datacube query wrapper.
 

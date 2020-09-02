@@ -215,7 +215,7 @@ def evaluate_themes(
         # check we have data for this category
         if ref_hist[i] == 0:
             # no changes as nothing exists in the reference data
-            theme_changes[theme] = numpy.zeros((n_values,), dtype="int")
+            theme_changes[theme] = numpy.full((n_values,), numpy.nan)
             continue
         idx = ref_ri[ref_ri[i]:ref_ri[i + 1]]
         values = test_data[idx]

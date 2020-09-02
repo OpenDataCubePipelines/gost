@@ -122,7 +122,7 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
 
                 # thematic evaluation
                 shadow_results = evaluate_themes(
-                    ref_ds, test_ds, TerrainShadowCategories
+                    ref_ds, test_ds, TerrainShadowThemes
                 )
                 for key in shadow_results:
                     value = shadow_results[key]

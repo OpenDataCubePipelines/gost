@@ -137,55 +137,6 @@ def evaluate(
     return result
 
 
-def evaluate_fmask(
-    ref_ds: rasterio.io.DatasetReader, test_ds: rasterio.io.DatasetReader
-) -> Dict[str, float]:
-    """
-    A basic tool to evaluate each category of Fmask and build a
-    distribution of thematic/category change. eg what pixels were identified as
-    cloud and now as clear, water, cloud shadow, snow.
-    """
-    # fmask category limits
-    minv = FmaskThemes.NULL.value
-    maxv = FmaskThemes.WATER.value
-
-    # read data and reshape to 1D
-    ref_data = ref_ds.read(1).ravel()
-    test_data = test_ds.read(1).ravel()
-
-    ref_h = histogram(ref_data, minv=minv, maxv=maxv, reverse_indices="ri")
-
-    ref_hist = ref_h["histogram"]
-    ref_ri = ref_h["ri"]
-
-    theme_changes = dict()
-
-    for theme in FmaskThemes:
-        i = theme.value
-        # check we have data for this category
-        if ref_hist[i] == 0:
-            # no changes as nothing exists in the reference data
-            theme_changes[theme] = numpy.zeros((6,), dtype="int")
-            continue
-
-        idx = ref_ri[ref_ri[i] : ref_ri[i + 1]]
-        values = test_data[idx]
-        h = histogram(values, minv=minv, maxv=maxv)
-        hist = h["histogram"]
-        pdf = hist / numpy.sum(hist)
-        theme_changes[theme] = pdf * 100
-
-    # split outputs into separate records
-    result = dict()
-    for theme in FmaskThemes:
-        fmt = "{}_2_{}"
-        for theme2 in FmaskThemes:
-            key = fmt.format(theme.name.lower(), theme2.name.lower())
-            result[key] = theme_changes[theme][theme2.value]
-
-    return result
-
-
 def evaluate_themes(
     ref_ds: rasterio.io.DatasetReader,
     test_ds: rasterio.io.DatasetReader,

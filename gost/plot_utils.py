@@ -8,11 +8,15 @@ import zstandard
 from gost.constants import TM_WORLD_BORDERS_FNAME
 
 COLUMNS = [
-    "min_residual",
-    "max_residual",
-    "percentile_90",
-    "percentile_99",
-    "percent_different",
+    ("min_residual", "% Reflectance", "rainbow_r"),  # reverse so red indicates greater change
+    ("max_residual", "% Reflectance", "rainbow"),
+    ("percentile_90", "% Reflectance", "rainbow"),
+    ("percentile_99", "% Reflectance", "rainbow"),
+    ("percent_different", "% of Pixels where residiual != 0", "rainbow"),
+    ("mean_residual", "% Reflectance", "rainbow"),
+    ("standard_deviation", "% Reflectance", "rainbow"),
+    ("skewness", "Skewness", "rainbow"),
+    ("kurtosis", "Kurtosis", "rainbow"),
 ]
 _LOG = structlog.get_logger()
 
@@ -35,17 +39,7 @@ def plot_png(gdf: geopandas.GeoDataFrame, outdir: str) -> None:
             _LOG.info("skipping measurement", measurement_name=name)
             continue
 
-        for column in COLUMNS:
-            if "percent_different" in column:
-                label = "% of Pixels where residiual != 0"
-            else:
-                label = "% Reflectance"
-
-            if "min_residual" in column:
-                # reverse so red indicates greater change
-                colourmap = "rainbow_r"
-            else:
-                colourmap = "rainbow"
+        for column, label, colourmap in COLUMNS:
 
             prefix = Path(outdir, name.split("_")[0])
             if not prefix.exists():
@@ -57,15 +51,13 @@ def plot_png(gdf: geopandas.GeoDataFrame, outdir: str) -> None:
             fig = plt.figure(figsize=(3, 3))
             axes = fig.add_subplot()
 
-            gdf.plot(column=column, cmap=colourmap, legend=False, ax=axes)
-
             norm = colors.Normalize(vmin=grp[column].min(), vmax=grp[column].max())
             colourbar = plt.cm.ScalarMappable(norm=norm, cmap=colourmap)
 
             ax_cbar = fig.colorbar(colourbar, ax=axes)
             ax_cbar.set_label(label)
 
-            grp.plot(column=column, cmap="rainbow", legend=False, ax=axes)
+            grp.plot(column=column, cmap=colourmap, legend=False, ax=axes)
 
             tm_gdf.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
 

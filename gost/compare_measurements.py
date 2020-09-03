@@ -3,6 +3,7 @@ import numpy
 import pandas
 import rasterio
 import structlog
+from scipy import stats
 from typing import Any, Dict, List, Tuple
 
 from wagl.scripts.wagl_residuals import distribution
@@ -165,14 +166,27 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 pct_90 = h["loc"][p1_idx]
                 pct_99 = h["loc"][p2_idx]
 
+                # moments
+                mean = numpy.mean(diff)
+                stddev = numpy.std(diff, ddof=1)
+                skewness = stats.skew(diff)
+                kurtosis = stats.kurtosis(diff)
+
                 # percentiles from cumulative distribution
                 if "nbar" in meas or meas in BAND_IDS:
                     # get difference as a percent reflectance (0->100)
                     general_records.percentile_90.append(pct_90 / 100)
                     general_records.percentile_99.append(pct_99 / 100)
+                    general_records.mean.append(mean / 100)
+                    general_records.standard_deviation.append(stddev / 100)
                 else:
                     general_records.percentile_90.append(pct_90)
                     general_records.percentile_99.append(pct_99)
+                    general_records.mean.append(mean)
+                    general_records.standard_deviation.append(stddev)
+
+                general_records.skewness.append(skewness)
+                general_records.kurtosis.append(kurtosis)
 
     results = (
         general_records.records,

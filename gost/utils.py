@@ -77,6 +77,10 @@ class GeneralRecords(Records):
         self.percentile_99 = []
         self.percent_data_2_null = []
         self.percent_null_2_data = []
+        self.mean = []
+        self.standard_deviation = []
+        self.skewness = []
+        self.kurtosis = []
 
 
 class ThematicRecords(Records):

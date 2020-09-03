@@ -124,19 +124,6 @@ class TerrainShadowRecords(ThematicRecords):
         super(TerrainShadowRecords, self).__init__(TerrainShadowThemes)
 
 
-def evaluate(
-    ref_ds: rasterio.io.DatasetReader, test_ds: rasterio.io.DatasetReader
-) -> numpy.ndarray:
-    """
-    A basic implementation of a difference operator.
-    """
-    if ref_ds.dtypes[0] == "bool":
-        result = numpy.logical_xor(ref_ds.read(1), ref_ds.read(1)).astype("uint8")
-    else:
-        result = ref_ds.read(1) - test_ds.read(1)
-    return result
-
-
 def evaluate_themes(
     ref_ds: rasterio.io.DatasetReader,
     test_ds: rasterio.io.DatasetReader,
@@ -201,7 +188,7 @@ def data_mask(ds: rasterio.io.DatasetReader) -> numpy.ndarray:
     return mask
 
 
-def evaluate2(
+def evaluate(
     ref_ds: rasterio.io.DatasetReader, test_ds: rasterio.io.DatasetReader
 ) -> numpy.ndarray:
     """A basic difference operator where data exists at both index locations"""

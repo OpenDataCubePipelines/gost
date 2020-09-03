@@ -10,7 +10,7 @@ from wagl.scripts.wagl_residuals import distribution
 from gost.utils import ContiguityThemes, FmaskThemes
 from gost.utils import TerrainShadowThemes, GeneralRecords
 from gost.utils import FmaskRecords, TerrainShadowRecords, ContiguityRecords
-from gost.utils import evaluate2, evaluate_nulls, evaluate_themes
+from gost.utils import evaluate, evaluate_nulls, evaluate_themes
 from gost.digest_yaml import Digestyaml
 
 
@@ -133,7 +133,7 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 general_records.percent_data_2_null.append(null_info[0])
                 general_records.percent_null_2_data.append(null_info[1])
 
-                diff = evaluate2(ref_ds, test_ds)
+                diff = evaluate(ref_ds, test_ds)
                 h = distribution(diff)
 
                 # store results

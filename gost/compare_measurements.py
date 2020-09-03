@@ -81,15 +81,15 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
             ref_ds = rasterio.open(fname_reference)
             test_ds = rasterio.open(fname_test)
 
+            # size of full image in pixels (null and valid)
+            size = numpy.prod(ref_ds.shape)
+
             # compute results
             if meas in FMASK_MEASUREMENT_NAMES:
                 # the idea here is to analyse the thematic data differently
-                fmask_records.granule.append(doc_reference.granule)
-                fmask_records.region_code.append(doc_reference.region_code)
-                fmask_records.reference_fname.append(str(fname_reference))
-                fmask_records.test_fname.append(str(fname_test))
-                fmask_records.size.append(numpy.prod(ref_ds.shape))
-                fmask_records.measurement.append(meas)
+                fmask_records.add_base_info(
+                    doc_reference, fname_reference, fname_test, size, meas
+                )
 
                 # thematic evaluation
                 fmask_results = evaluate_themes(ref_ds, test_ds, FmaskThemes)
@@ -98,33 +98,23 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                     getattr(fmask_records, key).append(value)
             elif meas in CONTIGUITY_MEASUREMENT_NAMES:
                 # base records
-                contiguity_records.granule.append(doc_reference.granule)
-                contiguity_records.region_code.append(doc_reference.region_code)
-                contiguity_records.reference_fname.append(str(fname_reference))
-                contiguity_records.test_fname.append(str(fname_test))
-                contiguity_records.size.append(numpy.prod(ref_ds.shape))
-                contiguity_records.measurement.append(meas)
+                contiguity_records.add_base_info(
+                    doc_reference, fname_reference, fname_test, size, meas
+                )
 
                 # thematic evaluation
-                contiguity_results = evaluate_themes(
-                    ref_ds, test_ds, ContiguityThemes
-                )
+                contiguity_results = evaluate_themes(ref_ds, test_ds, ContiguityThemes)
                 for key in contiguity_results:
                     value = contiguity_results[key]
                     getattr(contiguity_records, key).append(value)
             elif meas in SHADOW_MEASUREMENT_NAMES:
                 # base records
-                shadow_records.granule.append(doc_reference.granule)
-                shadow_records.region_code.append(doc_reference.region_code)
-                shadow_records.reference_fname.append(str(fname_reference))
-                shadow_records.test_fname.append(str(fname_test))
-                shadow_records.size.append(numpy.prod(ref_ds.shape))
-                shadow_records.measurement.append(meas)
+                shadow_records.add_base_info(
+                    doc_reference, fname_reference, fname_test, size, meas
+                )
 
                 # thematic evaluation
-                shadow_results = evaluate_themes(
-                    ref_ds, test_ds, TerrainShadowThemes
-                )
+                shadow_results = evaluate_themes(ref_ds, test_ds, TerrainShadowThemes)
                 for key in shadow_results:
                     value = shadow_results[key]
                     getattr(shadow_records, key).append(value)
@@ -138,12 +128,9 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 h = distribution(diff)
 
                 # store results
-                general_records.granule.append(doc_reference.granule)
-                general_records.reference_fname.append(str(fname_reference))
-                general_records.test_fname.append(str(fname_test))
-                general_records.region_code.append(doc_reference.region_code)
-                general_records.size.append(diff.size)
-                general_records.measurement.append(meas)
+                general_records.add_base_info(
+                    doc_reference, fname_reference, fname_test, size, meas
+                )
 
                 if "nbar" in meas or meas in BAND_IDS:
                     # get difference as a percent reflectance (0->100)

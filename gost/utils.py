@@ -6,11 +6,14 @@ scripts will be designed and executed properly.
 """
 
 from enum import Enum
+from pathlib import Path
 import numpy
 from typing import Any, Dict, List, Tuple, Union
 import rasterio
 
 from idl_functions import histogram
+
+from gost.digest_yaml import Digestyaml
 
 
 FMT: str = "{}_2_{}"
@@ -59,6 +62,22 @@ class Records:
     @property
     def records(self) -> Dict[str, List[Any]]:
         return self.__dict__
+
+    def add_base_info(
+        self,
+        reference_document: Digestyaml,
+        pathname_reference: Path,
+        pathname_test: Path,
+        size: int,
+        measurement: str,
+    ) -> None:
+        """Add the base information for a given record."""
+        self.granule.append(reference_document.granule)
+        self.reference_fname.append(str(pathname_reference))
+        self.test_fname.append(str(pathname_test))
+        self.measurement.append(measurement)
+        self.size.append(size)
+        self.region_code.append(reference_document.region_code)
 
 
 class GeneralRecords(Records):

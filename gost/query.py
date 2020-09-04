@@ -15,7 +15,7 @@ import pandas
 import structlog
 from typing import Any, Dict, Optional, Tuple
 
-from gost.digest_yaml import Digestyaml
+from gost.odc_documents import Digestyaml
 
 _LOG = structlog.get_logger()
 

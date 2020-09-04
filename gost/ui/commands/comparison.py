@@ -19,7 +19,7 @@ from gost.constants import (
     SummaryLookup,
 )
 from gost import compare_measurements, compare_gqa
-from gost.digest_yaml import Digestyaml
+from gost.odc_documents import Digestyaml
 from ._shared_commands import io_dir_options, db_query_options
 
 # comm info

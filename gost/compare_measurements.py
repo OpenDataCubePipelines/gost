@@ -12,7 +12,7 @@ from gost.utils import ContiguityThemes, FmaskThemes
 from gost.utils import TerrainShadowThemes, GeneralRecords
 from gost.utils import FmaskRecords, TerrainShadowRecords, ContiguityRecords
 from gost.utils import evaluate, evaluate_nulls, evaluate_themes
-from gost.digest_yaml import Digestyaml
+from gost.odc_documents import Digestyaml
 
 
 BAND_IDS: List[str] = ["1", "2", "3", "4", "5", "6", "7"]

@@ -13,7 +13,7 @@ import rasterio
 
 from idl_functions import histogram
 
-from gost.digest_yaml import Digestyaml
+from gost.odc_documents import Digestyaml
 
 
 FMT: str = "{}_2_{}"

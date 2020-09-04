@@ -2,7 +2,7 @@ import pandas
 import structlog
 from typing import Any, Dict, List
 
-from gost.digest_yaml import DigestProcInfo, Digestyaml
+from gost.odc_documents import DigestProcInfo, Digestyaml
 
 _LOG = structlog.get_logger()
 

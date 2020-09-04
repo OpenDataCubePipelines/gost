@@ -2,7 +2,7 @@ import pandas
 import structlog
 from typing import Any, Dict, List
 
-from gost.odc_documents import DigestProcInfo, Digestyaml
+from gost.odc_documents import ReadOdcProcInfo, ReadOdcMetadata
 
 _LOG = structlog.get_logger()
 
@@ -10,7 +10,7 @@ _LOG = structlog.get_logger()
 def process_yamls(dataframe: pandas.DataFrame) -> Dict[str, List[Any]]:
     """Compare gqa fields."""
 
-    doc = DigestProcInfo(dataframe.iloc[0].proc_info_pathname_test)
+    doc = ReadOdcProcInfo(dataframe.iloc[0].proc_info_pathname_test)
     results = {key: [] for key in doc.fields}
     results["reference_pathname"] = []
     results["test_pathname"] = []
@@ -24,9 +24,9 @@ def process_yamls(dataframe: pandas.DataFrame) -> Dict[str, List[Any]]:
             yaml_doc_reference=row.proc_info_pathname_reference,
         )
 
-        doc_reference = Digestyaml(row.yaml_pathname_reference)
-        proc_info_test = DigestProcInfo(row.proc_info_pathname_test)
-        proc_info_reference = DigestProcInfo(row.proc_info_pathname_reference)
+        doc_reference = ReadOdcMetadata(row.yaml_pathname_reference)
+        proc_info_test = ReadOdcProcInfo(row.proc_info_pathname_test)
+        proc_info_reference = ReadOdcProcInfo(row.proc_info_pathname_reference)
 
         results["region_code"].append(doc_reference.region_code)
         results["granule"].append(doc_reference.granule)

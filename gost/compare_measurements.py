@@ -12,7 +12,7 @@ from gost.utils import ContiguityThemes, FmaskThemes
 from gost.utils import TerrainShadowThemes, GeneralRecords
 from gost.utils import FmaskRecords, TerrainShadowRecords, ContiguityRecords
 from gost.utils import evaluate, evaluate_nulls, evaluate_themes
-from gost.odc_documents import Digestyaml
+from gost.odc_documents import ReadOdcMetadata
 
 
 BAND_IDS: List[str] = ["1", "2", "3", "4", "5", "6", "7"]
@@ -46,8 +46,8 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
             yaml_doc_reference=row.yaml_pathname_reference,
         )
 
-        doc_test = Digestyaml(row.yaml_pathname_test)
-        doc_reference = Digestyaml(row.yaml_pathname_reference)
+        doc_test = ReadOdcMetadata(row.yaml_pathname_test)
+        doc_reference = ReadOdcMetadata(row.yaml_pathname_reference)
 
         for meas in doc_test.measurements:
             _LOG.info(

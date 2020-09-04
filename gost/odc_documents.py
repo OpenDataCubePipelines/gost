@@ -5,7 +5,7 @@ from typing import Any, Dict
 _LOG = structlog.get_logger()
 
 
-class Digestyaml:
+class ReadOdcMetadata:
     def __init__(self, pathname: str):
         with open(str(pathname)) as src:
             self._doc = yaml.load(src, Loader=yaml.FullLoader)
@@ -78,7 +78,7 @@ class Digestyaml:
         return self._framing
 
 
-class DigestProcInfo:
+class ReadOdcProcInfo:
     def __init__(self, pathname: str):
         with open(str(pathname)) as src:
             self._doc = yaml.load(src, Loader=yaml.FullLoader)

@@ -15,7 +15,7 @@ import pandas
 import structlog
 from typing import Any, Dict, Optional, Tuple
 
-from gost.odc_documents import Digestyaml
+from gost.odc_documents import ReadOdcMetadata
 
 _LOG = structlog.get_logger()
 
@@ -72,7 +72,7 @@ def query_db(
 
     for dataset in datasets:
         _LOG.info("processing dataset", dataset=str(dataset.local_path))
-        doc = Digestyaml(dataset.local_path)
+        doc = ReadOdcMetadata(dataset.local_path)
 
         uuid.append(doc.parent_uuid)
         yaml_pathname.append(str(dataset.local_path))
@@ -185,7 +185,7 @@ def query_filepath(path: str, pattern: str) -> pandas.DataFrame:
     for fname in files:
         _LOG.info("processing dataset", dataset=str(fname))
 
-        doc = Digestyaml(fname)
+        doc = ReadOdcMetadata(fname)
         uuid.append(doc.parent_uuid)
         yaml_pathname.append(str(fname))
 

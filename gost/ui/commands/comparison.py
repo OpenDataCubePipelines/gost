@@ -19,7 +19,7 @@ from gost.constants import (
     SummaryLookup,
 )
 from gost import compare_measurements, compare_gqa
-from gost.odc_documents import Digestyaml
+from gost.odc_documents import ReadOdcMetadata
 from ._shared_commands import io_dir_options, db_query_options
 
 # comm info
@@ -170,7 +170,7 @@ def comparison(outdir: str, compare_gqa: bool) -> None:
         blocks = scatter(index, n_processors)
 
         # some basic attribute information
-        doc = Digestyaml(dataframe.iloc[0].yaml_pathname_reference)
+        doc = ReadOdcMetadata(dataframe.iloc[0].yaml_pathname_reference)
         attrs = {"framing": doc.framing, "thematic": False}
     else:
         blocks = None

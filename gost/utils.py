@@ -13,7 +13,7 @@ import rasterio
 
 from idl_functions import histogram
 
-from gost.odc_documents import Digestyaml
+from gost.odc_documents import ReadOdcMetadata
 
 
 FMT: str = "{}_2_{}"
@@ -65,7 +65,7 @@ class Records:
 
     def add_base_info(
         self,
-        reference_document: Digestyaml,
+        reference_document: ReadOdcMetadata,
         pathname_reference: Path,
         pathname_test: Path,
         size: int,

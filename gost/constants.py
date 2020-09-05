@@ -9,9 +9,9 @@ yield the results back to the user in the simplest form.
 
 from enum import Enum
 import pkg_resources
-import numpy
-import structlog
-from structlog.processors import JSONRenderer
+import numpy  # type: ignore
+import structlog  # type: ignore
+from structlog.processors import JSONRenderer  # type: ignore
 
 LOG_PROCESSORS = [
     structlog.stdlib.add_log_level,

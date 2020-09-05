@@ -10,12 +10,12 @@ removed from the resulting query.
 """
 
 from pathlib import Path
-import datacube
-import pandas
-import structlog
 from typing import Any, Dict, Optional, Tuple
+import datacube  # type: ignore
+import pandas  # type: ignore
+import structlog  # type: ignore
 
-from gost.odc_documents import ReadOdcMetadata
+from gost.odc_documents import load_odc_metadata
 
 _LOG = structlog.get_logger()
 
@@ -72,15 +72,13 @@ def query_db(
 
     for dataset in datasets:
         _LOG.info("processing dataset", dataset=str(dataset.local_path))
-        doc = ReadOdcMetadata(dataset.local_path)
+        doc = load_odc_metadata(dataset.local_path)
 
         uuid.append(doc.parent_uuid)
         yaml_pathname.append(str(dataset.local_path))
 
         # procssing info document
-        proc_info_pathname = dataset.local_path.parent.joinpath(
-            dataset.metadata_doc["accessories"]["metadata:processor"]["path"]
-        )
+        proc_info_pathname = dataset.local_path.parent.joinpath(doc.proc_info)
         proc_info_pathname.append(str(proc_info_pathname))
 
     dataframe = pandas.DataFrame(
@@ -159,7 +157,7 @@ def query_products(
     return merged
 
 
-def query_filepath(path: str, pattern: str) -> pandas.DataFrame:
+def query_filepath(path: Path, pattern: str) -> pandas.DataFrame:
     """
     Find datasets by globbing the filesystem.
 
@@ -185,14 +183,12 @@ def query_filepath(path: str, pattern: str) -> pandas.DataFrame:
     for fname in files:
         _LOG.info("processing dataset", dataset=str(fname))
 
-        doc = ReadOdcMetadata(fname)
+        doc = load_odc_metadata(fname)
         uuid.append(doc.parent_uuid)
         yaml_pathname.append(str(fname))
 
         # procssing info document
-        pathname = fname.parent.joinpath(
-            doc.doc["accessories"]["metadata:processor"]["path"]
-        )
+        pathname = fname.parent.joinpath(doc.proc_info)
         proc_info_pathname.append(str(pathname))
 
     dataframe = pandas.DataFrame(

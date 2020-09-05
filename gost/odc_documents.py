@@ -3,14 +3,15 @@ Handles Open Data Cube metadata documents.
 """
 import math
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
+from affine import Affine  # type: ignore
 import attr
 import cattr
-import numpy
-import rasterio
-import h5py
+import numpy  # type: ignore
+import rasterio  # type: ignore
+import h5py  # type: ignore
 import yaml
-import structlog
+import structlog  # type: ignore
 
 _LOG = structlog.get_logger()
 
@@ -117,12 +118,12 @@ class Residual:
     quality metadata.
     """
 
-    abs_iterative_mean: AbsIterativeMean = None
-    abs: Abs = None
-    iterative_mean: IterativeMean = None
-    iterative_stddev: IterativeStddev = None
-    mean: Mean = None
-    stddev: Stddev = None
+    abs_iterative_mean: Union[AbsIterativeMean, None] = None
+    abs: Union[Abs, None] = None
+    iterative_mean: Union[IterativeMean, None] = None
+    iterative_stddev: Union[IterativeStddev, None] = None
+    mean: Union[Mean, None] = None
+    stddev: Union[Stddev, None] = None
     cep90: float = attr.ib(default=math.nan)
 
     def flatten(self):
@@ -152,7 +153,7 @@ class GeometricQuality:
     ref_date: str = attr.ib(default="")
     ref_source: str = attr.ib(default="")
     ref_source_path: str = attr.ib(default="")
-    residual: Residual = None
+    residual: Union[Residual, None] = None
     fields: Dict[str, Any] = attr.ib(init=False, repr=False)
 
     def __attrs_post_init__(self):
@@ -163,6 +164,16 @@ class GeometricQuality:
             data[key] = value
 
         self.fields = data
+
+
+def _convert_transform(transform: List[Any]) -> Affine:
+    """Create Affine transform."""
+    if len(transform) == 9:
+        affine_transform = Affine(*transform[:-3])
+    else:
+        affine_transform = Affine(*transform)
+
+    return affine_transform
 
 
 @attr.s(auto_attribs=True)
@@ -176,6 +187,9 @@ class Measurement:
     file_format: str
     band: Optional[int] = attr.ib()
     dataset_pathname: Optional[str] = None
+    transform: List = attr.ib(converter=_convert_transform, default=None)
+    shape: Union[Tuple[int, int], None] = attr.ib(converter=tuple, default=None)
+    nodata: Union[Any, None] = attr.ib(init=False)
 
     @band.default
     def band_default(self):
@@ -186,6 +200,23 @@ class Measurement:
             value = 1
 
         return value
+
+    def __attrs_post_init__(self):
+        """
+        Initialise some attributes post init.
+        Unfortunately we have to do a file open to get the
+        nodata value.
+        In order to return without failure, None is returned for those
+        cases where the file can't be opened.
+        The transform, and shape attributes could also be initialied
+        here instead of passing them through.
+        """
+        pathname = self.pathname()
+        if not pathname.exists():
+            msg = "pathname not found, setting nodata to None"
+            _LOG.info(msg, pathname=str(pathname))
+
+        self.nodata = None
 
     def pathname(self) -> Path:
         """Return full pathname to the file."""
@@ -237,7 +268,7 @@ class Granule:
     product_name: str = attr.ib(default="")
     parent_uuid: str = attr.ib(default="")
     framing: str = attr.ib(default="")
-    measurements: Dict[str, Measurement] = None
+    measurements: Union[Dict[str, Measurement], None] = None
 
 
 def _load_yaml_doc(path: Path) -> Dict:
@@ -307,10 +338,17 @@ def load_odc_metadata(path: Path) -> Granule:
 
         file_format = raw_doc["properties"]["odc:file_format"]
 
+        grids = raw_doc["grids"]
+
         # file format is global in ODC; still it is better to define it per-measurement
         for measurement in doc["measurements"]:
             doc["measurements"][measurement]["file_format"] = file_format
             doc["measurements"][measurement]["parent_dir"] = str(path.parent)
+
+            # shape and transform
+            grid = doc["measurements"][measurement].get("grid", "default")
+            for key, value in grids[grid].items():
+                doc["measurements"][measurement][key] = value
 
     converter = cattr.Converter()
     granule = converter.structure(doc, Granule)

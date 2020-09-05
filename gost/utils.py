@@ -7,13 +7,12 @@ scripts will be designed and executed properly.
 
 from enum import Enum
 from pathlib import Path
-import numpy
+import numpy  # type: ignore
 from typing import Any, Dict, List, Tuple, Union
-import rasterio
 
-from idl_functions import histogram
+from idl_functions import histogram  # type: ignore
 
-from gost.odc_documents import ReadOdcMetadata
+from gost.odc_documents import Granule, Measurement
 
 
 FMT: str = "{}_2_{}"
@@ -65,14 +64,14 @@ class Records:
 
     def add_base_info(
         self,
-        reference_document: ReadOdcMetadata,
+        reference_document: Granule,
         pathname_reference: Path,
         pathname_test: Path,
         size: int,
         measurement: str,
     ) -> None:
         """Add the base information for a given record."""
-        self.granule.append(reference_document.granule)
+        self.granule.append(reference_document.granule_id)
         self.reference_fname.append(str(pathname_reference))
         self.test_fname.append(str(pathname_test))
         self.measurement.append(measurement)
@@ -148,8 +147,8 @@ class TerrainShadowRecords(ThematicRecords):
 
 
 def evaluate_themes(
-    ref_ds: rasterio.io.DatasetReader,
-    test_ds: rasterio.io.DatasetReader,
+    ref_measurement: Measurement,
+    test_measurement: Measurement,
     themes: Union[FmaskThemes, ContiguityThemes, TerrainShadowThemes],
 ) -> Dict[str, float]:
     """
@@ -161,8 +160,8 @@ def evaluate_themes(
     maxv = max(values)
 
     # read data and reshape to 1D
-    ref_data = ref_ds.read(1).ravel()
-    test_data = test_ds.read(1).ravel()
+    ref_data = ref_measurement.read().ravel()
+    test_data = test_measurement.read().ravel()
 
     ref_h = histogram(ref_data, minv=minv, maxv=maxv, reverse_indices="ri")
 
@@ -178,7 +177,7 @@ def evaluate_themes(
             # no changes as nothing exists in the reference data
             theme_changes[theme] = numpy.full((n_values,), numpy.nan)
             continue
-        idx = ref_ri[ref_ri[i]:ref_ri[i + 1]]
+        idx = ref_ri[ref_ri[i] : ref_ri[i + 1]]
         values = test_data[idx]
         h = histogram(values, minv=minv, maxv=maxv)
         hist = h["histogram"]
@@ -196,52 +195,52 @@ def evaluate_themes(
     return result
 
 
-def data_mask(ds: rasterio.io.DatasetReader) -> numpy.ndarray:
+def data_mask(measurement: Measurement) -> numpy.ndarray:
     """Extract a mask of data and no data; handle a couple of cases."""
-    nodata = ds.nodata
+    nodata = measurement.nodata
     if nodata is None:
         nodata = 0
     is_finite = numpy.isfinite(nodata)
 
     if is_finite:
-        mask = ds.read(1) != nodata
+        mask = measurement.read() != nodata
     else:
-        mask = numpy.isfinite(ds.read(1))
+        mask = numpy.isfinite(measurement.read())
 
     return mask
 
 
 def evaluate(
-    ref_ds: rasterio.io.DatasetReader, test_ds: rasterio.io.DatasetReader
+    ref_measurement: Measurement, test_measurement: Measurement
 ) -> numpy.ndarray:
     """A basic difference operator where data exists at both index locations"""
-    ref_mask = data_mask(ref_ds)
-    test_mask = data_mask(test_ds)
+    ref_mask = data_mask(ref_measurement)
+    test_mask = data_mask(test_measurement)
 
     # evaluate only where valid data locations are the same
     mask = ref_mask & test_mask
-    result = ref_ds.read(1)[mask] - test_ds.read(1)[mask]
+    result = ref_measurement.read()[mask] - test_measurement.read()[mask]
 
     return result
 
 
 def evaluate_nulls(
-    ref_ds: rasterio.io.DatasetReader, test_ds: rasterio.io.DatasetReader
+    ref_measurement: Measurement, test_measurement: Measurement
 ) -> Tuple[float, float]:
     """
     A basic eval for checking if null locations have changed.
     eg, data pixel to null pixel and vice versa.
     """
-    nodata = ref_ds.nodata
+    nodata = ref_measurement.nodata
     if nodata is None:
         nodata = 0
     is_finite = numpy.isfinite(nodata)
 
-    mask = data_mask(ref_ds)
+    mask = data_mask(ref_measurement)
 
     # read data from both the data and nodata masks
-    values = test_ds.read(1)[mask]
-    values2 = test_ds.read(1)[~mask]
+    values = test_measurement.read()[mask]
+    values2 = test_measurement.read()[~mask]
 
     if is_finite:
         valid_2_null = values == nodata

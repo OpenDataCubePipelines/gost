@@ -1,18 +1,17 @@
 from pathlib import Path
-import numpy
-import pandas
-import rasterio
-import structlog
-from scipy import stats
+import numpy  # type: ignore
+import pandas  # type: ignore
+import structlog  # type: ignore
+from scipy import stats  # type: ignore
 from typing import Any, Dict, List, Tuple
 
-from wagl.scripts.wagl_residuals import distribution
+from wagl.scripts.wagl_residuals import distribution  # type: ignore
 
 from gost.utils import ContiguityThemes, FmaskThemes
 from gost.utils import TerrainShadowThemes, GeneralRecords
 from gost.utils import FmaskRecords, TerrainShadowRecords, ContiguityRecords
 from gost.utils import evaluate, evaluate_nulls, evaluate_themes
-from gost.odc_documents import ReadOdcMetadata
+from gost.odc_documents import load_odc_metadata
 
 
 BAND_IDS: List[str] = ["1", "2", "3", "4", "5", "6", "7"]
@@ -46,93 +45,108 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
             yaml_doc_reference=row.yaml_pathname_reference,
         )
 
-        doc_test = ReadOdcMetadata(row.yaml_pathname_test)
-        doc_reference = ReadOdcMetadata(row.yaml_pathname_reference)
+        doc_test = load_odc_metadata(Path(row.yaml_pathname_test))
+        doc_reference = load_odc_metadata(Path(row.yaml_pathname_test))
 
-        for meas in doc_test.measurements:
+        for measurement_name in doc_test.measurements:
             _LOG.info(
                 "processing measurement",
-                measurement=meas,
+                measurement=measurement_name,
             )
 
-            fname_test = Path(row.yaml_pathname_test).parent.joinpath(
-                doc_test.measurements[meas]["path"]
-            )
-            fname_reference = Path(row.yaml_pathname_reference).parent.joinpath(
-                doc_reference.measurements[meas]["path"]
-            )
+            test_measurement = doc_test.measurements[measurement_name]
+            reference_measurement = doc_reference.measurements[measurement_name]
 
-            if not fname_reference.exists():
+            if not reference_measurement.pathname().exists():
                 _LOG.info(
                     "missing reference measurement",
-                    measurement_reference=fname_reference,
-                    measurement_test=fname_test,
+                    measurement_reference=str(reference_measurement.pathname()),
+                    measurement_test=str(test_measurement.pathname()),
                 )
                 continue
 
-            if not fname_test.exists():
+            if not test_measurement.pathname().exists():
                 _LOG.info(
                     "missing test measurement",
-                    measurement_reference=fname_reference,
-                    measurement_test=fname_test,
+                    measurement_reference=str(reference_measurement.pathname()),
+                    measurement_test=str(test_measurement.pathname()),
                 )
                 continue
 
-            ref_ds = rasterio.open(fname_reference)
-            test_ds = rasterio.open(fname_test)
-
             # size of full image in pixels (null and valid)
-            size = numpy.prod(ref_ds.shape)
+            size = numpy.prod(test_measurement.shape)
 
             # compute results
-            if meas in FMASK_MEASUREMENT_NAMES:
+            if measurement_name in FMASK_MEASUREMENT_NAMES:
                 # the idea here is to analyse the thematic data differently
                 fmask_records.add_base_info(
-                    doc_reference, fname_reference, fname_test, size, meas
+                    doc_reference,
+                    reference_measurement.pathname(),
+                    test_measurement.pathname(),
+                    size,
+                    measurement_name,
                 )
 
                 # thematic evaluation
-                fmask_results = evaluate_themes(ref_ds, test_ds, FmaskThemes)
+                fmask_results = evaluate_themes(
+                    reference_measurement, test_measurement, FmaskThemes
+                )
                 for key in fmask_results:
                     value = fmask_results[key]
                     getattr(fmask_records, key).append(value)
-            elif meas in CONTIGUITY_MEASUREMENT_NAMES:
+            elif measurement_name in CONTIGUITY_MEASUREMENT_NAMES:
                 # base records
                 contiguity_records.add_base_info(
-                    doc_reference, fname_reference, fname_test, size, meas
+                    doc_reference,
+                    reference_measurement.pathname(),
+                    test_measurement.pathname(),
+                    size,
+                    measurement_name,
                 )
 
                 # thematic evaluation
-                contiguity_results = evaluate_themes(ref_ds, test_ds, ContiguityThemes)
+                contiguity_results = evaluate_themes(
+                    reference_measurement, test_measurement, ContiguityThemes
+                )
                 for key in contiguity_results:
                     value = contiguity_results[key]
                     getattr(contiguity_records, key).append(value)
-            elif meas in SHADOW_MEASUREMENT_NAMES:
+            elif measurement_name in SHADOW_MEASUREMENT_NAMES:
                 # base records
                 shadow_records.add_base_info(
-                    doc_reference, fname_reference, fname_test, size, meas
+                    doc_reference,
+                    reference_measurement.pathname(),
+                    test_measurement.pathname(),
+                    size,
+                    measurement_name,
                 )
 
                 # thematic evaluation
-                shadow_results = evaluate_themes(ref_ds, test_ds, TerrainShadowThemes)
+                shadow_results = evaluate_themes(
+                    reference_measurement, test_measurement, TerrainShadowThemes
+                )
                 for key in shadow_results:
                     value = shadow_results[key]
                     getattr(shadow_records, key).append(value)
             else:
                 # null data evaluation
-                null_info = evaluate_nulls(ref_ds, test_ds)
+                null_info = evaluate_nulls(reference_measurement, test_measurement)
                 general_records.percent_data_2_null.append(null_info[0])
                 general_records.percent_null_2_data.append(null_info[1])
 
-                diff = evaluate(ref_ds, test_ds)
+                diff = evaluate(reference_measurement, test_measurement)
                 h = distribution(diff)
 
                 # store results
                 general_records.add_base_info(
-                    doc_reference, fname_reference, fname_test, size, meas
+                    doc_reference,
+                    reference_measurement.pathname(),
+                    test_measurement.pathname(),
+                    size,
+                    measurement_name,
                 )
 
-                if "nbar" in meas or meas in BAND_IDS:
+                if "nbar" in measurement_name or measurement_name in BAND_IDS:
                     # get difference as a percent reflectance (0->100)
                     general_records.min_residual.append(h["omin"] / 100)
                     general_records.max_residual.append(h["omax"] / 100)
@@ -160,16 +174,16 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 kurtosis = stats.kurtosis(diff)
 
                 # percentiles from cumulative distribution
-                if "nbar" in meas or meas in BAND_IDS:
+                if "nbar" in measurement_name or measurement_name in BAND_IDS:
                     # get difference as a percent reflectance (0->100)
                     general_records.percentile_90.append(pct_90 / 100)
                     general_records.percentile_99.append(pct_99 / 100)
-                    general_records.mean.append(mean / 100)
+                    general_records.mean_residual.append(mean / 100)
                     general_records.standard_deviation.append(stddev / 100)
                 else:
                     general_records.percentile_90.append(pct_90)
                     general_records.percentile_99.append(pct_99)
-                    general_records.mean.append(mean)
+                    general_records.mean_residual.append(mean)
                     general_records.standard_deviation.append(stddev)
 
                 general_records.skewness.append(skewness)

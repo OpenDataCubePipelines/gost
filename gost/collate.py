@@ -20,10 +20,10 @@ The basic idea is to get a measure of the spread for each statistical
 result for each measurement.
 """
 
-import pandas
-import geopandas
-import structlog
-import zstandard
+import pandas  # type: ignore
+import geopandas  # type: ignore
+import structlog  # type: ignore
+import zstandard  # type: ignore
 
 from gost.constants import SUMMARISE_FUNCS, FRAMING
 

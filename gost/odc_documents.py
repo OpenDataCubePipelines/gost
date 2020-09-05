@@ -269,6 +269,7 @@ class Granule:
     parent_uuid: str = attr.ib(default="")
     framing: str = attr.ib(default="")
     measurements: Union[Dict[str, Measurement], None] = None
+    proc_info: str = attr.ib(default="")
 
 
 def _load_yaml_doc(path: Path) -> Dict:
@@ -326,6 +327,11 @@ def load_odc_metadata(path: Path) -> Granule:
             doc["measurements"][meas]["path"] = measurements[meas]["path"]
             doc["measurements"][meas]["file_format"] = "GeoTIFF"
             doc["measurements"][meas]["parent_dir"] = str(path.parent)
+            doc["measurements"][meas]["transform"] = measurements[meas]["info"]["geotransform"]
+            doc["measurements"][meas]["shape"] = [
+                measurements[meas]["info"]["height"],
+                measurements[meas]["info"]["width"],
+            ]
     else:
         # Landsat Collection-3
         doc["product_name"] = raw_doc["product"]["name"]
@@ -339,6 +345,8 @@ def load_odc_metadata(path: Path) -> Granule:
         file_format = raw_doc["properties"]["odc:file_format"]
 
         grids = raw_doc["grids"]
+
+        doc["proc_info"] = raw_doc["accessories"]["metadata:processor"]["path"]
 
         # file format is global in ODC; still it is better to define it per-measurement
         for measurement in doc["measurements"]:

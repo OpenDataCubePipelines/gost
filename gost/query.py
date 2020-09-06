@@ -72,7 +72,7 @@ def query_db(
 
     for dataset in datasets:
         _LOG.info("processing dataset", dataset=str(dataset.local_path))
-        doc = load_odc_metadata(dataset.local_path, False)
+        doc = load_odc_metadata(dataset.local_path)
 
         uuid.append(doc.parent_uuid)
         yaml_pathname.append(str(dataset.local_path))
@@ -183,7 +183,7 @@ def query_filepath(path: Path, pattern: str) -> pandas.DataFrame:
     for fname in files:
         _LOG.info("processing dataset", dataset=str(fname))
 
-        doc = load_odc_metadata(fname, False)
+        doc = load_odc_metadata(fname)
         uuid.append(doc.parent_uuid)
         yaml_pathname.append(str(fname))
 

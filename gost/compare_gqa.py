@@ -30,7 +30,7 @@ def process_yamls(dataframe: pandas.DataFrame) -> Dict[str, List[Any]]:
             yaml_doc_reference=row.proc_info_pathname_reference,
         )
 
-        doc_reference = load_odc_metadata(Path(row.yaml_pathname_reference), False)
+        doc_reference = load_odc_metadata(Path(row.yaml_pathname_reference))
         proc_info_test = load_proc_info(Path(row.proc_info_pathname_test))
         proc_info_reference = load_proc_info(Path(row.proc_info_pathname_reference))
 

@@ -189,8 +189,6 @@ class Measurement:
     dataset_pathname: Optional[str] = None
     transform: List = attr.ib(converter=_convert_transform, default=None)
     shape: Union[Tuple[int, int], None] = attr.ib(converter=tuple, default=None)
-    inspect_measurement: bool = attr.ib(default=True)
-    nodata: Union[Any, None] = attr.ib(init=False)
 
     @band.default
     def band_default(self):
@@ -202,45 +200,45 @@ class Measurement:
 
         return value
 
-    def __attrs_post_init__(self):
-        """
-        Initialise some attributes post init.
-        Unfortunately we have to do a file open to get the
-        nodata value.
-        In order to return without failure, None is returned for those
-        cases where the file can't be opened.
-        The transform, and shape attributes could also be initialied
-        here instead of passing them through.
-        """
-        if self.inspect_measurement:
-            pathname = self.pathname()
-            if not pathname.exists():
-                msg = "pathname not found, setting nodata to None"
-                _LOG.info(msg, pathname=str(pathname))
+    # def __attrs_post_init__(self):
+    #     """
+    #     Initialise some attributes post init.
+    #     Unfortunately we have to do a file open to get the
+    #     nodata value.
+    #     In order to return without failure, None is returned for those
+    #     cases where the file can't be opened.
+    #     The transform, and shape attributes could also be initialied
+    #     here instead of passing them through.
+    #     """
+    #     if self.inspect_measurement:
+    #         pathname = self.pathname()
+    #         if not pathname.exists():
+    #             msg = "pathname not found, setting nodata to None"
+    #             _LOG.info(msg, pathname=str(pathname))
 
-                self.nodata = None
-            else:
-                if self.file_format == "HDF5":
-                    with h5py.File(str(pathname), "r") as fid:
-                        if self.dataset_pathname not in fid:
-                            msg = "dataset pathname not found"
-                            _LOG.info(
-                                msg,
-                                dataset_pathname=self.dataset_pathname,
-                            )
-                            raise KeyError(msg)
+    #             self.nodata = None
+    #         else:
+    #             if self.file_format == "HDF5":
+    #                 with h5py.File(str(pathname), "r") as fid:
+    #                     if self.dataset_pathname not in fid:
+    #                         msg = "dataset pathname not found"
+    #                         _LOG.info(
+    #                             msg,
+    #                             dataset_pathname=self.dataset_pathname,
+    #                         )
+    #                         raise KeyError(msg)
 
-                        ds = fid[self.dataset_pathname]
-                        nodata = ds.attrs.get("no_data_value", None)
-                        if nodata is None:
-                            nodata = ds.fillvalue
-                else:
-                    with rasterio.open(pathname) as src:
-                        nodata = src.nodata
+    #                     ds = fid[self.dataset_pathname]
+    #                     nodata = ds.attrs.get("no_data_value", None)
+    #                     if nodata is None:
+    #                         nodata = ds.fillvalue
+    #             else:
+    #                 with rasterio.open(pathname) as src:
+    #                     nodata = src.nodata
 
-                self.nodata = nodata
-        else:
-            self.nodata = None
+    #             self.nodata = nodata
+    #     else:
+    #         self.nodata = None
 
     def pathname(self) -> Path:
         """Return full pathname to the file."""
@@ -248,6 +246,36 @@ class Measurement:
         pathname = Path(self.parent_dir, self.path)
 
         return pathname
+
+    def nodata(self):
+        """Retrieve the nodata value."""
+
+        pathname = self.pathname()
+        if not pathname.exists():
+            msg = "pathname not found, setting nodata to None"
+            _LOG.info(msg, pathname=str(pathname))
+
+            no_data = None
+        else:
+            if self.file_format == "HDF5":
+                with h5py.File(str(pathname), "r") as fid:
+                    if self.dataset_pathname not in fid:
+                        msg = "dataset pathname not found"
+                        _LOG.info(
+                            msg,
+                            dataset_pathname=self.dataset_pathname,
+                        )
+                        raise KeyError(msg)
+
+                    ds = fid[self.dataset_pathname]
+                    no_data = ds.attrs.get("no_data_value", None)
+                    if no_data is None:
+                        no_data = ds.fillvalue
+            else:
+                with rasterio.open(pathname) as src:
+                    no_data = src.nodata
+
+        return no_data
 
     def read(self) -> numpy.ndarray:
         """
@@ -305,18 +333,13 @@ def _load_yaml_doc(path: Path) -> Dict:
     return doc
 
 
-def load_odc_metadata(path: Path, inspect_measurements: bool = True) -> Granule:
+def load_odc_metadata(path: Path) -> Granule:
     """
     Load the ODC odc-metadata document.
     The checks for different old style metadata will be removed soon.
 
     :param path:
         Pathname to the *.odc-metadata.yaml document.
-
-    :param inspect_measurements:
-        If set to True (default), then each measurement will be opened
-        and report if the measurement pathname can't be found, as well
-        as inspecting for a nodata value.
 
     :return:
         Granule class instance.
@@ -361,13 +384,13 @@ def load_odc_metadata(path: Path, inspect_measurements: bool = True) -> Granule:
                 measurements[meas]["info"]["height"],
                 measurements[meas]["info"]["width"],
             ]
-            doc["measurements"][meas]["inspect_measurement"] = inspect_measurements
     else:
         # Landsat Collection-3
         doc["product_name"] = raw_doc["product"]["name"]
         doc["granule_id"] = raw_doc["properties"]["landsat:landsat_scene_id"]
         doc["region_code"] = raw_doc["properties"]["odc:region_code"]
         doc["measurements"] = raw_doc["measurements"]
+        doc["framing"] = "WRS2"
 
         # assuming a single level-1 source
         doc["parent_uuid"] = raw_doc["lineage"]["level1"][0]
@@ -382,7 +405,6 @@ def load_odc_metadata(path: Path, inspect_measurements: bool = True) -> Granule:
         for measurement in doc["measurements"]:
             doc["measurements"][measurement]["file_format"] = file_format
             doc["measurements"][measurement]["parent_dir"] = str(path.parent)
-            doc["measurements"][measurement]["inspect_measurement"] = inspect_measurements
 
             # shape and transform
             grid = doc["measurements"][measurement].get("grid", "default")

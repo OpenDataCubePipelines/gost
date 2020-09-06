@@ -1,26 +1,24 @@
 from pathlib import Path
+from typing import Any, Optional, Tuple, Union
 import click
-import h5py
-from mpi4py import MPI
-import pandas
-import structlog
-from typing import Any, Optional, Tuple
+import h5py  # type: ignore
+from mpi4py import MPI  # type: ignore
+import pandas  # type: ignore
+import structlog  # type: ignore
 
 from mpi_structlog.mpi_logger import DEFAULT_PROCESSORS, MPIStreamIO, MPILoggerFactory
-from wagl.tiling import scatter
-from wagl.hdf5 import read_h5_table, write_dataframe
+from wagl.tiling import scatter  # type: ignore
+from wagl.hdf5 import read_h5_table, write_dataframe  # type: ignore
 
 from gost.constants import (
     DatasetNames,
     DirectoryNames,
     FileNames,
     LogNames,
-    MergeLookup,
-    SummaryLookup,
 )
 from gost import compare_measurements, compare_gqa
-from gost.odc_documents import ReadOdcMetadata
-from ._shared_commands import io_dir_options, db_query_options
+from gost.odc_documents import load_odc_metadata
+from ._shared_commands import io_dir_options
 
 # comm info
 COMM = MPI.COMM_WORLD
@@ -28,7 +26,9 @@ COMM = MPI.COMM_WORLD
 _LOG = structlog.get_logger()
 
 
-def _process_proc_info(dataframe: pandas.DataFrame, rank: int) -> Optional[pandas.DataFrame]:
+def _process_proc_info(
+    dataframe: pandas.DataFrame, rank: int
+) -> Optional[pandas.DataFrame]:
     gqa_results = compare_gqa.process_yamls(dataframe)
 
     # gather proc info results from each worker
@@ -129,18 +129,18 @@ def _process_odc_doc(dataframe: pandas.DataFrame, rank: int) -> Tuple[Any, ...]:
 @click.command()
 @io_dir_options
 @click.option(
-    "--compare-gqa",
+    "--gqa",
     default=False,
     is_flag=True,
     help="If set, then comapre the GQA fields and not the product measurements",
 )
-def comparison(outdir: str, compare_gqa: bool) -> None:
+def comparison(outdir: Union[str, Path], gqa: bool) -> None:
     """
     Test and Reference product intercomparison evaluation.
     """
 
     outdir = Path(outdir)
-    if compare_gqa:
+    if gqa:
         log_fname = outdir.joinpath(
             DirectoryNames.LOGS.value, LogNames.GQA_INTERCOMPARISON.value
         )
@@ -170,7 +170,7 @@ def comparison(outdir: str, compare_gqa: bool) -> None:
         blocks = scatter(index, n_processors)
 
         # some basic attribute information
-        doc = ReadOdcMetadata(dataframe.iloc[0].yaml_pathname_reference)
+        doc = load_odc_metadata(Path(dataframe.iloc[0].yaml_pathname_reference))
         attrs = {"framing": doc.framing, "thematic": False}
     else:
         blocks = None
@@ -182,7 +182,7 @@ def comparison(outdir: str, compare_gqa: bool) -> None:
     # equally partition the work across all procesors
     indices = COMM.scatter(blocks, root=0)
 
-    if compare_gqa:
+    if gqa:
         if rank == 0:
             _LOG.info("procssing proc-info documents")
 
@@ -223,7 +223,10 @@ def comparison(outdir: str, compare_gqa: bool) -> None:
 
                 attrs["thematic"] = True
                 write_dataframe(
-                    fmask_dataframe, DatasetNames.FMASK_RESULTS.value, fid, attrs=attrs,
+                    fmask_dataframe,
+                    DatasetNames.FMASK_RESULTS.value,
+                    fid,
+                    attrs=attrs,
                 )
 
                 attrs["thematic"] = True
@@ -243,6 +246,6 @@ def comparison(outdir: str, compare_gqa: bool) -> None:
                 )
 
     if rank == 0:
-        workflow = "gqa field" if compare_gqa else "product measurement"
+        workflow = "gqa field" if gqa else "product measurement"
         msg = "{} comparison processing finished".format(workflow)
         _LOG.info(msg)

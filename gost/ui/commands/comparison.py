@@ -170,7 +170,7 @@ def comparison(outdir: Union[str, Path], gqa: bool) -> None:
         blocks = scatter(index, n_processors)
 
         # some basic attribute information
-        doc = load_odc_metadata(Path(dataframe.iloc[0].yaml_pathname_reference))
+        doc = load_odc_metadata(Path(dataframe.iloc[0].yaml_pathname_reference), False)
         attrs = {"framing": doc.framing, "thematic": False}
     else:
         blocks = None

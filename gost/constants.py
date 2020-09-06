@@ -22,23 +22,23 @@ LOG_PROCESSORS = [
 ]
 SUMMARISE_FUNCS = [numpy.min, numpy.max, numpy.mean]
 WRS2_FNAME = pkg_resources.resource_filename(
-    "gost", "data/landsat_wrs2_descending.geojsonl.zstd"
+    "gost", "data/landsat_wrs2_descending.geojsonl.zst"
 )
 MGRS_FNAME = pkg_resources.resource_filename(
-    "gost", "data/sentinel-2-mgrs.geojsonl.zstd"
+    "gost", "data/sentinel-2-mgrs.geojsonl.zst"
 )
 FRAMING = {
     "WRS2": WRS2_FNAME,
     "MGRS": MGRS_FNAME,
 }
 TM_WORLD_BORDERS_FNAME = pkg_resources.resource_filename(
-    "gost", "data/TM_WORLD_BORDERS-0.3.geojsonl.zstd"
+    "gost", "data/TM_WORLD_BORDERS-0.3.geojsonl.zst"
 )
 LANDSAT_LATEX_TEMPLATE_FNAME = pkg_resources.resource_filename(
-    "gost", "data/landsat-template.txt.zstd"
+    "gost", "data/landsat-template.txt.zst"
 )
 LANDSAT_CA_LATEX_TEMPLATE_FNAME = pkg_resources.resource_filename(
-    "gost", "data/landsat-coastal-aerosol-template.txt.zstd"
+    "gost", "data/landsat-coastal-aerosol-template.txt.zst"
 )
 
 

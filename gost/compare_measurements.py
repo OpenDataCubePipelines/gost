@@ -46,7 +46,7 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
         )
 
         doc_test = load_odc_metadata(Path(row.yaml_pathname_test))
-        doc_reference = load_odc_metadata(Path(row.yaml_pathname_test))
+        doc_reference = load_odc_metadata(Path(row.yaml_pathname_reference))
 
         for measurement_name in doc_test.measurements:
             _LOG.info(

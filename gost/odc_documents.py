@@ -9,7 +9,6 @@ import attr
 import cattr
 import numpy  # type: ignore
 import rasterio  # type: ignore
-import h5py  # type: ignore
 import yaml
 import structlog  # type: ignore
 
@@ -180,8 +179,35 @@ def _convert_transform(transform: List[Any]) -> Affine:
 class Measurement:
     """
     Refers to an individual measurement within an ODC document.
+
+    Attributes:
+    ----------
+
+    :path:
+        Name of the file.
+    :parent_dir:
+        Name of the parent directory the file resides in.
+    :file_format:
+        E.g. GeoTIFF, HDF5 etc.
+    :band:
+        Integer band index (1, n).
+    :dataset_pathname:
+        For container files like HDF5, the pathname to the dataset
+        within the file.
+    :transform:
+        Affine transformation.
+    :shape:
+        Shape in (height, width) of the dataset.
+    :nodata:
+        The no data value of the dataset.
+    :closed:
+        Is the file and/or dataset openeded.
+    :dataset:
+        Data access layer.
     """
 
+    # TODO: HDF5 measurement class to simplify IO on measurements
+    # within the same file. Required for upcoming sensitivity analysis.
     path: str
     parent_dir: str
     file_format: str
@@ -189,6 +215,9 @@ class Measurement:
     dataset_pathname: Optional[str] = None
     transform: List = attr.ib(converter=_convert_transform, default=None)
     shape: Union[Tuple[int, int], None] = attr.ib(converter=tuple, default=None)
+    nodata: Any = None
+    closed: bool = True
+    dataset: Any = None
 
     @band.default
     def band_default(self):
@@ -200,46 +229,6 @@ class Measurement:
 
         return value
 
-    # def __attrs_post_init__(self):
-    #     """
-    #     Initialise some attributes post init.
-    #     Unfortunately we have to do a file open to get the
-    #     nodata value.
-    #     In order to return without failure, None is returned for those
-    #     cases where the file can't be opened.
-    #     The transform, and shape attributes could also be initialied
-    #     here instead of passing them through.
-    #     """
-    #     if self.inspect_measurement:
-    #         pathname = self.pathname()
-    #         if not pathname.exists():
-    #             msg = "pathname not found, setting nodata to None"
-    #             _LOG.info(msg, pathname=str(pathname))
-
-    #             self.nodata = None
-    #         else:
-    #             if self.file_format == "HDF5":
-    #                 with h5py.File(str(pathname), "r") as fid:
-    #                     if self.dataset_pathname not in fid:
-    #                         msg = "dataset pathname not found"
-    #                         _LOG.info(
-    #                             msg,
-    #                             dataset_pathname=self.dataset_pathname,
-    #                         )
-    #                         raise KeyError(msg)
-
-    #                     ds = fid[self.dataset_pathname]
-    #                     nodata = ds.attrs.get("no_data_value", None)
-    #                     if nodata is None:
-    #                         nodata = ds.fillvalue
-    #             else:
-    #                 with rasterio.open(pathname) as src:
-    #                     nodata = src.nodata
-
-    #             self.nodata = nodata
-    #     else:
-    #         self.nodata = None
-
     def pathname(self) -> Path:
         """Return full pathname to the file."""
 
@@ -247,41 +236,8 @@ class Measurement:
 
         return pathname
 
-    def nodata(self):
-        """Retrieve the nodata value."""
-
-        pathname = self.pathname()
-        if not pathname.exists():
-            msg = "pathname not found, setting nodata to None"
-            _LOG.info(msg, pathname=str(pathname))
-
-            no_data = None
-        else:
-            if self.file_format == "HDF5":
-                with h5py.File(str(pathname), "r") as fid:
-                    if self.dataset_pathname not in fid:
-                        msg = "dataset pathname not found"
-                        _LOG.info(
-                            msg,
-                            dataset_pathname=self.dataset_pathname,
-                        )
-                        raise KeyError(msg)
-
-                    ds = fid[self.dataset_pathname]
-                    no_data = ds.attrs.get("no_data_value", None)
-                    if no_data is None:
-                        no_data = ds.fillvalue
-            else:
-                with rasterio.open(pathname) as src:
-                    no_data = src.nodata
-
-        return no_data
-
-    def read(self) -> numpy.ndarray:
-        """
-        Basic method to read the data into memory.
-        Can very easily be expanded to read subsets, resample etc.
-        """
+    def open(self):
+        """Open the dataset."""
 
         pathname = self.pathname()
         if not pathname.exists():
@@ -290,21 +246,23 @@ class Measurement:
 
             raise OSError(msg)
 
-        # h5py is faster with I/O than reading HDF5 via GDAL
-        if self.file_format == "HDF5":
-            with h5py.File(str(pathname), "r") as fid:
-                if self.dataset_pathname not in fid:
-                    msg = "dataset pathname not found"
-                    _LOG.info(
-                        msg,
-                        dataset_pathname=self.dataset_pathname,
-                    )
-                    raise KeyError(msg)
+        self.dataset = rasterio.open(pathname)
+        self.nodata = self.dataset.nodata
+        self.closed = False
 
-                data = fid[self.dataset_pathname][:]
-        else:
-            with rasterio.open(pathname, "r") as src:
-                data = src.read(self.band)
+    def close(self):
+        """Close the dataset."""
+
+        self.dataset.close()
+        self.closed = True
+
+    def read(self) -> numpy.ndarray:
+        """
+        Basic method to read the data into memory.
+        Can very easily be expanded to read subsets, resample etc.
+        """
+
+        data = self.dataset.read(self.band)
 
         return data
 

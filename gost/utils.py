@@ -197,7 +197,7 @@ def evaluate_themes(
 
 def data_mask(measurement: Measurement) -> numpy.ndarray:
     """Extract a mask of data and no data; handle a couple of cases."""
-    nodata = measurement.nodata()
+    nodata = measurement.nodata
     if nodata is None:
         nodata = 0
     is_finite = numpy.isfinite(nodata)

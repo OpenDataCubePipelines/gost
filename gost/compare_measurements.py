@@ -73,6 +73,10 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 )
                 continue
 
+            # open the handler for the datasets
+            test_measurement.open()
+            reference_measurement.open()
+
             # size of full image in pixels (null and valid)
             size = numpy.prod(test_measurement.shape)
 

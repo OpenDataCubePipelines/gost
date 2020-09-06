@@ -35,7 +35,7 @@ COMPARISON_CMD = """{resources}
 mpiexec -n {ncpus} ard-intercomparison comparison --outdir {outdir}
 """
 GQA_COMPARISON_CMD = """{resources}
-mpiexec -n {ncpus} ard-intercomparison comparison --outdir {outdir} --compare-gqa
+mpiexec -n {ncpus} ard-intercomparison comparison --outdir {outdir} --gqa
 """
 COLLATE_CMD = """{resources}
 ard-intercomparison collate --outdir {outdir}

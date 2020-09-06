@@ -189,6 +189,7 @@ class Measurement:
     dataset_pathname: Optional[str] = None
     transform: List = attr.ib(converter=_convert_transform, default=None)
     shape: Union[Tuple[int, int], None] = attr.ib(converter=tuple, default=None)
+    inspect_measurement: bool = attr.ib(default=True)
     nodata: Union[Any, None] = attr.ib(init=False)
 
     @band.default
@@ -211,32 +212,35 @@ class Measurement:
         The transform, and shape attributes could also be initialied
         here instead of passing them through.
         """
-        pathname = self.pathname()
-        if not pathname.exists():
-            msg = "pathname not found, setting nodata to None"
-            _LOG.info(msg, pathname=str(pathname))
+        if self.inspect_measurement:
+            pathname = self.pathname()
+            if not pathname.exists():
+                msg = "pathname not found, setting nodata to None"
+                _LOG.info(msg, pathname=str(pathname))
 
-            self.nodata = None
-        else:
-            if self.file_format == "HDF5":
-                with h5py.File(str(pathname), "r") as fid:
-                    if self.dataset_pathname not in fid:
-                        msg = "dataset pathname not found"
-                        _LOG.info(
-                            msg,
-                            dataset_pathname=self.dataset_pathname,
-                        )
-                        raise KeyError(msg)
-
-                    ds = fid[self.dataset_pathname]
-                    nodata = ds.attrs.get("no_data_value", None)
-                    if nodata is None:
-                        nodata = ds.fillvalue
+                self.nodata = None
             else:
-                with rasterio.open(pathname) as src:
-                    nodata = src.nodata
+                if self.file_format == "HDF5":
+                    with h5py.File(str(pathname), "r") as fid:
+                        if self.dataset_pathname not in fid:
+                            msg = "dataset pathname not found"
+                            _LOG.info(
+                                msg,
+                                dataset_pathname=self.dataset_pathname,
+                            )
+                            raise KeyError(msg)
 
-            self.nodata = nodata
+                        ds = fid[self.dataset_pathname]
+                        nodata = ds.attrs.get("no_data_value", None)
+                        if nodata is None:
+                            nodata = ds.fillvalue
+                else:
+                    with rasterio.open(pathname) as src:
+                        nodata = src.nodata
+
+                self.nodata = nodata
+        else:
+            self.nodata = None
 
     def pathname(self) -> Path:
         """Return full pathname to the file."""
@@ -301,13 +305,18 @@ def _load_yaml_doc(path: Path) -> Dict:
     return doc
 
 
-def load_odc_metadata(path: Path) -> Granule:
+def load_odc_metadata(path: Path, inspect_measurements: bool = True) -> Granule:
     """
     Load the ODC odc-metadata document.
     The checks for different old style metadata will be removed soon.
 
     :param path:
         Pathname to the *.odc-metadata.yaml document.
+
+    :param inspect_measurements:
+        If set to True (default), then each measurement will be opened
+        and report if the measurement pathname can't be found, as well
+        as inspecting for a nodata value.
 
     :return:
         Granule class instance.
@@ -352,6 +361,7 @@ def load_odc_metadata(path: Path) -> Granule:
                 measurements[meas]["info"]["height"],
                 measurements[meas]["info"]["width"],
             ]
+            doc["measurements"][meas]["inspect_measurement"] = inspect_measurements
     else:
         # Landsat Collection-3
         doc["product_name"] = raw_doc["product"]["name"]
@@ -372,6 +382,7 @@ def load_odc_metadata(path: Path) -> Granule:
         for measurement in doc["measurements"]:
             doc["measurements"][measurement]["file_format"] = file_format
             doc["measurements"][measurement]["parent_dir"] = str(path.parent)
+            doc["measurements"][measurement]["inspect_measurement"] = inspect_measurements
 
             # shape and transform
             grid = doc["measurements"][measurement].get("grid", "default")

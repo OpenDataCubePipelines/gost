@@ -216,7 +216,27 @@ class Measurement:
             msg = "pathname not found, setting nodata to None"
             _LOG.info(msg, pathname=str(pathname))
 
-        self.nodata = None
+            self.nodata = None
+        else:
+            if self.file_format == "HDF5":
+                with h5py.File(str(pathname), "r") as fid:
+                    if self.dataset_pathname not in fid:
+                        msg = "dataset pathname not found"
+                        _LOG.info(
+                            msg,
+                            dataset_pathname=self.dataset_pathname,
+                        )
+                        raise KeyError(msg)
+
+                    ds = fid[self.dataset_pathname]
+                    nodata = ds.attrs.get("no_data_value", None)
+                    if nodata is None:
+                        nodata = ds.fillvalue
+            else:
+                with rasterio.open(pathname) as src:
+                    nodata = src.nodata
+
+            self.nodata = nodata
 
     def pathname(self) -> Path:
         """Return full pathname to the file."""

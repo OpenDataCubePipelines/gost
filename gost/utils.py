@@ -197,7 +197,7 @@ def evaluate_themes(
 
 def data_mask(measurement: Measurement) -> numpy.ndarray:
     """Extract a mask of data and no data; handle a couple of cases."""
-    nodata = measurement.nodata
+    nodata = measurement.nodata()
     if nodata is None:
         nodata = 0
     is_finite = numpy.isfinite(nodata)
@@ -207,15 +207,15 @@ def data_mask(measurement: Measurement) -> numpy.ndarray:
     else:
         mask = numpy.isfinite(measurement.read())
 
-    return mask
+    return mask, nodata
 
 
 def evaluate(
     ref_measurement: Measurement, test_measurement: Measurement
 ) -> numpy.ndarray:
     """A basic difference operator where data exists at both index locations"""
-    ref_mask = data_mask(ref_measurement)
-    test_mask = data_mask(test_measurement)
+    ref_mask, _ = data_mask(ref_measurement)
+    test_mask, _ = data_mask(test_measurement)
 
     # evaluate only where valid data locations are the same
     mask = ref_mask & test_mask
@@ -231,12 +231,8 @@ def evaluate_nulls(
     A basic eval for checking if null locations have changed.
     eg, data pixel to null pixel and vice versa.
     """
-    nodata = ref_measurement.nodata
-    if nodata is None:
-        nodata = 0
+    mask, nodata = data_mask(ref_measurement)
     is_finite = numpy.isfinite(nodata)
-
-    mask = data_mask(ref_measurement)
 
     # read data from both the data and nodata masks
     values = test_measurement.read()[mask]

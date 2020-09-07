@@ -193,6 +193,10 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 general_records.skewness.append(skewness)
                 general_records.kurtosis.append(kurtosis)
 
+            # close the handler for the datasets
+            test_measurement.close()
+            reference_measurement.close()
+
     results = (
         general_records.records,
         fmask_records.records,

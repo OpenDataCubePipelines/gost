@@ -154,11 +154,6 @@ def plot_pngs(gdf: geopandas.GeoDataFrame, outdir: Path) -> None:
 
     for name, grp in gdf.groupby("measurement"):
 
-        if "nbar" not in name:
-            # only deal with reflectance measurements for now
-            _LOG.info("skipping measurement", measurement_name=name)
-            continue
-
         if "nbar" in name:
             _plot_reflectance_stats(grp, tm_gdf, name, outdir)
         else:

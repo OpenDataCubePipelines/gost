@@ -1,71 +1,29 @@
-import io
+"""
+Command line interface for creating the PNG plots and the LaTeX documents.
+"""
 from pathlib import Path
+from typing import Union
 import click
-import structlog
-import geopandas
-from typing import Tuple
-import zstandard
+import structlog  # type: ignore
+import geopandas  # type: ignore
 
 from gost.constants import (
     DirectoryNames,
     FileNames,
     LOG_PROCESSORS,
     LogNames,
-    LANDSAT_LATEX_TEMPLATE_FNAME,
-    LANDSAT_CA_LATEX_TEMPLATE_FNAME,
 )
-from gost.plot_utils import plot_png
+from gost.plot_utils import plot_pngs
+from gost.report_utils import latex_documents
 from ._shared_commands import io_dir_options
 
 _LOG = structlog.get_logger()
 
 
-def _latex_documents(coastal: bool = False) -> Tuple[str, str]:
-    """Utility to create the latex document strings."""
-
-    _LOG.info("reading Landsat LaTeX template")
-
-    with open(LANDSAT_LATEX_TEMPLATE_FNAME, "rb") as src:
-        dctx = zstandard.ZstdDecompressor()
-        landsat_template = io.TextIOWrapper(
-            dctx.stream_reader(src), encoding="utf-8"
-        ).read()
-
-    if coastal:
-        _LOG.info("reading Landsat coastal aerosol LaTeX template")
-        with open(LANDSAT_CA_LATEX_TEMPLATE_FNAME, "rb") as src:
-            dctx = zstandard.ZstdDecompressor()
-            coastal_template = io.TextIOWrapper(
-                dctx.stream_reader(src), encoding="utf-8"
-            ).read()
-
-        nbar_document = landsat_template.format(
-            sr_type="nbar",
-            SR_TYPE="NBAR",
-            coastal_aerosol=coastal_template.format(sr_type="nbar", SR_TYPE="NBAR"),
-        )
-        nbart_document = landsat_template.format(
-            sr_type="nbart",
-            SR_TYPE="NBART",
-            coastal_aerosol=coastal_template.format(sr_type="nbart", SR_TYPE="NBART"),
-        )
-    else:
-        nbar_document = landsat_template.format(
-            sr_type="nbar",
-            SR_TYPE="NBAR",
-        )
-        nbart_document = landsat_template.format(
-            sr_type="nbart",
-            SR_TYPE="NBART",
-        )
-
-    return nbar_document, nbart_document
-
-
 @click.command()
 @io_dir_options
 def plotting(
-    outdir: str,
+    outdir: Union[str, Path],
 ) -> None:
     """
     Using the framing geometry, plot the results of the intercomparison evaluation.
@@ -90,36 +48,12 @@ def plotting(
         gdf = geopandas.read_file(results_fname)
 
         plots_outdir = outdir.joinpath(DirectoryNames.PLOTS.value)
-        plot_png(gdf, plots_outdir)
+        reports_outdir = outdir.joinpath(DirectoryNames.REPORT.value)
 
-        # this needs reworking so we can cater for sentinel-2
-        granule = gdf.iloc[0].granule
+        _LOG.info("producing PNG's")
+        plot_pngs(gdf, plots_outdir)
 
-        if "LC8" in granule:
-            coastal = True
+        _LOG.info("producing LaTeX documents")
+        latex_documents(gdf, reports_outdir)
 
-        nbar_document, nbart_document = _latex_documents(coastal)
-
-        # output filenames
-        nbar_out_fname = outdir.joinpath(
-            DirectoryNames.REPORT.value, FileNames.NBAR_REPORT.value
-        )
-        nbart_out_fname = outdir.joinpath(
-            DirectoryNames.REPORT.value, FileNames.NBART_REPORT.value
-        )
-
-        if not nbar_out_fname.parent.exists():
-            _LOG.info(
-                "creating report output directory", outdir=str(nbar_out_fname.parent)
-            )
-            nbar_out_fname.parent.mkdir(parents=True)
-
-        _LOG.info("writing NBAR LaTeX document", out_fname=str(nbar_out_fname))
-
-        with open(nbar_out_fname, "w") as src:
-            src.write(nbar_document)
-
-        _LOG.info("writing NBART LaTeX document", out_fname=str(nbart_out_fname))
-
-        with open(nbart_out_fname, "w") as src:
-            src.write(nbart_document)
+        _LOG.info("finished producing plots and writing LaTeX documents")

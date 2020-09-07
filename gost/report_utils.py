@@ -76,7 +76,9 @@ def _write_product_docs(
             product_group=product_group, sections=doc_sections
         )
 
-        out_fname = outdir.joinpath(FileNames.REPORT.value.format(product_group))
+        out_fname = outdir.joinpath(
+            FileNames.REPORT.value.format(product_group=product_group)
+        )
 
         _LOG.info("writing tex document to disk", out_fname=str(out_fname))
 

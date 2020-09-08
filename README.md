@@ -50,8 +50,12 @@ Provides the user with maps of the results of the comparison, as well as a basic
 * 90th percentile of the residual
 * 99th percentile of the residual
 * percentage of pixels with a residual != 0
+* skewness
+* kurtosis
 
-for each of the reflectance measurements.
+for each of the measurements within the NBAR, NBART and OA products.
+
+LaTeX reports consisting of the above plots are also generated for each of the NBAR, NBART and OA products for ease of distribution.
 
 
 ## Examples of use

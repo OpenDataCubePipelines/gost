@@ -247,5 +247,5 @@ def comparison(outdir: Union[str, Path], gqa: bool) -> None:
 
     if rank == 0:
         workflow = "gqa field" if gqa else "product measurement"
-        msg = "{} comparison processing finished".format(workflow)
+        msg = f"{workflow} comparison processing finished"
         _LOG.info(msg)

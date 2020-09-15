@@ -124,7 +124,7 @@ def plot_png(gdf, outdir):
             if not prefix.exists():
                 prefix.mkdir()
 
-            out_fname = prefix.joinpath("{}-{}.png".format(name, col))
+            out_fname = prefix.joinpath(f"{name}-{col}.png")
             fig, axes = plt.subplots()
             # fig = plt.figure(figsize=(3, 3), constrained_layout=True)
             #fig = plt.figure(figsize=(3, 3))
@@ -167,7 +167,7 @@ def plot_png_s2(gdf, outdir):
             if not prefix.exists():
                 prefix.mkdir()
 
-            out_fname = prefix.joinpath("{}-{}.png".format(name, col))
+            out_fname = prefix.joinpath(f"{name}-{col}.png")
             # fig, axes = plt.subplots()
             # fig = plt.figure(figsize=(3, 3), constrained_layout=True)
             fig = plt.figure(figsize=(3, 3))
@@ -210,7 +210,7 @@ def plot_pcts_png(gdf, outdir):
             if not prefix.exists():
                 prefix.mkdir()
 
-            out_fname = prefix.joinpath("{}-{}.png".format(name, col))
+            out_fname = prefix.joinpath(f"{name}-{col}.png")
             # fig, axes = plt.subplots()
             # fig = plt.figure(figsize=(3, 3), constrained_layout=True)
             fig = plt.figure(figsize=(3, 3))

@@ -15,9 +15,6 @@ from idl_functions import histogram  # type: ignore
 from gost.odc_documents import Granule, Measurement
 
 
-FMT: str = "{}_2_{}"
-
-
 class FmaskThemes(Enum):
     """
     Defines the class schema used by the Fmask datasets.
@@ -112,7 +109,7 @@ class ThematicRecords(Records):
 
         for category in categories:
             for category2 in categories:
-                name = FMT.format(category.name.lower(), category2.name.lower())
+                name = f"{category.name.lower()}_2_{category2.name.lower()}"
                 setattr(self, name, [])
 
 
@@ -187,9 +184,8 @@ def evaluate_themes(
     # split outputs into separate records
     result = dict()
     for theme in themes:
-        fmt = "{}_2_{}"
         for theme2 in themes:
-            key = fmt.format(theme.name.lower(), theme2.name.lower())
+            key = f"{theme.name.lower()}_2_{theme2.name.lower()}"
             result[key] = theme_changes[theme][theme2.value]
 
     return result

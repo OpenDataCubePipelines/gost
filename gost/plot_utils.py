@@ -56,7 +56,7 @@ def _plot_reflectance_stats(
             _LOG.info("creating output directory", outdir=str(prefix))
             prefix.mkdir(parents=True)
 
-        out_fname = prefix.joinpath("{}-{}.png".format(name, column))
+        out_fname = prefix.joinpath(f"{name}-{column}.png")
 
         fig = plt.figure(figsize=(3, 3))
         axes = fig.add_subplot()
@@ -111,7 +111,7 @@ def _plot_oa_stats(
 
         label = other_labels.get(label, label)
 
-        out_fname = prefix.joinpath("{}-{}.png".format(name, column))
+        out_fname = prefix.joinpath(f"{name}-{column}.png")
 
         fig = plt.figure(figsize=(3, 3))
         axes = fig.add_subplot()

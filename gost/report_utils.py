@@ -44,7 +44,7 @@ def _write_measurement_docs(
         )
 
         # need relative names to insert into the main tex doc of each product
-        basename = "{}.tex".format(name)
+        basename = f"{name}.tex"
         relative_fname = Path(DirectoryNames.MEASUREMENT_DOCS.value, basename)
         measurement_doc_fnames[product_group].append(relative_fname)
 
@@ -69,8 +69,7 @@ def _write_product_docs(
 
         sub_doc_names = measurement_doc_fnames[product_group]
 
-        section = "  \\subfile{{{s}}}\n"
-        doc_sections = "".join([section.format(s=s) for s in sub_doc_names])
+        doc_sections = "".join([f"  \\subfile{{{s}}}\n" for s in sub_doc_names])
 
         out_string = document_template.format(
             product_group=product_group, sections=doc_sections

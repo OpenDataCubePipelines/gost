@@ -30,7 +30,7 @@ class GqaColours:
 
     def flatten(self):
         d = attr.asdict(self)
-        result = {"colour_{}".format(key): val for key, val in d.items()}
+        result = {f"colour_{key}": val for key, val in d.items()}
 
         return result
 
@@ -131,7 +131,7 @@ class Residual:
         for key in d:
             if isinstance(d[key], dict):
                 for key2 in d[key]:
-                    result["{}_{}".format(key, key2)] = d[key][key2]
+                    result[f"{key}_{key2}"] = d[key][key2]
             else:
                 result[key] = d[key]
 
@@ -163,6 +163,107 @@ class GeometricQuality:
             data[key] = value
 
         self.fields = data
+
+
+@attr.s(auto_attribs=True)
+class Brdf:
+    """
+    Refers to the Alpha-1 and Alpha-2 BRDF components for a given band.
+    """
+
+    alpha_1: Union[Dict[str, float], None] = None
+    alpha_2: Union[Dict[str, float], None] = None
+    id: Union[List[Any], None] = None
+    tier: Union[str, None] = None
+
+    def flatten(self):
+        skip = [
+            "id",
+            "tier",
+        ]
+        data = attr.asdict(self, filter=lambda attr, value: attr.name not in skip)
+
+        result = {}
+
+        for key, value in data.items():
+            for key2, value2 in value.items():
+                result[f"{key}_{key2}"] = value2
+
+        return result
+
+
+@attr.s(auto_attribs=True)
+class Aerosol:
+    """
+    Contains the information relating to the aerosol component used
+    within the processing pipeline.
+    """
+
+    value: Union[float, None] = None
+    id: Union[List[Any], None] = None
+    tier: Union[str, None] = None
+
+
+@attr.s(auto_attribs=True)
+class Ozone:
+    """
+    Contains the information relating to the ozone component used
+    within the processing pipeline.
+    """
+
+    value: Union[float, None] = None
+    id: Union[List[Any], None] = None
+    tier: Union[str, None] = None
+
+
+@attr.s(auto_attribs=True)
+class WaterVapour:
+    """
+    Contains the information relating to the water vapour component used
+    within the processing pipeline.
+    """
+
+    value: Union[float, None] = None
+    id: Union[List[Any], None] = None
+    tier: Union[str, None] = None
+
+
+@attr.s(auto_attribs=True)
+class AncillaryInfo:
+    """
+    Ancillary value information of the proc-info metadata document.
+    """
+
+    aerosol: Union[Aerosol, None] = None
+    brdf: Union[Brdf, None] = None
+    ozone: Union[Ozone, None] = None
+    water_vapour: Union[WaterVapour, None] = None
+
+    def flatten(self):
+        skip = [
+            "id",
+            "tier",
+            "brdf",
+        ]
+        data = attr.asdict(self, filter=lambda attr, value: attr.name not in skip)
+
+        result = self.brdf.flatten()
+
+        for key, value in data.items():
+            result[key] = value["value"]
+
+        return result
+
+
+@attr.s(auto_attribs=True)
+class GranuleProcInfo:
+    """
+    Basic class containing information pertaining to the processing
+    info for a given granule.
+    """
+
+    geometric_quality: Union[GeometricQuality, None] = None
+    ancillary: Union[AncillaryInfo, None] = None
 
 
 def _convert_transform(transform: List[Any]) -> Affine:
@@ -388,7 +489,14 @@ def load_proc_info(path: Path) -> GeometricQuality:
 
     doc = _load_yaml_doc(path)
 
-    converter = cattr.Converter()
-    gqa = converter.structure(doc["gqa"], GeometricQuality)
+    sections = {
+        "geometric_quality": doc["gqa"],
+        "ancillary": doc["wagl"]["ancillary"],
+    }
 
-    return gqa
+    converter = cattr.Converter()
+    # gqa = converter.structure(doc["gqa"], GeometricQuality)
+
+    processing_info = converter.structure(sections, GranuleProcInfo)
+
+    return processing_info

@@ -16,7 +16,7 @@ from gost.constants import (
     FileNames,
     LogNames,
 )
-from gost import compare_measurements, compare_gqa
+from gost import compare_measurements, compare_proc_info
 from gost.odc_documents import load_odc_metadata
 from ._shared_commands import io_dir_options
 
@@ -29,7 +29,7 @@ _LOG = structlog.get_logger()
 def _process_proc_info(
     dataframe: pandas.DataFrame, rank: int
 ) -> Optional[pandas.DataFrame]:
-    gqa_results = compare_gqa.process_yamls(dataframe)
+    gqa_results = compare_proc_info.process_yamls(dataframe)
 
     # gather proc info results from each worker
     if rank == 0:

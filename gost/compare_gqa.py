@@ -16,7 +16,7 @@ def process_yamls(dataframe: pandas.DataFrame) -> Dict[str, List[Any]]:
 
     doc = load_proc_info(Path(dataframe.iloc[0].proc_info_pathname_test))
 
-    results: Dict[str, Any] = {key: [] for key in doc.fields}
+    results: Dict[str, Any] = {key: [] for key in doc.geometric_quality.fields}
 
     results["reference_pathname"] = []
     results["test_pathname"] = []
@@ -39,7 +39,7 @@ def process_yamls(dataframe: pandas.DataFrame) -> Dict[str, List[Any]]:
         results["reference_pathname"].append(row.proc_info_pathname_reference)
         results["test_pathname"].append(row.proc_info_pathname_test)
 
-        for field, value in proc_info_test.fields.items():
-            results[field].append(proc_info_reference.fields[field] - value)
+        for field, value in proc_info_test.geometric_quality.fields.items():
+            results[field].append(proc_info_reference.geometric_quality.fields[field] - value)
 
     return results

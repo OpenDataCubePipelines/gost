@@ -20,6 +20,8 @@ The basic idea is to get a measure of the spread for each statistical
 result for each measurement.
 """
 
+from pathlib import Path
+from typing import Any, Dict, Tuple
 import pandas  # type: ignore
 import geopandas  # type: ignore
 import structlog  # type: ignore
@@ -106,3 +108,107 @@ def summarise(
         result = result.transpose().unstack().transpose()
 
     return result
+
+
+def global_min_max(dataframe: pandas.DataFrame) -> pandas.DataFrame:
+    """Return min/max global summary."""
+    columns = [i for i in dataframe.index.get_level_values(0) if "nbar" in i]
+
+    result = dataframe.loc[(columns, ["max_residual", "min_residual"]), :]
+
+    return result
+
+
+def reflectance_pass_fail(
+    dataframe: pandas.DataFrame,
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """Evaluate a final pass/fail result for the reflectance products."""
+
+    def test(dataframe: pandas.DataFrame, nbar: bool) -> Dict[str, Any]:
+        cols = [i for i in dataframe.index.get_level_values(0) if "nbar" in i]
+
+        if nbar:
+            columns = [col for col in cols if "nbart" not in col]
+        else:
+            columns = [col for col in cols if "nbart" in col]
+
+        subset = dataframe.loc[(columns, ["max_residual", "min_residual"]), :]
+
+        minv = subset.min(axis=0)["amin"]
+        maxv = subset.max(axis=0)["amax"]
+
+        test_passed = max(abs(minv), abs(maxv)) <= 1
+
+        result = {"minv": minv, "maxv": maxv, "test_passed": test_passed}
+
+        return result
+
+    nbar_result = test(dataframe, True)
+
+    _LOG.info(
+        "final reflectance evaluation",
+        product="NBAR",
+        test_passed=nbar_result["test_passed"],
+        min_residual=nbar_result["minv"],
+        max_residual=nbar_result["maxv"],
+    )
+
+    nbart_result = test(dataframe, True)
+
+    _LOG.info(
+        "final reflectance evaluation",
+        product="NBART",
+        test_passed=nbart_result["test_passed"],
+        min_residual=nbart_result["minv"],
+        max_residual=nbart_result["maxv"],
+    )
+
+    return nbar_result, nbart_result
+
+
+def create_general_csvs(dataframe: pandas.DataFrame, outdir: Path) -> None:
+    """Produce CSV's of the general intercomparison results."""
+
+    measurements = dataframe.index.get_level_values(0).unique()
+    reflectance_keep = [col for col in measurements if "nbar" in col]
+    nbar_keep = [col for col in reflectance_keep if "nbart" not in col]
+    nbart_keep = [col for col in reflectance_keep if "nbart" in col]
+    oa_keep = [col for col in measurements if "oa_" in col]
+
+    col_groups = {
+        "nbar": nbar_keep,
+        "nbart": nbart_keep,
+        "oa": oa_keep,
+    }
+
+    for name, group in dataframe.groupby(level=1):
+        drop1 = group.droplevel(1)
+
+        if "min" in name:
+            for product_group in col_groups:
+                subset = drop1.loc[(col_groups[product_group])]
+
+                subset_drop = (
+                    subset.drop(columns=["amax", "mean"])
+                    .reset_index()
+                    .rename(columns={"amin": "Minimum", "measurement": "Measurement"})
+                )
+
+                out_fname = str(outdir.joinpath(f"{product_group}_{name}.csv"))
+
+                _LOG.info("writing csv", out_fname=out_fname)
+                subset_drop.to_csv(out_fname, index=False)
+        else:
+            for product_group in col_groups:
+                subset = drop1.loc[(col_groups[product_group])]
+
+                subset_drop = (
+                    subset.drop(columns=["amin", "mean"])
+                    .reset_index()
+                    .rename(columns={"amax": "Maximum", "measurement": "Measurement"})
+                )
+
+                out_fname = str(outdir.joinpath(f"{product_group}_{name}.csv"))
+
+                _LOG.info("writing csv", out_fname=out_fname)
+                subset_drop.to_csv(out_fname, index=False)

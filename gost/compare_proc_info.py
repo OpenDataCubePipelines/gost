@@ -24,7 +24,7 @@ def compare_gqa(
     result: Dict[str, Any] = dict()
 
     for field, value in test_gqa.fields.items():
-        result[field].append(reference_gqa.fields[field] - value)
+        result[field] = reference_gqa.fields[field] - value
 
     return result
 
@@ -38,7 +38,7 @@ def compare_ancillary(
 
     ref_data = reference_ancillary.flatten()
     for field, value in test_ancillary.flatten().items():
-        result[field].append(ref_data[field] - value)
+        result[field] = ref_data[field] - value
 
     return result
 

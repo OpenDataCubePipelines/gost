@@ -59,6 +59,7 @@ def collate(outdir: str) -> None:
                 dataset = fid[dataset_name.value]
                 framing = dataset.attrs["framing"]
                 thematic = dataset.attrs["thematic"]
+                proc_info = dataset.attrs["proc-info"]
 
                 _LOG.info(
                     "merging results with framing",
@@ -83,7 +84,7 @@ def collate(outdir: str) -> None:
 
                 _LOG.info("summarising")
 
-                summary_dataframe = summarise(geo_dataframe, thematic)
+                summary_dataframe = summarise(geo_dataframe, thematic, proc_info)
 
                 out_fname = outdir.joinpath(
                     DirectoryNames.RESULTS.value,
@@ -92,3 +93,26 @@ def collate(outdir: str) -> None:
 
                 _LOG.info("saving summary as CSV", out_fname=str(out_fname))
                 summary_dataframe.to_csv(str(out_fname))
+
+                if not thematic and not proc_info:
+                    _LOG.info("undertaking reflectance evaluation")
+                    cols = [
+                        i
+                        for i in summary_dataframe.index.get_level_values(0)
+                        if "nbar" in i
+                    ]
+                    result = summary_dataframe.loc[
+                        (cols, ["max_residual", "min_residual"]), :
+                    ]
+
+                    minv = result.min(axis=0)["amin"]
+                    maxv = result.max(axis=0)["amax"]
+
+                    test_passed = max(abs(minv), abs(maxv)) <= 1
+
+                    _LOG.info(
+                        "final reflectance evaluation",
+                        test_passed=test_passed,
+                        min_residual=minv,
+                        max_residual=maxv,
+                    )

@@ -1,0 +1,31 @@
+% arara: pdflatex
+% Python string formatting template
+\documentclass[a4paper]{{article}}
+
+\usepackage{{graphicx}}
+\usepackage{{caption}}
+\usepackage{{subcaption}}
+\usepackage{{subfiles}}
+\usepackage{{array}}
+\usepackage{{listings}}
+\usepackage{{appendix}}
+\usepackage{{booktabs}}
+\usepackage{{pgfplotstable}}
+\usepackage[T1]{{fontenc}}
+
+\pgfplotstableset{{col sep=comma}}
+
+\graphicspath{{ {{../plots/{product_group}/}}{{../../plots/{product_group}/}} }}
+
+\title{{Residuals Analysis \\ ARD Processing Pipeline \\ {product_group}} \\ {pass_fail}}
+\date{{\today}}
+
+\begin{{document}}
+  \pagenumbering{{gobble}}
+  \maketitle
+  \newpage
+  \pagenumbering{{arabic}}
+
+{sections}
+
+\end{{document}}

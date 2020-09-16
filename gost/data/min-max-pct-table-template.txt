@@ -1,0 +1,72 @@
+\documentclass[../{product_name}-doc.tex]{{subfiles}}
+
+\usepackage{{array}}
+\usepackage{{listings}}
+\usepackage{{appendix}}
+\usepackage{{booktabs}}
+\usepackage{{subcaption}}
+\usepackage{{pgfplotstable}}
+\usepackage[T1]{{fontenc}}
+
+\pgfplotstableset{{col sep=comma}}
+
+\begin{{document}}
+
+  \begin{{table}}[ht!]
+    \caption{{Minimum {caption}}}\label{{table:1}}
+    \centering
+    \pgfplotstabletypeset[
+      string type,
+      column type={{>{{\fontseries{{bx}}\selectfont\centering\arraybackslash}}c}},
+      every head row/.style={{
+        before row=\midrule,after row=\midrule}},
+      every last row/.style={{
+        after row=\midrule}},
+      postproc cell content/.append style={{
+        /pgfplots/table/@cell content/.add={{
+          \fontseries{{\seriesdefault}}\selectfont}}{{}}}},
+      columns/Measurement/.style={{
+        string replace*={{_}}{{\_}},
+      }}
+    ]{{../../results/{product_name}_min_residual.csv}}
+  \end{{table}}
+
+  \begin{{table}}[ht!]
+    \caption{{Maximum {caption}}}\label{{table:1}}
+    \centering
+    \pgfplotstabletypeset[
+      string type,
+      column type={{>{{\fontseries{{bx}}\selectfont\centering\arraybackslash}}c}},
+      every head row/.style={{
+        before row=\midrule,after row=\midrule}},
+      every last row/.style={{
+        after row=\midrule}},
+      postproc cell content/.append style={{
+        /pgfplots/table/@cell content/.add={{
+          \fontseries{{\seriesdefault}}\selectfont}}{{}}}},
+      columns/Measurement/.style={{
+        string replace*={{_}}{{\_}},
+      }}
+    ]{{../../results/{product_name}_max_residual.csv}}
+  \end{{table}}
+
+  \begin{{table}}[ht!]
+    \caption{{Maximum percentage of pixels that are different}}\label{{table:1}}
+    \centering
+    \pgfplotstabletypeset[
+      string type,
+      column type={{>{{\fontseries{{bx}}\selectfont\centering\arraybackslash}}c}},
+      every head row/.style={{
+        before row=\midrule,after row=\midrule}},
+      every last row/.style={{
+        after row=\midrule}},
+      postproc cell content/.append style={{
+        /pgfplots/table/@cell content/.add={{
+          \fontseries{{\seriesdefault}}\selectfont}}{{}}}},
+      columns/Measurement/.style={{
+        string replace*={{_}}{{\_}},
+      }}
+    ]{{../../results/{product_name}_percent_different.csv}}
+  \end{{table}}
+
+\end{{document}}

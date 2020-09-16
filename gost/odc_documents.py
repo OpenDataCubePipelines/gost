@@ -239,7 +239,10 @@ class AncillaryInfo:
     ozone: Union[Ozone, None] = None
     water_vapour: Union[WaterVapour, None] = None
 
-    def flatten(self):
+    def flatten(self) -> Dict[str, Any]:
+        """
+        Converts the class attributes and their values to a dict.
+        """
         skip = [
             "id",
             "tier",
@@ -476,7 +479,7 @@ def load_odc_metadata(path: Path) -> Granule:
     return granule
 
 
-def load_proc_info(path: Path) -> GeometricQuality:
+def load_proc_info(path: Path) -> GranuleProcInfo:
     """
     Load the ODC proc-info metadata document.
 

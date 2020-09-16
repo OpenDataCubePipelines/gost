@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 import click
 import h5py  # type: ignore
 from mpi4py import MPI  # type: ignore
@@ -17,13 +17,31 @@ from gost.constants import (
     LogNames,
 )
 from gost import compare_measurements, compare_proc_info
-from gost.odc_documents import load_odc_metadata
+from gost.odc_documents import load_odc_metadata, Granule
 from ._shared_commands import io_dir_options
 
 # comm info
 COMM = MPI.COMM_WORLD
 
 _LOG = structlog.get_logger()
+
+
+def _concatenate_records(records: Union[List[Any], None]) -> pandas.DataFrame:
+    """Concatenates a list of dicts into a pandas.DataFrame."""
+
+    if records:
+        dataframe = pandas.DataFrame(records[0])
+        for record in records[1:]:
+            dataframe = dataframe.append(pandas.DataFrame(record))
+
+        _LOG.info("reset dataframe index")
+
+        dataframe.reset_index(drop=True, inplace=True)
+
+    else:
+        dataframe = pandas.DataFrame()
+
+    return dataframe
 
 
 def _process_proc_info(
@@ -45,32 +63,12 @@ def _process_proc_info(
     if rank == 0:
         _LOG.info("appending proc-info dataframes")
 
-        if gqa_records:
-            gqa_df = pandas.DataFrame(gqa_records[0])
-            for record in gqa_records[1:]:
-                gqa_df = gqa_df.append(pandas.DataFrame(record))
-
-            # reset to a unique index
-            _LOG.info("reset gqa results dataframe index")
-            gqa_df.reset_index(drop=True, inplace=True)
-
-        else:
-            gqa_df = pandas.DataFrame()
-
-        if ancillary_records:
-            ancillary_df = pandas.DataFrame(ancillary_records[0])
-            for record in ancillary_records[1:]:
-                ancillary_df = ancillary_df.append(pandas.DataFrame(record))
-
-            # reset to a unique index
-            _LOG.info("reset ancillary results dataframe index")
-            ancillary_df.reset_index(drop=True, inplace=True)
-        else:
-            ancillary_df = pandas.DataFrame()
+        gqa_df = _concatenate_records(gqa_records)
+        ancillary_df = _concatenate_records(ancillary_records)
 
     else:
-        gqa_df = None
-        ancillary_df = None
+        gqa_df = pandas.DataFrame()
+        ancillary_df = pandas.DataFrame()
 
     return gqa_df, ancillary_df
 
@@ -90,55 +88,17 @@ def _process_odc_doc(dataframe: pandas.DataFrame, rank: int) -> Tuple[Any, ...]:
     # create dataframes for each set of results
     if rank == 0:
         _LOG.info("appending dataframes")
-        if general_records:
-            general_df = pandas.DataFrame(general_records[0])
-            for record in general_records[1:]:
-                general_df = general_df.append(pandas.DataFrame(record))
 
-            _LOG.info("reset general dataframe index")
-            general_df.reset_index(drop=True, inplace=True)
-
-        else:
-            general_df = pandas.DataFrame()
-
-        if fmask_records:
-            fmask_df = pandas.DataFrame(fmask_records[0])
-            for record in fmask_records[1:]:
-                fmask_df = fmask_df.append(pandas.DataFrame(record))
-
-            _LOG.info("reset fmask dataframe index")
-            fmask_df.reset_index(drop=True, inplace=True)
-
-        else:
-            fmask_df = pandas.DataFrame()
-
-        if contiguity_records:
-            contiguity_df = pandas.DataFrame(contiguity_records[0])
-            for record in contiguity_records[1:]:
-                contiguity_df = contiguity_df.append(pandas.DataFrame(record))
-
-            _LOG.info("reset contiguity dataframe index")
-            contiguity_df.reset_index(drop=True, inplace=True)
-
-        else:
-            contiguity_df = pandas.DataFrame()
-
-        if shadow_records:
-            shadow_df = pandas.DataFrame(shadow_records[0])
-            for record in shadow_records[1:]:
-                shadow_df = shadow_df.append(pandas.DataFrame(record))
-
-            _LOG.info("reset shadow dataframe index")
-            shadow_df.reset_index(drop=True, inplace=True)
-
-        else:
-            shadow_df = pandas.DataFrame()
+        general_df = _concatenate_records(general_records)
+        fmask_df = _concatenate_records(fmask_records)
+        contiguity_df = _concatenate_records(contiguity_records)
+        shadow_df = _concatenate_records(shadow_records)
 
     else:
-        general_df = None
-        fmask_df = None
-        contiguity_df = None
-        shadow_df = None
+        general_df = pandas.DataFrame()
+        fmask_df = pandas.DataFrame()
+        contiguity_df = pandas.DataFrame()
+        shadow_df = pandas.DataFrame()
 
     return general_df, fmask_df, contiguity_df, shadow_df
 
@@ -187,12 +147,18 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
         blocks = scatter(index, n_processors)
 
         # some basic attribute information
-        doc = load_odc_metadata(Path(dataframe.iloc[0].yaml_pathname_reference))
-        attrs = {"framing": doc.framing, "thematic": False}
+        doc: Union[Granule, None] = load_odc_metadata(
+            Path(dataframe.iloc[0].yaml_pathname_reference)
+        )
+        attrs: Dict[str, Any] = {
+            "framing": doc.framing,
+            "thematic": False,
+            "proc-info": False,
+        }
     else:
         blocks = None
         doc = None
-        attrs = None
+        attrs = dict()
 
     COMM.Barrier()
 
@@ -200,10 +166,13 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
     indices = COMM.scatter(blocks, root=0)
 
     if proc_info:
+        attrs["proc-info"] = True
         if rank == 0:
             _LOG.info("procssing proc-info documents")
 
-        gqa_dataframe, ancillary_dataframe = _process_proc_info(dataframe.iloc[indices], rank)
+        gqa_dataframe, ancillary_dataframe = _process_proc_info(
+            dataframe.iloc[indices], rank
+        )
 
         if rank == 0:
             _LOG.info("saving gqa dataframe results to tables")
@@ -223,7 +192,10 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
 
             with h5py.File(str(results_fname), "a") as fid:
                 write_dataframe(
-                    ancillary_dataframe, DatasetNames.ANCILLARY_RESULTS.value, fid, attrs=attrs
+                    ancillary_dataframe,
+                    DatasetNames.ANCILLARY_RESULTS.value,
+                    fid,
+                    attrs=attrs,
                 )
 
     else:
@@ -231,18 +203,13 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
             _LOG.info("processing odc-metadata documents")
         results = _process_odc_doc(dataframe.iloc[indices], rank)
 
-        general_dataframe = results[0]
-        fmask_dataframe = results[1]
-        contiguity_dataframe = results[2]
-        shadow_dataframe = results[3]
-
         if rank == 0:
             # save each table
             _LOG.info("saving dataframes to tables")
             with h5py.File(str(results_fname), "a") as fid:
                 attrs["thematic"] = False
                 write_dataframe(
-                    general_dataframe,
+                    results[0],
                     DatasetNames.GENERAL_RESULTS.value,
                     fid,
                     attrs=attrs,
@@ -250,29 +217,27 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
 
                 attrs["thematic"] = True
                 write_dataframe(
-                    fmask_dataframe,
+                    results[1],
                     DatasetNames.FMASK_RESULTS.value,
                     fid,
                     attrs=attrs,
                 )
 
-                attrs["thematic"] = True
                 write_dataframe(
-                    contiguity_dataframe,
+                    results[2],
                     DatasetNames.CONTIGUITY_RESULTS.value,
                     fid,
                     attrs=attrs,
                 )
 
-                attrs["thematic"] = True
                 write_dataframe(
-                    shadow_dataframe,
+                    results[3],
                     DatasetNames.SHADOW_RESULTS.value,
                     fid,
                     attrs=attrs,
                 )
 
     if rank == 0:
-        workflow = "gqa field" if gqa else "product measurement"
+        workflow = "proc-info field" if proc_info else "product measurement"
         msg = f"{workflow} comparison processing finished"
         _LOG.info(msg)

@@ -4,16 +4,19 @@ Command line interface for creating the LaTeX documents.
 from pathlib import Path
 from typing import Union
 import click
+import h5py  # type: ignore
 import structlog  # type: ignore
 import geopandas  # type: ignore
 
+from wagl.hdf5 import read_h5_table  # type: ignore
 from gost.constants import (
+    DatasetNames,
     DirectoryNames,
     FileNames,
     LOG_PROCESSORS,
     LogNames,
 )
-from gost.plot_utils import plot_pngs, plot_proc_info_pngs
+from gost.collate import create_general_csvs
 from gost.report_utils import latex_documents
 from ._shared_commands import io_dir_options
 
@@ -40,6 +43,22 @@ def reporting(
             logger_factory=structlog.PrintLoggerFactory(fobj), processors=LOG_PROCESSORS
         )
 
+        comparison_results_fname = outdir.joinpath(
+            DirectoryNames.RESULTS.value, FileNames.RESULTS.value
+        )
+
+        _LOG.info(
+            "opening intercomparison results file", fname=str(comparison_results_fname)
+        )
+
+        with h5py.File(str(comparison_results_fname), "r") as fid:
+            dataset_name = DatasetNames.GENERAL_SUMMARISED.value
+            _LOG.info("reading dataset", dataset_name=dataset_name)
+            dataframe = read_h5_table(fid, dataset_name)
+
+        _LOG.info("creating CSV's of the general intercomparison results")
+        create_general_csvs(dataframe, outdir.joinpath(DirectoryNames.RESULTS.value))
+
         results_fname = outdir.joinpath(
             DirectoryNames.RESULTS.value, FileNames.GENERAL_FRAMING.value
         )
@@ -52,7 +71,7 @@ def reporting(
         reports_outdir = outdir.joinpath(DirectoryNames.REPORT.value)
 
         _LOG.info("producing LaTeX documents of general results")
-        latex_documents(gdf, reports_outdir)
+        latex_documents(gdf, dataframe, reports_outdir)
 
         # TODO GQA and ancillary
 

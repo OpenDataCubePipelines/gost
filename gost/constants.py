@@ -35,10 +35,13 @@ TM_WORLD_BORDERS_FNAME = pkg_resources.resource_filename(
     "gost", "data/TM_WORLD_BORDERS-0.3.geojsonl.zst"
 )
 DOCUMENT_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "data/doc-template.txt.zst"
+    "gost", "data/doc-template.txt"
 )
 MEASUREMENT_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "data/measurement-template.txt.zst"
+    "gost", "data/measurement-template.txt"
+)
+TABLE1_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "data/min-max-pct-table-template.txt"
 )
 
 
@@ -66,6 +69,7 @@ class DirectoryNames(Enum):
     PLOTS = "plots"
     REPORT = "report"
     MEASUREMENT_DOCS = "measurement-docs"
+    TABLE_DOCS = "table-docs"
 
 
 class FileNames(Enum):

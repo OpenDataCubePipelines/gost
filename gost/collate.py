@@ -63,7 +63,9 @@ def merge_framing(dataframe: pandas.DataFrame, framing: str) -> geopandas.GeoDat
 
 
 def summarise(
-    geo_dataframe: geopandas.GeoDataFrame, thematic: bool
+    geo_dataframe: geopandas.GeoDataFrame,
+    thematic: bool,
+    proc_info: bool,
 ) -> pandas.DataFrame:
     """
     Produce summary statistics for the generic and thematic datasets.
@@ -72,18 +74,35 @@ def summarise(
     value for each statistical measure.
     """
 
-    if thematic:
-        _LOG.info("summarising thematic datasets")
-        cols = [i for i in geo_dataframe.columns if "_2_" in i]
+    if proc_info:
+        _LOG.info("summarising proc info data")
+        skip = [
+            "reference_pathname",
+            "test_pathname",
+            "region_code",
+            "granule_id",
+            "geometry",
+        ]
+        cols = [i for i in geo_dataframe.columns if i not in skip]
+
+        subset = geo_dataframe[cols]
+
+        result = pandas.DataFrame()
+        result["minv"] = subset.min(axis=0)
+        result["maxv"] = subset.max(axis=0)
     else:
-        _LOG.info("summarising generic datasets")
-        cols = ["min_residual", "max_residual", "percent_different"]
+        if thematic:
+            _LOG.info("summarising thematic datasets")
+            cols = [i for i in geo_dataframe.columns if "_2_" in i]
+        else:
+            _LOG.info("summarising generic datasets")
+            cols = ["min_residual", "max_residual", "percent_different"]
 
-    pivot = pandas.pivot_table(
-        geo_dataframe, index=["measurement"], values=cols, aggfunc=SUMMARISE_FUNCS
-    )
+        result = pandas.pivot_table(
+            geo_dataframe, index=["measurement"], values=cols, aggfunc=SUMMARISE_FUNCS
+        )
 
-    # we're reshaping here simply to get a cleaner table structure to output
-    pivot = pivot.transpose().unstack().transpose()
+        # we're reshaping here simply to get a cleaner table structure to output
+        result = result.transpose().unstack().transpose()
 
-    return pivot
+    return result

@@ -85,33 +85,3 @@ def collate(outdir: str) -> None:
 
                 _LOG.info("saving summary table", out_dataset_name=out_dname)
                 write_dataframe(summary_dataframe, out_dname, fid)
-
-                if not thematic and not proc_info:
-                    _LOG.info("undertaking reflectance evaluation")
-                    cols = [
-                        i
-                        for i in summary_dataframe.index.get_level_values(0)
-                        if "nbar" in i
-                    ]
-                    result = summary_dataframe.loc[
-                        (cols, ["max_residual", "min_residual"]), :
-                    ]
-
-                    out_dname = DatasetNames[
-                        SummaryLookup[dataset_name.name].value
-                    ].value
-
-                    _LOG.info("saving summary table", out_dataset_name=out_dname)
-                    write_dataframe(result, out_dname, fid)
-
-                    minv = result.min(axis=0)["amin"]
-                    maxv = result.max(axis=0)["amax"]
-
-                    test_passed = max(abs(minv), abs(maxv)) <= 1
-
-                    _LOG.info(
-                        "final reflectance evaluation",
-                        test_passed=test_passed,
-                        min_residual=minv,
-                        max_residual=maxv,
-                    )

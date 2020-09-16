@@ -26,7 +26,7 @@ setup(
         "git+https://github.com/sixy6e/mpi-structlog@develop#egg=mpi_structlog",
     ],
     package_data={
-        "gost": ["data/*.zst"],
+        "gost": ["data/*.zst", "data/*.txt"],
     },
     license="MIT",
     zip_safe=False,

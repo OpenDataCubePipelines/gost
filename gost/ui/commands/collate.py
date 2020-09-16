@@ -67,7 +67,6 @@ def collate(outdir: str) -> None:
                     dataset_name=dataset_name.value,
                 )
 
-                # TODO; add the framing name as an attr to the dataset or similar
                 geo_dataframe = merge_framing(dataframe, framing)
 
                 out_fname = outdir.joinpath(
@@ -77,10 +76,6 @@ def collate(outdir: str) -> None:
 
                 _LOG.info("saving as GeoJSON", out_fname=str(out_fname))
                 geo_dataframe.to_file(str(out_fname), driver="GeoJSONSeq")
-
-                # if dataset_name == DatasetNames.GQA_RESULTS:
-                #     _LOG.info("skipping summarising task for GQA results")
-                #     continue
 
                 _LOG.info("summarising")
 

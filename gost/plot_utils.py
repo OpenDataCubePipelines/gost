@@ -160,3 +160,62 @@ def plot_pngs(gdf: geopandas.GeoDataFrame, outdir: Path) -> None:
             _plot_oa_stats(grp, tm_gdf, name, outdir)
 
     _LOG.info("finished producing plots")
+
+
+def plot_proc_info_pngs(gdf: geopandas.GeoDataFrame, outdir: Path) -> None:
+    """
+    General plotting routine of the proc-info residuals analysis.
+    """
+
+    _LOG.info("reading the TM WORLD BORDERS dataset")
+
+    with open(TM_WORLD_BORDERS_FNAME, "rb") as src:
+        dctx = zstandard.ZstdDecompressor()
+        tm_gdf = geopandas.read_file(dctx.stream_reader(src))
+
+    if "aerosol" in gdf.columns:
+        name = "ancillary"
+        label = "{variable} difference"
+    else:
+        name = "gqa"
+        label = "Pixels"
+
+    skip = [
+        "reference_pathname",
+        "test_pathname",
+        "region_code",
+        "granule_id",
+        "geometry",
+    ]
+    columns = [i for i in gdf.columns if i not in skip]
+
+    for column in columns:
+        prefix = Path(outdir, name)
+        if not prefix.exists():
+            _LOG.info("creating output directory", outdir=str(prefix))
+            prefix.mkdir(parents=True)
+
+        out_fname = prefix.joinpath(f"{name}-{column}.png")
+
+        fig = plt.figure(figsize=(3, 3))
+        axes = fig.add_subplot()
+
+        norm = colors.Normalize(vmin=gdf[column].min(), vmax=gdf[column].max())
+        colourbar = plt.cm.ScalarMappable(norm=norm, cmap="coolwarm")
+
+        ax_cbar = fig.colorbar(colourbar, ax=axes)
+        ax_cbar.set_label(label.format(variable=column))
+
+        gdf.plot(column=column, cmap=COLOURMAP, legend=False, ax=axes)
+
+        tm_gdf.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
+
+        axes.set_xlim(105, 160)
+        axes.set_ylim(-45, -5)
+        axes.set_xlabel("longitude")
+        axes.set_ylabel("latitude")
+
+        _LOG.info("saving figure as png", out_fname=str(out_fname))
+
+        plt.savefig(out_fname, bbox_inches="tight")
+        plt.close(fig)

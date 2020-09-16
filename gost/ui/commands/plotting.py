@@ -13,7 +13,7 @@ from gost.constants import (
     LOG_PROCESSORS,
     LogNames,
 )
-from gost.plot_utils import plot_pngs
+from gost.plot_utils import plot_pngs, plot_proc_info_pngs
 from gost.report_utils import latex_documents
 from ._shared_commands import io_dir_options
 
@@ -44,16 +44,42 @@ def plotting(
             DirectoryNames.RESULTS.value, FileNames.GENERAL_FRAMING.value
         )
 
-        _LOG.info("opening geometry framing results file", fname=str(results_fname))
+        _LOG.info(
+            "opening geometry framing general results file", fname=str(results_fname)
+        )
         gdf = geopandas.read_file(results_fname)
 
         plots_outdir = outdir.joinpath(DirectoryNames.PLOTS.value)
         reports_outdir = outdir.joinpath(DirectoryNames.REPORT.value)
 
-        _LOG.info("producing PNG's")
+        _LOG.info("producing general results PNG's")
         plot_pngs(gdf, plots_outdir)
 
-        _LOG.info("producing LaTeX documents")
+        _LOG.info("producing LaTeX documents of general results")
         latex_documents(gdf, reports_outdir)
+
+        # GQA and ancillary pngs
+
+        results_fname = outdir.joinpath(
+            DirectoryNames.RESULTS.value, FileNames.GQA_FRAMING.value
+        )
+
+        _LOG.info("opening geometry framing gqa results file", fname=str(results_fname))
+        gdf = geopandas.read_file(results_fname)
+
+        _LOG.info("producing gqa PNG's")
+        plot_proc_info_pngs(gdf, plots_outdir)
+
+        results_fname = outdir.joinpath(
+            DirectoryNames.RESULTS.value, FileNames.ANCILLARY_FRAMING.value
+        )
+
+        _LOG.info(
+            "opening geometry framing ancillary results file", fname=str(results_fname)
+        )
+        gdf = geopandas.read_file(results_fname)
+
+        _LOG.info("producing ancillary PNG's")
+        plot_proc_info_pngs(gdf, plots_outdir)
 
         _LOG.info("finished producing plots and writing LaTeX documents")

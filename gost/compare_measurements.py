@@ -198,9 +198,9 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
             reference_measurement.close()
 
     results = (
-        general_records.records,
-        fmask_records.records,
-        contiguity_records.records,
-        shadow_records.records,
+        general_records.records(),
+        fmask_records.records(),
+        contiguity_records.records(),
+        shadow_records.records(),
     )
     return results

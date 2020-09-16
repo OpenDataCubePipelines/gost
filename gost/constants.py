@@ -49,7 +49,7 @@ class LogNames(Enum):
 
     QUERY = "ard-intercomparison-query.log.jsonl"
     MEASUREMENT_INTERCOMPARISON = "ard-intercomparison-measurement-comparison.log.jsonl"
-    GQA_INTERCOMPARISON = "ard-intercomparison-gqa-comparison.log.jsonl"
+    PROC_INFO_INTERCOMPARISON = "ard-intercomparison-proc-info-comparison.log.jsonl"
     COLLATE = "ard-intercomparison-collate.log.jsonl"
     PLOTTING = "ard-intercomparison-plotting.log.jsonl"
 
@@ -78,11 +78,13 @@ class FileNames(Enum):
     CONTIGUITY_FRAMING = "results-per-framing-geometry-contiguity.geojsonl"
     SHADOW_FRAMING = "results-per-framing-geometry-shadow.geojsonl"
     GQA_FRAMING = "results-per-framing-geometry-gqa.geojsonl"
+    ANCILLARY_FRAMING = "results-per-framing-geometry-ancillary.geojsonl"
     GENERAL_SUMMARISED = "summarised-general.csv"
     FMASK_SUMMARISED = "summarised-fmask.csv"
     CONTIGUITY_SUMMARISED = "summarised-contiguity.csv"
     SHADOW_SUMMARISED = "summarised-shadow.csv"
     GQA_SUMMARISED = "summarised-gqa.csv"
+    ANCILLARY_SUMMARISED = "summarised-ancillary.csv"
     REPORT = "{product_group}-residuals-analysis.tex"
 
 
@@ -97,6 +99,7 @@ class DatasetNames(Enum):
     CONTIGUITY_RESULTS = "CONTIGUITY-RESULTS"
     SHADOW_RESULTS = "SHADOW-RESULTS"
     GQA_RESULTS = "GQA-RESULTS"
+    ANCILLARY_RESULTS = "ANCILLARY-RESULTS"
 
 
 class MergeLookup(Enum):
@@ -109,6 +112,7 @@ class MergeLookup(Enum):
     CONTIGUITY_RESULTS = "CONTIGUITY_FRAMING"
     SHADOW_RESULTS = "SHADOW_FRAMING"
     GQA_RESULTS = "GQA_FRAMING"
+    ANCILLARY_RESULTS = "ANCILLARY_FRAMING"
 
 
 class SummaryLookup(Enum):
@@ -121,6 +125,7 @@ class SummaryLookup(Enum):
     CONTIGUITY_RESULTS = "CONTIGUITY_SUMMARISED"
     SHADOW_RESULTS = "SHADOW_SUMMARISED"
     GQA_RESULTS = "GQA_SUMMARISED"
+    ANCILLARY_RESULTS = "ANCILLARY_SUMMARISED"
 
 
 class Walltimes(Enum):

@@ -7,8 +7,9 @@ scripts will be designed and executed properly.
 
 from enum import Enum
 from pathlib import Path
-import numpy  # type: ignore
 from typing import Any, Dict, List, Tuple, Union
+import attr
+import numpy  # type: ignore
 
 from idl_functions import histogram  # type: ignore
 
@@ -46,18 +47,18 @@ class TerrainShadowThemes(Enum):
     UNSHADED = 1
 
 
-class Records:
-    def __init__(self):
-        self.granule = []
-        self.reference_fname = []
-        self.test_fname = []
-        self.measurement = []
-        self.size = []
-        self.region_code = []
+@attr.s()
+class MeasurementRecords:
+    """
+    Base class for holding the measurement dataset evaluation results.
+    """
 
-    @property
-    def records(self) -> Dict[str, List[Any]]:
-        return self.__dict__
+    granule: List = attr.ib(default=attr.Factory(list))
+    reference_fname: List = attr.ib(default=attr.Factory(list))
+    test_fname: List = attr.ib(default=attr.Factory(list))
+    measurement: List = attr.ib(default=attr.Factory(list))
+    size: List = attr.ib(default=attr.Factory(list))
+    region_code: List = attr.ib(default=attr.Factory(list))
 
     def add_base_info(
         self,
@@ -75,72 +76,52 @@ class Records:
         self.size.append(size)
         self.region_code.append(reference_document.region_code)
 
+    def records(self):
+        """
+        Converts the class attributes and their values to a dict.
+        """
+        return attr.asdict(self)
 
-class GeneralRecords(Records):
+
+@attr.s()
+class GeneralRecords(MeasurementRecords):
     """
     Placeholder for the general columns/fields and the list of records
     they'll contain.
     """
 
-    def __init__(self):
-        super(GeneralRecords, self).__init__()
-
-        self.min_residual = []
-        self.max_residual = []
-        self.percent_different = []
-        self.percentile_90 = []
-        self.percentile_99 = []
-        self.percent_data_2_null = []
-        self.percent_null_2_data = []
-        self.mean_residual = []
-        self.standard_deviation = []
-        self.skewness = []
-        self.kurtosis = []
+    min_residual: List = attr.ib(default=attr.Factory(list))
+    max_residual: List = attr.ib(default=attr.Factory(list))
+    percent_different: List = attr.ib(default=attr.Factory(list))
+    percentile_90: List = attr.ib(default=attr.Factory(list))
+    percentile_99: List = attr.ib(default=attr.Factory(list))
+    percent_data_2_null: List = attr.ib(default=attr.Factory(list))
+    percent_null_2_data: List = attr.ib(default=attr.Factory(list))
+    mean_residual: List = attr.ib(default=attr.Factory(list))
+    standard_deviation: List = attr.ib(default=attr.Factory(list))
+    skewness: List = attr.ib(default=attr.Factory(list))
+    kurtosis: List = attr.ib(default=attr.Factory(list))
 
 
-class ThematicRecords(Records):
-    """
-    Base class for defining the columns/fields for the thematic
-    datasets and the list of records they'll contain.
-    """
+def _make_thematic_class(themes, name):
+    """Class constructor for thematic datasets."""
 
-    def __init__(self, categories):
-        super(ThematicRecords, self).__init__()
+    result = attr.make_class(
+        name,
+        {
+            f"{theme.name.lower()}_2_{theme2.name.lower()}": attr.ib(default=attr.Factory(list))
+            for theme in themes
+            for theme2 in themes
+        },
+        bases=(MeasurementRecords,),
+    )
 
-        for category in categories:
-            for category2 in categories:
-                name = f"{category.name.lower()}_2_{category2.name.lower()}"
-                setattr(self, name, [])
-
-
-class FmaskRecords(ThematicRecords):
-    """
-    Placeholder for the fmask columns/fields and the list of records
-    they'll contain.
-    """
-
-    def __init__(self):
-        super(FmaskRecords, self).__init__(FmaskThemes)
+    return result
 
 
-class ContiguityRecords(ThematicRecords):
-    """
-    Placeholder for the contiguity columns/fields and the list of
-    records they'll contain.
-    """
-
-    def __init__(self):
-        super(ContiguityRecords, self).__init__(ContiguityThemes)
-
-
-class TerrainShadowRecords(ThematicRecords):
-    """
-    Placeholder for the terrain shadow columns/fields and the list of
-    records they'll contain.
-    """
-
-    def __init__(self):
-        super(TerrainShadowRecords, self).__init__(TerrainShadowThemes)
+FmaskRecords = _make_thematic_class(FmaskThemes, "FmaskRecords")
+ContiguityRecords = _make_thematic_class(ContiguityThemes, "ContiguityRecords")
+TerrainShadowRecords = _make_thematic_class(TerrainShadowThemes, "TerrainShadowRecords")
 
 
 def evaluate_themes(

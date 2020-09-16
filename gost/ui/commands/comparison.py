@@ -6,7 +6,7 @@ from mpi4py import MPI  # type: ignore
 import pandas  # type: ignore
 import structlog  # type: ignore
 
-from mpi_structlog.mpi_logger import DEFAULT_PROCESSORS, MPIStreamIO, MPILoggerFactory
+from mpi_structlog.mpi_logger import DEFAULT_PROCESSORS, MPIStreamIO, MPILoggerFactory  # type: ignore
 from wagl.tiling import scatter  # type: ignore
 from wagl.hdf5 import read_h5_table, write_dataframe  # type: ignore
 
@@ -28,14 +28,19 @@ _LOG = structlog.get_logger()
 
 def _process_proc_info(
     dataframe: pandas.DataFrame, rank: int
-) -> Optional[pandas.DataFrame]:
-    gqa_results = compare_proc_info.process_yamls(dataframe)
+) -> Tuple[Optional[pandas.DataFrame], Optional[pandas.DataFrame]]:
+    gqa_results, ancillary_results = compare_proc_info.process_yamls(dataframe)
 
     # gather proc info results from each worker
     if rank == 0:
         _LOG.info("gathering gqa field records from all workers")
 
     gqa_records = COMM.gather(gqa_results, root=0)
+
+    if rank == 0:
+        _LOG.info("gathering gqa field records from all workers")
+
+    ancillary_records = COMM.gather(ancillary_results, root=0)
 
     if rank == 0:
         _LOG.info("appending proc-info dataframes")
@@ -52,10 +57,22 @@ def _process_proc_info(
         else:
             gqa_df = pandas.DataFrame()
 
+        if ancillary_records:
+            ancillary_df = pandas.DataFrame(ancillary_records[0])
+            for record in ancillary_records[1:]:
+                ancillary_df = ancillary_df.append(pandas.DataFrame(record))
+
+            # reset to a unique index
+            _LOG.info("reset ancillary results dataframe index")
+            ancillary_df.reset_index(drop=True, inplace=True)
+        else:
+            ancillary_df = pandas.DataFrame()
+
     else:
         gqa_df = None
+        ancillary_df = None
 
-    return gqa_df
+    return gqa_df, ancillary_df
 
 
 def _process_odc_doc(dataframe: pandas.DataFrame, rank: int) -> Tuple[Any, ...]:
@@ -129,20 +146,20 @@ def _process_odc_doc(dataframe: pandas.DataFrame, rank: int) -> Tuple[Any, ...]:
 @click.command()
 @io_dir_options
 @click.option(
-    "--gqa",
+    "--proc-info",
     default=False,
     is_flag=True,
     help="If set, then comapre the GQA fields and not the product measurements",
 )
-def comparison(outdir: Union[str, Path], gqa: bool) -> None:
+def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
     """
     Test and Reference product intercomparison evaluation.
     """
 
     outdir = Path(outdir)
-    if gqa:
+    if proc_info:
         log_fname = outdir.joinpath(
-            DirectoryNames.LOGS.value, LogNames.GQA_INTERCOMPARISON.value
+            DirectoryNames.LOGS.value, LogNames.PROC_INFO_INTERCOMPARISON.value
         )
     else:
         log_fname = outdir.joinpath(
@@ -182,11 +199,11 @@ def comparison(outdir: Union[str, Path], gqa: bool) -> None:
     # equally partition the work across all procesors
     indices = COMM.scatter(blocks, root=0)
 
-    if gqa:
+    if proc_info:
         if rank == 0:
             _LOG.info("procssing proc-info documents")
 
-        gqa_dataframe = _process_proc_info(dataframe.iloc[indices], rank)
+        gqa_dataframe, ancillary_dataframe = _process_proc_info(dataframe.iloc[indices], rank)
 
         if rank == 0:
             _LOG.info("saving gqa dataframe results to tables")
@@ -197,6 +214,16 @@ def comparison(outdir: Union[str, Path], gqa: bool) -> None:
             with h5py.File(str(results_fname), "a") as fid:
                 write_dataframe(
                     gqa_dataframe, DatasetNames.GQA_RESULTS.value, fid, attrs=attrs
+                )
+
+            _LOG.info("saving ancillary dataframe results to tables")
+
+            if not results_fname.parent.exists():
+                results_fname.parent.mkdir(parents=True)
+
+            with h5py.File(str(results_fname), "a") as fid:
+                write_dataframe(
+                    ancillary_dataframe, DatasetNames.ANCILLARY_RESULTS.value, fid, attrs=attrs
                 )
 
     else:

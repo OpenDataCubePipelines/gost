@@ -14,7 +14,6 @@ from gost.constants import (
     LogNames,
 )
 from gost.plot_utils import plot_pngs, plot_proc_info_pngs
-from gost.report_utils import latex_documents
 from ._shared_commands import io_dir_options
 
 _LOG = structlog.get_logger()
@@ -50,13 +49,9 @@ def plotting(
         gdf = geopandas.read_file(results_fname)
 
         plots_outdir = outdir.joinpath(DirectoryNames.PLOTS.value)
-        reports_outdir = outdir.joinpath(DirectoryNames.REPORT.value)
 
         _LOG.info("producing general results PNG's")
         plot_pngs(gdf, plots_outdir)
-
-        _LOG.info("producing LaTeX documents of general results")
-        latex_documents(gdf, reports_outdir)
 
         # GQA and ancillary pngs
 
@@ -82,4 +77,4 @@ def plotting(
         _LOG.info("producing ancillary PNG's")
         plot_proc_info_pngs(gdf, plots_outdir)
 
-        _LOG.info("finished producing plots and writing LaTeX documents")
+        _LOG.info("finished producing plots")

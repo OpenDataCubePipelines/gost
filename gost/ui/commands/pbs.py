@@ -43,6 +43,9 @@ ard-intercomparison collate --outdir {outdir}
 PLOTTING_CMD = """{resources}
 ard-intercomparison plotting --outdir {outdir}
 """
+REPORTING_CMD = """{resources}
+ard-intercomparison reporting --outdir {outdir}
+"""
 
 LONGITUDE_OPT = "--lon {lon1} {lon2}"
 LATITUDE_OPT = "--lat {lat1} {lat2}"
@@ -364,6 +367,36 @@ def _setup_plotting_pbs_job(
     return nci_job_id
 
 
+def _setup_reporting_pbs_job(
+    dependency_jobid,
+    project,
+    filesystem_projects,
+    email_construct,
+    env,
+    outdir,
+):
+    """Setup and submit the PBS job for plotting the results of the comparison."""
+
+    reporting_resources = PBS_RESOURCES.format(
+        project=project,
+        walltime="00:15:00",
+        memory=4,
+        ncpus=1,
+        filesystem_projects=filesystem_projects,
+        email=email_construct,
+        env=env,
+    )
+
+    reporting_pbs_job = REPORTING_CMD.format(resources=reporting_resources, outdir=outdir)
+
+    out_fname = Path(outdir).joinpath(
+        DirectoryNames.PBS.value, "ard-intercomparison-reporting.bash"
+    )
+    nci_job_id = _qsub(reporting_pbs_job, out_fname, dependency_jobid)
+
+    return nci_job_id
+
+
 @click.command()
 @io_dir_options
 @click.option(
@@ -489,6 +522,12 @@ def pbs(
         collate_job_id, project, fs_projects, email_construct, env, outdir
     )
 
+    # reporting job
+    _LOG.info("submitting reporting pbs job")
+    reporting_job_id = _setup_reporting_pbs_job(
+        plotting_job_id, project, fs_projects, email_construct, env, outdir
+    )
+
     _LOG.info(
         "submitted PBS jobs",
         query_job=query_job_id,
@@ -496,4 +535,5 @@ def pbs(
         proc_info_field_comparison_job=comparison_job_ids[1],
         collate_job=collate_job_id,
         plotting_job=plotting_job_id,
+        reporting_job=reporting_job_id,
     )

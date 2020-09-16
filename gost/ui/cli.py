@@ -1,6 +1,6 @@
 import click
 
-from .commands import collate, comparison, pbs, plotting, query
+from .commands import collate, comparison, pbs, plotting, query, reporting
 
 
 @click.group()
@@ -17,3 +17,4 @@ entry_point.add_command(query.query_filesystem)
 entry_point.add_command(comparison.comparison)
 entry_point.add_command(collate.collate)
 entry_point.add_command(plotting.plotting)
+entry_point.add_command(reporting.reporting)

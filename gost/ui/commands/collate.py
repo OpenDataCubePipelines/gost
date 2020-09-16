@@ -3,7 +3,7 @@ import click
 import h5py
 import structlog
 
-from wagl.hdf5 import read_h5_table
+from wagl.hdf5 import read_h5_table, write_dataframe
 from gost.constants import (
     DatasetNames,
     DirectoryNames,
@@ -48,7 +48,7 @@ def collate(outdir: str) -> None:
             "opening intercomparison results file", fname=str(comparison_results_fname)
         )
 
-        with h5py.File(str(comparison_results_fname), "r") as fid:
+        with h5py.File(str(comparison_results_fname), "a") as fid:
             for dataset_name in DatasetNames:
                 if dataset_name == DatasetNames.QUERY:
                     continue
@@ -81,13 +81,10 @@ def collate(outdir: str) -> None:
 
                 summary_dataframe = summarise(geo_dataframe, thematic, proc_info)
 
-                out_fname = outdir.joinpath(
-                    DirectoryNames.RESULTS.value,
-                    FileNames[SummaryLookup[dataset_name.name].value].value,
-                )
+                out_dname = DatasetNames[SummaryLookup[dataset_name.name].value].value
 
-                _LOG.info("saving summary as CSV", out_fname=str(out_fname))
-                summary_dataframe.to_csv(str(out_fname))
+                _LOG.info("saving summary table", out_dataset_name=out_dname)
+                write_dataframe(summary_dataframe, out_dname, fid)
 
                 if not thematic and not proc_info:
                     _LOG.info("undertaking reflectance evaluation")
@@ -99,6 +96,13 @@ def collate(outdir: str) -> None:
                     result = summary_dataframe.loc[
                         (cols, ["max_residual", "min_residual"]), :
                     ]
+
+                    out_dname = DatasetNames[
+                        SummaryLookup[dataset_name.name].value
+                    ].value
+
+                    _LOG.info("saving summary table", out_dataset_name=out_dname)
+                    write_dataframe(result, out_dname, fid)
 
                     minv = result.min(axis=0)["amin"]
                     maxv = result.max(axis=0)["amax"]

@@ -52,6 +52,7 @@ class LogNames(Enum):
     PROC_INFO_INTERCOMPARISON = "ard-intercomparison-proc-info-comparison.log.jsonl"
     COLLATE = "ard-intercomparison-collate.log.jsonl"
     PLOTTING = "ard-intercomparison-plotting.log.jsonl"
+    REPORTING = "ard-intercomparison-reporting.log.jsonl"
 
 
 class DirectoryNames(Enum):

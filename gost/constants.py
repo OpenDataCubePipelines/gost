@@ -79,12 +79,6 @@ class FileNames(Enum):
     SHADOW_FRAMING = "results-per-framing-geometry-shadow.geojsonl"
     GQA_FRAMING = "results-per-framing-geometry-gqa.geojsonl"
     ANCILLARY_FRAMING = "results-per-framing-geometry-ancillary.geojsonl"
-    GENERAL_SUMMARISED = "summarised-general.csv"
-    FMASK_SUMMARISED = "summarised-fmask.csv"
-    CONTIGUITY_SUMMARISED = "summarised-contiguity.csv"
-    SHADOW_SUMMARISED = "summarised-shadow.csv"
-    GQA_SUMMARISED = "summarised-gqa.csv"
-    ANCILLARY_SUMMARISED = "summarised-ancillary.csv"
     REPORT = "{product_group}-residuals-analysis.tex"
 
 
@@ -100,6 +94,12 @@ class DatasetNames(Enum):
     SHADOW_RESULTS = "SHADOW-RESULTS"
     GQA_RESULTS = "GQA-RESULTS"
     ANCILLARY_RESULTS = "ANCILLARY-RESULTS"
+    GENERAL_SUMMARISED = "SUMMARISED-GENERAL"
+    FMASK_SUMMARISED = "SUMMARISED-FMASK"
+    CONTIGUITY_SUMMARISED = "SUMMARISED-CONTIGUITY"
+    SHADOW_SUMMARISED = "SUMMARISED-SHADOW"
+    GQA_SUMMARISED = "SUMMARISED-GQA"
+    ANCILLARY_SUMMARISED = "SUMMARISED-ANCILLARY"
 
 
 class MergeLookup(Enum):

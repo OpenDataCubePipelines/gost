@@ -90,6 +90,7 @@ def _write_product_docs(
 
         out_string = document_template.format(
             product_group=product_group,
+            product_group2=product_group.upper(),
             sections=doc_sections,
             pass_fail=pass_fail[product_group],
         )
@@ -172,8 +173,8 @@ def latex_documents(
     nbart_pass_fail = "Pass" if pass_fail_result[1]["test_passed"] else "Fail"
 
     pass_fail = {
-        "nbar": f"Pass or Fail: {nbar_pass_fail}",
-        "nbart": f"Pass or Fail: {nbart_pass_fail}",
+        "nbar": f"Result: {nbar_pass_fail}",
+        "nbart": f"Result: {nbart_pass_fail}",
         "oa": "",
     }
 

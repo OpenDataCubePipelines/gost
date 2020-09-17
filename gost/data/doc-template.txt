@@ -17,7 +17,7 @@
 
 \graphicspath{{ {{../plots/{product_group}/}}{{../../plots/{product_group}/}} }}
 
-\title{{Residuals Analysis \\ ARD Processing Pipeline \\ {product_group} \\ {pass_fail}}}
+\title{{Residuals Analysis \\ ARD Processing Pipeline \\ {product_group2} \\ {pass_fail}}}
 \date{{\today}}
 
 \begin{{document}}

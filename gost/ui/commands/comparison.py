@@ -196,7 +196,7 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
                 write_dataframe(
                     ancillary_dataframe,
                     DatasetNames.ANCILLARY_RESULTS.value,
-                    fid,
+                    out_grp,
                     attrs=attrs,
                 )
 

@@ -193,6 +193,7 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
                 results_fname.parent.mkdir(parents=True)
 
             with h5py.File(str(results_fname), "a") as fid:
+                out_grp = fid[DatasetGroups.INTERCOMPARISON.value]
                 write_dataframe(
                     ancillary_dataframe,
                     DatasetNames.ANCILLARY_RESULTS.value,

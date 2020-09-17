@@ -5,6 +5,7 @@ import structlog
 
 from wagl.hdf5 import read_h5_table, write_dataframe
 from gost.constants import (
+    DatasetGroups,
     DatasetNames,
     DirectoryNames,
     FileNames,
@@ -49,14 +50,14 @@ def collate(outdir: str) -> None:
         )
 
         with h5py.File(str(comparison_results_fname), "a") as fid:
-            for dataset_name in DatasetNames:
-                if dataset_name == DatasetNames.QUERY:
-                    continue
+            grp = fid[DatasetGroups.INTERCOMPARISON.value]
+            out_grp = fid.create_group(DatasetGroups.SUMMARY.value)
 
-                _LOG.info("reading dataset", dataset_name=dataset_name.value)
-                dataframe = read_h5_table(fid, dataset_name.value)
+            for dataset_name in grp:
+                _LOG.info("reading dataset", dataset_name=dataset_name)
+                dataframe = read_h5_table(grp, dataset_name)
 
-                dataset = fid[dataset_name.value]
+                dataset = grp[dataset_name]
                 framing = dataset.attrs["framing"]
                 thematic = dataset.attrs["thematic"]
                 proc_info = dataset.attrs["proc-info"]
@@ -64,14 +65,14 @@ def collate(outdir: str) -> None:
                 _LOG.info(
                     "merging results with framing",
                     framing=framing,
-                    dataset_name=dataset_name.value,
+                    dataset_name=dataset_name,
                 )
 
                 geo_dataframe = merge_framing(dataframe, framing)
 
                 out_fname = outdir.joinpath(
                     DirectoryNames.RESULTS.value,
-                    FileNames[MergeLookup[dataset_name.name].value].value,
+                    FileNames[MergeLookup[DatasetNames(dataset_name).name].value].value,
                 )
 
                 _LOG.info("saving as GeoJSON", out_fname=str(out_fname))
@@ -81,7 +82,7 @@ def collate(outdir: str) -> None:
 
                 summary_dataframe = summarise(geo_dataframe, thematic, proc_info)
 
-                out_dname = DatasetNames[SummaryLookup[dataset_name.name].value].value
+                out_dname = DatasetNames[SummaryLookup[DatasetNames(dataset_name).name].value].value
 
                 _LOG.info("saving summary table", out_dataset_name=out_dname)
-                write_dataframe(summary_dataframe, out_dname, fid)
+                write_dataframe(summary_dataframe, out_dname, out_grp)

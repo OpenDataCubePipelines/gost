@@ -11,6 +11,7 @@ from wagl.tiling import scatter  # type: ignore
 from wagl.hdf5 import read_h5_table, write_dataframe  # type: ignore
 
 from gost.constants import (
+    DatasetGroups,
     DatasetNames,
     DirectoryNames,
     FileNames,
@@ -181,8 +182,9 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
                 results_fname.parent.mkdir(parents=True)
 
             with h5py.File(str(results_fname), "a") as fid:
+                out_grp = fid.create_group(DatasetGroups.INTERCOMPARISON.value)
                 write_dataframe(
-                    gqa_dataframe, DatasetNames.GQA_RESULTS.value, fid, attrs=attrs
+                    gqa_dataframe, DatasetNames.GQA_RESULTS.value, out_grp, attrs=attrs
                 )
 
             _LOG.info("saving ancillary dataframe results to tables")
@@ -207,11 +209,13 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
             # save each table
             _LOG.info("saving dataframes to tables")
             with h5py.File(str(results_fname), "a") as fid:
+                out_grp = fid[DatasetGroups.INTERCOMPARISON.value]
+
                 attrs["thematic"] = False
                 write_dataframe(
                     results[0],
                     DatasetNames.GENERAL_RESULTS.value,
-                    fid,
+                    out_grp,
                     attrs=attrs,
                 )
 
@@ -219,21 +223,21 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
                 write_dataframe(
                     results[1],
                     DatasetNames.FMASK_RESULTS.value,
-                    fid,
+                    out_grp,
                     attrs=attrs,
                 )
 
                 write_dataframe(
                     results[2],
                     DatasetNames.CONTIGUITY_RESULTS.value,
-                    fid,
+                    out_grp,
                     attrs=attrs,
                 )
 
                 write_dataframe(
                     results[3],
                     DatasetNames.SHADOW_RESULTS.value,
-                    fid,
+                    out_grp,
                     attrs=attrs,
                 )
 

@@ -55,7 +55,7 @@ def reporting(
         with h5py.File(str(comparison_results_fname), "r") as fid:
             dataset_name = DatasetNames.GENERAL_SUMMARISED.value
             _LOG.info("reading dataset", dataset_name=dataset_name)
-            dataframe = read_h5_table(fid[DatasetGroups.INTERCOMPARISON.value], dataset_name)
+            dataframe = read_h5_table(fid[DatasetGroups.SUMMARY.value], dataset_name)
 
         _LOG.info("creating CSV's of the general intercomparison results")
         create_general_csvs(dataframe, outdir.joinpath(DirectoryNames.RESULTS.value))

@@ -87,6 +87,15 @@ class FileNames(Enum):
     REPORT = "{product_group}-residuals-analysis.tex"
 
 
+class DatasetGroups(Enum):
+    """
+    Defines the different dataset groups.
+    """
+
+    INTERCOMPARISON = "INTERCOMPARISON"
+    SUMMARY = "SUMMARY"
+
+
 class DatasetNames(Enum):
     """
     Defines the dataset names.

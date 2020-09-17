@@ -1,9 +1,14 @@
-from pathlib import Path
+"""
+Command line interface for collating the results of the intercomparison
+analysis.
+"""
+from pathlib import Path, PurePosixPath as PPath
+from typing import Union
 import click
-import h5py
-import structlog
+import h5py  # type: ignore
+import structlog  # type: ignore
 
-from wagl.hdf5 import read_h5_table, write_dataframe
+from wagl.hdf5 import read_h5_table, write_dataframe  # type: ignore
 from gost.constants import (
     DatasetGroups,
     DatasetNames,
@@ -23,7 +28,7 @@ _LOG = structlog.get_logger()
 
 @click.command()
 @io_dir_options
-def collate(outdir: str) -> None:
+def collate(outdir: Union[str, Path]) -> None:
     """
     Collate the results of the product comparison.
     Firstly the results are merged with the framing geometry, and second
@@ -51,16 +56,15 @@ def collate(outdir: str) -> None:
 
         with h5py.File(str(comparison_results_fname), "a") as fid:
             grp = fid[DatasetGroups.INTERCOMPARISON.value]
-            out_grp = fid.create_group(DatasetGroups.SUMMARY.value)
 
             for dataset_name in grp:
                 _LOG.info("reading dataset", dataset_name=dataset_name)
                 dataframe = read_h5_table(grp, dataset_name)
 
-                dataset = grp[dataset_name]
-                framing = dataset.attrs["framing"]
-                thematic = dataset.attrs["thematic"]
-                proc_info = dataset.attrs["proc-info"]
+                # some important attributes
+                framing = grp[dataset_name].attrs["framing"]
+                thematic = grp[dataset_name].attrs["thematic"]
+                proc_info = grp[dataset_name].attrs["proc-info"]
 
                 _LOG.info(
                     "merging results with framing",
@@ -82,7 +86,12 @@ def collate(outdir: str) -> None:
 
                 summary_dataframe = summarise(geo_dataframe, thematic, proc_info)
 
-                out_dname = DatasetNames[SummaryLookup[DatasetNames(dataset_name).name].value].value
+                out_dname = PPath(
+                    DatasetGroups.SUMMARY.value,
+                    DatasetNames[
+                        SummaryLookup[DatasetNames(dataset_name).name].value
+                    ].value,
+                )
 
-                _LOG.info("saving summary table", out_dataset_name=out_dname)
-                write_dataframe(summary_dataframe, out_dname, out_grp)
+                _LOG.info("saving summary table", out_dataset_name=str(out_dname))
+                write_dataframe(summary_dataframe, str(out_dname), fid)

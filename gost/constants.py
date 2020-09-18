@@ -40,8 +40,11 @@ DOCUMENT_TEMPLATE = pkg_resources.resource_filename(
 MEASUREMENT_TEMPLATE = pkg_resources.resource_filename(
     "gost", "data/measurement-template.txt"
 )
-TABLE1_TEMPLATE = pkg_resources.resource_filename(
+MIN_MAX_TABLE_TEMPLATE = pkg_resources.resource_filename(
     "gost", "data/min-max-pct-table-template.txt"
+)
+PROC_INFO_TABLE_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "data/proc-info-table-template.txt"
 )
 
 
@@ -68,8 +71,8 @@ class DirectoryNames(Enum):
     RESULTS = "results"
     PLOTS = "plots"
     REPORT = "report"
-    MEASUREMENT_DOCS = "measurement-docs"
-    TABLE_DOCS = "table-docs"
+    REPORT_FIGURES = "figures"
+    REPORT_TABLES = "tables"
 
 
 class FileNames(Enum):

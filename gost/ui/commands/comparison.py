@@ -215,6 +215,22 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
                     attrs=attrs,
                 )
 
+            _LOG.info("saving software versions dataframe to tables")
+
+            with h5py.File(str(results_fname), "a") as fid:
+                dataset_name = PPath(DatasetNames.SOFTWARE_VERSIONS.value)
+
+                software_attrs = {
+                    "description": "ARD Pipeline software versions",
+                }
+                software_df = compare_proc_info.compare_software(dataframe)
+                write_dataframe(
+                    software_df,
+                    str(dataset_name),
+                    fid,
+                    attrs=software_attrs,
+                )
+
     else:
         if rank == 0:
             _LOG.info("processing odc-metadata documents")

@@ -74,6 +74,11 @@ def reporting(
             _LOG.info("reading dataset", dataset_name=str(dataset_name))
             gqa_df = read_h5_table(fid, str(dataset_name))
 
+            dataset_name = PPath(DatasetNames.SOFTWARE_VERSIONS.value)
+            _LOG.info("reading dataset", dataset_name=str(dataset_name))
+            software_df = read_h5_table(fid, dataset_name)
+
+
         _LOG.info("creating CSV's of the general measurements intercomparison summary")
         create_general_csvs(dataframe, outdir.joinpath(DirectoryNames.RESULTS.value))
 
@@ -84,6 +89,10 @@ def reporting(
         _LOG.info("creating CSV of the gqa intercomparison summary")
         out_fname = outdir.joinpath(DirectoryNames.RESULTS.value, "gqa_min_max.csv")
         create_csv(gqa_df, out_fname)
+
+        _LOG.info("creating CSV of the software versions")
+        out_fname = outdir.joinpath(DirectoryNames.RESULTS.value, "software-versions.csv")
+        software_df.to_csv(out_fname, index=False)
 
         results_fname = outdir.joinpath(
             DirectoryNames.RESULTS.value, FileNames.GENERAL_FRAMING.value

@@ -3,7 +3,7 @@
 \begin{{document}}
 
   \begin{{table}}[ht!]
-    \caption{{Minimum {caption}}}\label{{table:1}}
+    \caption{{Minimum and Maximum {caption}}}\label{{table:1}}
     \centering
     \pgfplotstabletypeset[
       column type={{>{{\fontseries{{bx}}\selectfont\centering\arraybackslash}}c}},
@@ -29,29 +29,6 @@
           /pgfplots/table/@cell content/.add={}{\%{}},
         },
       }},
-    ]{{../results/{product_name}_min_residual.csv}}
-  \end{{table}}
-
-  \begin{{table}}[ht!]
-    \caption{{Maximum {caption}}}\label{{table:1}}
-    \centering
-    \pgfplotstabletypeset[
-      column type={{>{{\fontseries{{bx}}\selectfont\centering\arraybackslash}}c}},
-      every head row/.style={{
-        before row=\midrule,after row=\midrule
-      }},
-      every last row/.style={{
-        after row=\midrule
-      }},
-      postproc cell content/.append style={{
-        /pgfplots/table/@cell content/.add={{
-          \fontseries{{\seriesdefault}}\selectfont
-        }}{{}}
-      }},
-      columns/Measurement/.style={{
-        string type,
-        string replace*={{_}}{{\_}},
-      }},
       columns/Maximum/.style={{
         fixed,
         precision=6,
@@ -59,7 +36,7 @@
           /pgfplots/table/@cell content/.add={}{\%{}},
         },
       }},
-    ]{{../results/{product_name}_max_residual.csv}}
+    ]{{../results/{product_name}_min_max_residual.csv}}
   \end{{table}}
 
   \begin{{table}}[ht!]

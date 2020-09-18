@@ -19,7 +19,7 @@
 \graphicspath{{ {{../plots/{product_group}/}}{{../../plots/{product_group}/}} }}
 
 \title{{Residuals Analysis \\ ARD Processing Pipeline \\ {product_group2} \\ \ \\ \large {pass_fail}}}
-\author{ARD Team}
+\author{{ARD Team}}
 \date{{\today}}
 
 \begin{{document}}

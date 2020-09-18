@@ -195,7 +195,7 @@ def create_general_csvs(dataframe: pandas.DataFrame, outdir: Path) -> None:
             dataframe.xs((slice(None), "max_residual"))["Maximum"],
         ],
         axis=1,
-    ).drop(columns=["Mean"])
+    )
 
     percent_df = dataframe.xs((slice(None), "percent_different")).drop(
         columns=["Minimum", "Mean"]

@@ -25,16 +25,16 @@
       columns/Minimum/.style={{
         fixed,
         precision=6,
-        postproc cell content/.append style={
-          /pgfplots/table/@cell content/.add={}{\%{}},
-        },
+        postproc cell content/.append style={{
+          /pgfplots/table/@cell content/.add={{}}{{\%{{}}}},
+        }},
       }},
       columns/Maximum/.style={{
         fixed,
         precision=6,
-        postproc cell content/.append style={
-          /pgfplots/table/@cell content/.add={}{\%{}},
-        },
+        postproc cell content/.append style={{
+          /pgfplots/table/@cell content/.add={{}}{{\%{{}}}},
+        }},
       }},
     ]{{../results/{product_name}_min_max_residual.csv}}
   \end{{table}}
@@ -62,9 +62,9 @@
       columns/Maximum/.style={{
         fixed,
         precision=6,
-        postproc cell content/.append style={
-          /pgfplots/table/@cell content/.add={}{\%{}},
-        },
+        postproc cell content/.append style={{
+          /pgfplots/table/@cell content/.add={{}}{{\%{{}}}},
+        }},
       }},
     ]{{../results/{product_name}_percent_different.csv}}
   \end{{table}}

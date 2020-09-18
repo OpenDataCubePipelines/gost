@@ -16,6 +16,34 @@ from gost.odc_documents import (
 _LOG = structlog.get_logger()
 
 
+def compare_software(dataframe: pandas.DataFrame) -> pandas.DataFrame:
+    """
+    Retrieve the software versions from the first record.
+    No real comparison as such. Merely extract into a table that
+    can be presented later for visual comparison and context.
+    """
+
+    record = dataframe.iloc[0]
+
+    ref_doc = load_proc_info(Path(record.proc_info_pathname_reference))
+    test_doc = load_proc_info(Path(record.proc_info_pathname_test))
+
+    data: Dict[str, List] = {
+        "Name": list(),
+        "Reference": list(),
+        "Test": list(),
+    }
+
+    for key, value in ref_doc.software_versions.items():
+        data["Name"].append(key)
+        data["Reference"].append(value.version)
+        data["Test"].append(test_doc.software_versions[key].version)
+
+    result = pandas.DataFrame(data)
+
+    return result
+
+
 def compare_gqa(
     reference_gqa: GeometricQuality, test_gqa: GeometricQuality
 ) -> Dict[str, Any]:

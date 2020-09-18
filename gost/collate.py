@@ -90,8 +90,8 @@ def summarise(
         subset = geo_dataframe[cols]
 
         result = pandas.DataFrame()
-        result["minv"] = subset.min(axis=0)
-        result["maxv"] = subset.max(axis=0)
+        result["Minimum"] = subset.min(axis=0)
+        result["Minimum"] = subset.max(axis=0)
     else:
         if thematic:
             _LOG.info("summarising thematic datasets")
@@ -105,7 +105,12 @@ def summarise(
         )
 
         # we're reshaping here simply to get a cleaner table structure to output
-        result = result.transpose().unstack().transpose()
+        result = (
+            result.transpose()
+            .unstack()
+            .transpose()
+            .rename(columns={"amin": "Minimum", "amax": "Maximum", "mean": "Mean"})
+        )
 
     return result
 
@@ -134,12 +139,12 @@ def reflectance_pass_fail(
 
         subset = dataframe.loc[(columns, ["max_residual", "min_residual"]), :]
 
-        minv = subset.min(axis=0)["amin"]
-        maxv = subset.max(axis=0)["amax"]
+        minv = subset.min(axis=0)["Minimum"]
+        maxv = subset.max(axis=0)["Maximum"]
 
         test_passed = max(abs(minv), abs(maxv)) <= 1
 
-        result = {"minv": minv, "maxv": maxv, "test_passed": test_passed}
+        result = {"minimum": minv, "maximum": maxv, "test_passed": test_passed}
 
         return result
 
@@ -149,8 +154,8 @@ def reflectance_pass_fail(
         "final reflectance evaluation",
         product="NBAR",
         test_passed=nbar_result["test_passed"],
-        min_residual=nbar_result["minv"],
-        max_residual=nbar_result["maxv"],
+        min_residual=nbar_result["minimum"],
+        max_residual=nbar_result["maximum"],
     )
 
     nbart_result = test(dataframe, True)
@@ -159,15 +164,18 @@ def reflectance_pass_fail(
         "final reflectance evaluation",
         product="NBART",
         test_passed=nbart_result["test_passed"],
-        min_residual=nbart_result["minv"],
-        max_residual=nbart_result["maxv"],
+        min_residual=nbart_result["minimum"],
+        max_residual=nbart_result["maximum"],
     )
 
     return nbar_result, nbart_result
 
 
 def create_general_csvs(dataframe: pandas.DataFrame, outdir: Path) -> None:
-    """Produce CSV's of the summarised general intercomparison results."""
+    """
+    Produce CSV's of the summarised general intercomparison results.
+    The CSV's are used for direct reads into the LaTeX document.
+    """
 
     measurements = dataframe.index.get_level_values(0).unique()
     reflectance_keep = [col for col in measurements if "nbar" in col]
@@ -181,22 +189,16 @@ def create_general_csvs(dataframe: pandas.DataFrame, outdir: Path) -> None:
         "oa": oa_keep,
     }
 
-    min_max_df = (
-        pandas.concat(
-            [
-                dataframe.xs((slice(None), "min_residual"))["amin"],
-                dataframe.xs((slice(None), "max_residual"))["amax"],
-            ],
-            axis=1,
-        )
-        .rename(columns={"amin": "Minimum", "amax": "Maximum"})
-        .drop(columns=["mean"])
-    )
+    min_max_df = pandas.concat(
+        [
+            dataframe.xs((slice(None), "min_residual"))["Minimum"],
+            dataframe.xs((slice(None), "max_residual"))["Maximum"],
+        ],
+        axis=1,
+    ).drop(columns=["Mean"])
 
-    percent_df = (
-        dataframe.xs((slice(None), "percent_different"))
-        .rename(columns={"amax": "Maximum"})
-        .drop(columns=["amin", "mean"])
+    percent_df = dataframe.xs((slice(None), "percent_different")).drop(
+        columns=["Minimum", "Mean"]
     )
 
     dataframes = {

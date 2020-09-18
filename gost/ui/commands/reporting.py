@@ -1,7 +1,7 @@
 """
 Command line interface for creating the LaTeX documents.
 """
-from pathlib import Path
+from pathlib import Path, PurePosixPath as PPath
 from typing import Union
 import click
 import h5py  # type: ignore
@@ -17,7 +17,7 @@ from gost.constants import (
     LOG_PROCESSORS,
     LogNames,
 )
-from gost.collate import create_general_csvs
+from gost.collate import create_general_csvs, create_csv
 from gost.report_utils import latex_documents
 from ._shared_commands import io_dir_options
 
@@ -53,12 +53,37 @@ def reporting(
         )
 
         with h5py.File(str(comparison_results_fname), "r") as fid:
-            dataset_name = DatasetNames.GENERAL_SUMMARISED.value
-            _LOG.info("reading dataset", dataset_name=dataset_name)
-            dataframe = read_h5_table(fid[DatasetGroups.SUMMARY.value], dataset_name)
+            # read intercomparison general measurements summary
+            dataset_name = PPath(
+                DatasetGroups.SUMMARY.value, DatasetNames.GENERAL_SUMMARISED.value
+            )
+            _LOG.info("reading dataset", dataset_name=str(dataset_name))
+            dataframe = read_h5_table(fid, str(dataset_name))
 
-        _LOG.info("creating CSV's of the general intercomparison results")
+            # read intercomparison ancillary summary
+            dataset_name = PPath(
+                DatasetGroups.SUMMARY.value, DatasetNames.ANCILLARY_SUMMARISED.value
+            )
+            _LOG.info("reading dataset", dataset_name=str(dataset_name))
+            ancillary_df = read_h5_table(fid, str(dataset_name))
+
+            # read intercomparison gqa summary
+            dataset_name = PPath(
+                DatasetGroups.SUMMARY.value, DatasetNames.GQA_SUMMARISED.value
+            )
+            _LOG.info("reading dataset", dataset_name=str(dataset_name))
+            gqa_df = read_h5_table(fid, str(dataset_name))
+
+        _LOG.info("creating CSV's of the general measurements intercomparison summary")
         create_general_csvs(dataframe, outdir.joinpath(DirectoryNames.RESULTS.value))
+
+        _LOG.info("creating CSV of the ancillary intercomparison summary")
+        out_fname = outdir.joinpath(DirectoryNames.RESULTS.value, "ancillary_min_max.csv")
+        create_csv(ancillary_df, out_fname)
+
+        _LOG.info("creating CSV of the gqa intercomparison summary")
+        out_fname = outdir.joinpath(DirectoryNames.RESULTS.value, "gqa_min_max.csv")
+        create_csv(gqa_df, out_fname)
 
         results_fname = outdir.joinpath(
             DirectoryNames.RESULTS.value, FileNames.GENERAL_FRAMING.value

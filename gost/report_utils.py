@@ -14,7 +14,8 @@ from gost.constants import (
     FileNames,
     MEASUREMENT_TEMPLATE,
     DOCUMENT_TEMPLATE,
-    TABLE1_TEMPLATE,
+    MIN_MAX_TABLE_TEMPLATE,
+    PROC_INFO_TABLE_TEMPLATE,
 )
 
 MIN_MAX_PCT_CAPTION = {
@@ -26,13 +27,14 @@ MIN_MAX_PCT_CAPTION = {
 _LOG = structlog.get_logger()
 
 
-def _write_measurement_docs(
+def _write_measurement_figures(
     gdf: geopandas.GeoDataFrame,
     outdir: Path,
     measurement_template: str,
 ) -> Dict[str, List]:
     """
-    Write the measurement sub-documents for each of the product groups.
+    Write the measurement sub-documents containing figures for each
+    of the product groups.
     """
 
     # currently the groups are nbar, nbart, oa
@@ -55,7 +57,7 @@ def _write_measurement_docs(
 
         # need relative names to insert into the main tex doc of each product
         basename = f"{name}.tex"
-        relative_fname = Path(DirectoryNames.MEASUREMENT_DOCS.value, basename)
+        relative_fname = Path(DirectoryNames.REPORT_FIGURES.value, basename)
         measurement_doc_fnames[product_group].append(relative_fname)
 
         out_fname = outdir.joinpath(relative_fname)
@@ -115,7 +117,7 @@ def _write_product_tables(outdir: Path, table_template: str) -> Dict[str, str]:
     for product_name in product_groups:
 
         basename = f"{product_name}_tables.tex"
-        relative_fname = Path(DirectoryNames.TABLE_DOCS.value, basename)
+        relative_fname = Path(DirectoryNames.REPORT_TABLES.value, basename)
         table_fnames[product_name] = str(relative_fname)
 
         out_fname = outdir.joinpath(relative_fname)
@@ -132,6 +134,26 @@ def _write_product_tables(outdir: Path, table_template: str) -> Dict[str, str]:
             src.write(out_string)
 
     return table_fnames
+
+
+def _write_proc_info_tables(outdir: Path, table_template: str) -> Dict[str, str]:
+    """Create the ancillary and GQA tables."""
+
+    table_fname: Dict[str, str] = dict()
+
+    basename = "proc_info_tables.tex"
+    relative_fname = Path(DirectoryNames.REPORT_TABLES.value, basename)
+    table_fname["proc_info_tables"] = str(relative_fname)
+
+    out_fname = outdir.joinpath(relative_fname)
+
+    if not out_fname.parent.exists():
+        out_fname.parent.mkdir(parents=True)
+
+    with open(out_fname, "w") as src:
+        src.write(table_template)
+
+    return table_fname
 
 
 def latex_documents(
@@ -161,12 +183,19 @@ def latex_documents(
 
     _LOG.info("reading LaTeX table template")
 
-    with open(TABLE1_TEMPLATE, "r") as src:
-        table_template = src.read()
+    with open(MIN_MAX_TABLE_TEMPLATE, "r") as src:
+        min_max_table_template = src.read()
 
-    measurement_doc_fnames = _write_measurement_docs(gdf, outdir, measurement_template)
+    with open(PROC_INFO_TABLE_TEMPLATE, "r") as src:
+        proc_info_table_template = src.read()
 
-    table_fnames = _write_product_tables(outdir, table_template)
+    measurement_doc_fnames = _write_measurement_figures(
+        gdf, outdir, measurement_template
+    )
+
+    table_fnames = _write_product_tables(outdir, min_max_table_template)
+
+    proc_info_fnames = _write_proc_info_tables(outdir, proc_info_table_template)
 
     pass_fail_result = reflectance_pass_fail(dataframe)
     nbar_pass_fail = "Pass" if pass_fail_result[0]["test_passed"] else "Fail"

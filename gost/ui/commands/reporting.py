@@ -76,7 +76,7 @@ def reporting(
 
             dataset_name = PPath(DatasetNames.SOFTWARE_VERSIONS.value)
             _LOG.info("reading dataset", dataset_name=str(dataset_name))
-            software_df = read_h5_table(fid, dataset_name)
+            software_df = read_h5_table(fid, str(dataset_name))
 
 
         _LOG.info("creating CSV's of the general measurements intercomparison summary")

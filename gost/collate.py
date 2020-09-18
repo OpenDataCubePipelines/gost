@@ -216,3 +216,18 @@ def create_general_csvs(dataframe: pandas.DataFrame, outdir: Path) -> None:
 
             _LOG.info("writing CSV", out_fname=str(out_fname))
             subset.to_csv(out_fname, index=False)
+
+
+def create_csv(dataframe: pandas.DataFrame, out_fname: Path) -> None:
+    """
+    Custom routine that restructures the table. Drops an index and
+    renames the "index" column to "Field".
+    No index column is written either.
+    The CSV's are used for direct reads into the LaTeX document.
+    """
+
+    dataframe.reset_index(inplace=True)
+    dataframe.rename(columns={"index": "Fields"}, inplace=True)
+
+    _LOG.info("writing CSV", out_fname=str(out_fname))
+    dataframe.to_csv(out_fname, index=False)

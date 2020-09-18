@@ -259,6 +259,17 @@ class AncillaryInfo:
 
 
 @attr.s(auto_attribs=True)
+class SoftwareVersion:
+    """
+    Software version information from the proc-info metadata document.
+    """
+
+    name: Union[str, None] = None
+    url: Union[str, None] = None
+    version: Union[str, None] = None
+
+
+@attr.s(auto_attribs=True)
 class GranuleProcInfo:
     """
     Basic class containing information pertaining to the processing
@@ -267,6 +278,7 @@ class GranuleProcInfo:
 
     geometric_quality: Union[GeometricQuality, None] = None
     ancillary: Union[AncillaryInfo, None] = None
+    software_versions: Union[Dict[str, SoftwareVersion], None] = None
 
 
 def _convert_transform(transform: List[Any]) -> Affine:
@@ -492,9 +504,12 @@ def load_proc_info(path: Path) -> GranuleProcInfo:
 
     doc = _load_yaml_doc(path)
 
+    software = {i["name"]: i for i in doc["software_versions"]}
+
     sections = {
         "geometric_quality": doc["gqa"],
         "ancillary": doc["wagl"]["ancillary"],
+        "software_versions": software,
     }
 
     converter = cattr.Converter()

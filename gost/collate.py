@@ -167,7 +167,7 @@ def reflectance_pass_fail(
 
 
 def create_general_csvs(dataframe: pandas.DataFrame, outdir: Path) -> None:
-    """Produce CSV's of the general intercomparison results."""
+    """Produce CSV's of the summarised general intercomparison results."""
 
     measurements = dataframe.index.get_level_values(0).unique()
     reflectance_keep = [col for col in measurements if "nbar" in col]
@@ -181,34 +181,36 @@ def create_general_csvs(dataframe: pandas.DataFrame, outdir: Path) -> None:
         "oa": oa_keep,
     }
 
-    for name, group in dataframe.groupby(level=1):
-        drop1 = group.droplevel(1)
+    min_max_df = (
+        pandas.concat(
+            [
+                dataframe.xs((slice(None), "min_residual"))["amin"],
+                dataframe.xs((slice(None), "max_residual"))["amax"],
+            ],
+            axis=1,
+        )
+        .rename(columns={"amin": "Minimum", "amax": "Maximum"})
+        .drop(columns=["mean"])
+    )
 
-        if "min" in name:
-            for product_group in col_groups:
-                subset = drop1.loc[(col_groups[product_group])]
+    percent_df = (
+        dataframe.xs((slice(None), "percent_different"))
+        .rename(columns={"amax": "Maximum"})
+        .drop(columns=["amin", "mean"])
+    )
 
-                subset_drop = (
-                    subset.drop(columns=["amax", "mean"])
-                    .reset_index()
-                    .rename(columns={"amin": "Minimum", "measurement": "Measurement"})
-                )
+    dataframes = {
+        "min_max_residual": min_max_df,
+        "percent_different": percent_df,
+    }
 
-                out_fname = str(outdir.joinpath(f"{product_group}_{name}.csv"))
+    for key in dataframes:
+        for product_group in col_groups:
+            out_fname = outdir.joinpath(f"{product_group}_{key}.csv")
 
-                _LOG.info("writing csv", out_fname=out_fname)
-                subset_drop.to_csv(out_fname, index=False)
-        else:
-            for product_group in col_groups:
-                subset = drop1.loc[(col_groups[product_group])]
+            subset = dataframes[key].loc[(col_groups[product_group])]
+            subset.reset_index(inplace=True)
+            subset.rename(columns={"measurement": "Measurement"}, inplace=True)
 
-                subset_drop = (
-                    subset.drop(columns=["amin", "mean"])
-                    .reset_index()
-                    .rename(columns={"amax": "Maximum", "measurement": "Measurement"})
-                )
-
-                out_fname = str(outdir.joinpath(f"{product_group}_{name}.csv"))
-
-                _LOG.info("writing csv", out_fname=out_fname)
-                subset_drop.to_csv(out_fname, index=False)
+            _LOG.info("writing CSV", out_fname=str(out_fname))
+            subset.to_csv(out_fname, index=False)

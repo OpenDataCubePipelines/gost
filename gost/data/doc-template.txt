@@ -14,15 +14,21 @@
 \usepackage[T1]{{fontenc}}
 
 \pgfplotstableset{{col sep=comma}}
+\pgfplotsset{{compat=1.17}}
 
 \graphicspath{{ {{../plots/{product_group}/}}{{../../plots/{product_group}/}} }}
 
-\title{{Residuals Analysis \\ ARD Processing Pipeline \\ {product_group2} \\ {pass_fail}}}
+\title{{Residuals Analysis \\ ARD Processing Pipeline \\ {product_group2} \\ \ \\ \large {pass_fail}}}
+\author{ARD Team}
 \date{{\today}}
 
 \begin{{document}}
   \pagenumbering{{gobble}}
   \maketitle
+  \newpage
+  \tableofcontents
+  \listoftables
+  \listoffigures
   \newpage
   \pagenumbering{{arabic}}
 

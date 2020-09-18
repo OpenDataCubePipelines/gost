@@ -18,9 +18,9 @@ from gost.constants import (
 )
 
 MIN_MAX_PCT_CAPTION = {
-    "nbar": "difference in surface reflectance (units are \% reflectance)",
-    "nbart": "difference in surface reflectance (units are \% reflectance)",
-    "oa": "difference",
+    "nbar": "Difference in Surface Reflectance",
+    "nbart": "Difference in Surface reflectance",
+    "oa": "Difference",
 }
 
 _LOG = structlog.get_logger()
@@ -173,8 +173,8 @@ def latex_documents(
     nbart_pass_fail = "Pass" if pass_fail_result[1]["test_passed"] else "Fail"
 
     pass_fail = {
-        "nbar": f"Result: {nbar_pass_fail}",
-        "nbart": f"Result: {nbart_pass_fail}",
+        "nbar": f"Result Outcome: {nbar_pass_fail}",
+        "nbart": f"Result Outcome: {nbart_pass_fail}",
         "oa": "",
     }
 

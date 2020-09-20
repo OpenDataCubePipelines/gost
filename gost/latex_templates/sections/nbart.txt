@@ -16,6 +16,12 @@
     \item terrain illumination
   \end{{itemize}}
 
+  \begin{{flushleft}}
+    A threshold of 1\% reflectance is used as the baseline for weekly routine testing when no changes to the base algorithm or ancillary inputs have been made. As such, the test can be ignored if the analysis is anything other than weekly routine testing.\par
+    \ \\ \
+    Test outcome: \textit{{{pass_fail}}}
+  \end{{flushleft}}
+
   \subsubsection{{Extrema and Proportionality of Difference}}
 
     \subfile{{../tables/{tables}}

@@ -1,0 +1,25 @@
+\documentclass[../{main_doc}]{{subfiles}}
+
+\begin{{document}}
+
+  \begin{{table}}[ht!]
+    \caption{{Software Versions}}\label{{table:1}}
+    \centering
+    \pgfplotstabletypeset[
+      string type,
+      column type={{>{{\fontseries{{bx}}\selectfont\centering\arraybackslash}}c}},
+      every head row/.style={{
+        before row=\midrule,after row=\midrule
+      }},
+      every last row/.style={{
+        after row=\midrule
+      }},
+      postproc cell content/.append style={{
+        /pgfplots/table/@cell content/.add={{
+          \fontseries{{\seriesdefault}}\selectfont
+        }}{{}}
+      }},
+    ]{{../results/{basename}}}
+  \end{{table}}
+
+\end{{document}}

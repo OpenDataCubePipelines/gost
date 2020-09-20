@@ -1,0 +1,17 @@
+% arara: pdflatex
+% arara: pdflatex
+% arara: clean: {{files: [{basename}.aux, {basename}.lof, {basename}.lot, {basename}.toc]}}
+% Python string formatting template
+\documentclass[../{main_doc}]{{subfiles}}
+
+\begin{{document}}
+
+  \begin{{flushleft}}
+    The minimum and maximum residuals aren't neccessarily from a single acquisitions. Instead it is the minimum and maximum residual of all acquisitions used within the intercomparison analysis.\par
+    The intent is to immediately identify any extreme differences in the geometric quality recorded in the \textit{{proc-info.yaml}} document.\par
+    For the weekly routine testing, the difference should be as close to, if not zero between the reference and test data. \par
+  \end{{flushleft}}
+
+  \subfile{{../tables/{basename}}}
+
+\end{{document}}

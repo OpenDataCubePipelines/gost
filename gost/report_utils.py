@@ -96,7 +96,7 @@ def _write_product_docs(
         # only have 1 table doc to insert at this stage
         sub_doc_names.insert(0, table_fnames[product_group])
 
-        doc_sections = "".join([f"  \\subfile{{{s}}}\n" for s in sub_doc_names])
+        doc_sections = "".join([f"    \\subfile{{{s}}}\n" for s in sub_doc_names])
 
         out_string = document_template.format(
             product_group=product_group,

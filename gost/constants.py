@@ -46,6 +46,12 @@ MIN_MAX_TABLE_TEMPLATE = pkg_resources.resource_filename(
 PROC_INFO_TABLE_TEMPLATE = pkg_resources.resource_filename(
     "gost", "data/proc-info-table-template.txt"
 )
+METADATA_MIN_MAX_TABLE_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "data/metadata-min-max-template.txt"
+)
+SOFTWARE_VERSIONS_TABLE_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "data/software-versions.txt"
+)
 
 
 class LogNames(Enum):
@@ -73,6 +79,7 @@ class DirectoryNames(Enum):
     REPORT = "report"
     REPORT_FIGURES = "figures"
     REPORT_TABLES = "tables"
+    REPORT_SECTIONS = "sections"
 
 
 class FileNames(Enum):
@@ -88,6 +95,33 @@ class FileNames(Enum):
     GQA_FRAMING = "results-per-framing-geometry-gqa.geojsonl"
     ANCILLARY_FRAMING = "results-per-framing-geometry-ancillary.geojsonl"
     REPORT = "{product_group}-residuals-analysis.tex"
+
+
+class LatexSectionFnames(Enum):
+    """Filenames specific to LaTeX main and section documents."""
+
+    MAIN = "main.tex"
+    ANCILLARY = "ancillary.tex"
+    GQA = "geometric-quality.tex"
+    SOFTWARE = "software-versions.tex"
+    PRODUCT_FMT = "{product_name}.tex"
+
+
+class CsvFileNames(Enum):
+    """Filenames specific to CSV's."""
+
+    ANCILLARY = "ancillary-min-max.csv"
+    GQA = "gqa-min-max.csv"
+    SOFTWARE = "software-versions.csv"
+
+
+class LatexTableFileNames(Enum):
+    """Filenames specific to LaTeX tables."""
+
+    ANCILLARY = "ancillary-table.tex"
+    GQA = "gqa-table.tex"
+    SOFTWARE = "software-versions-table.tex"
+    PRODUCT_FORMAT = "{product_name}-tables.tex"
 
 
 class DatasetGroups(Enum):

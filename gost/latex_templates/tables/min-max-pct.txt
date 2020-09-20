@@ -1,4 +1,4 @@
-\documentclass[../{product_name}-doc.tex]{{subfiles}}
+\documentclass[../{main_doc}]{{subfiles}}
 
 \begin{{document}}
 

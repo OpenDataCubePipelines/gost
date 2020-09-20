@@ -5,6 +5,37 @@
 
 \begin{{document}}
 
+  \begin{{flushleft}}
+    This product contains a range of pixel-level observation attributes (OA) derived from satellite observation, providing rich data provenance:
+  \end{{flushleft}}
+
+  \begin{{itemize}}
+    \item null pixels
+    \item clear pixels
+    \item cloud pixels
+    \item cloud shadow pixels
+    \item snow pixels
+    \item water pixels
+    \item spectrally contiguous pixels
+    \item terrain shaded pixels
+  \end{{itemize}}
+
+  \begin{{flushleft}}
+    It also features the following pixel-level information pertaining to satellite, solar and sensing geometries: 
+  \end{{flushleft}}
+
+  \begin{{itemize}}
+    \item solar zenith
+    \item solar azimuth
+    \item satellite view
+    \item incident angle
+    \item exiting angle
+    \item azimuthal incident
+    \item azimuthal exiting
+    \item relative azimuth
+    \item timedelta
+  \end{{itemize}}
+
   \subsubsection{{Extrema and Proportionality of Difference}}
 
     \subfile{{../tables/{tables}}}

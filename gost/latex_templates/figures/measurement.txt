@@ -1,5 +1,6 @@
 % arara: pdflatex
-% Python string formatting template
+% arara: pdflatex
+% arara: clean: {{files: [{stem}.aux, {stem}.lof, {stem}.lot, {stem}.toc]}}
 \documentclass[../{main_doc}]{{subfiles}}
 
 \begin{{document}}

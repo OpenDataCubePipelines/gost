@@ -1,6 +1,6 @@
 % arara: pdflatex
 % Python string formatting template
-\documentclass[../{product_group}-doc.tex]{{subfiles}}
+\documentclass[../{main_doc}]{{subfiles}}
 
 \begin{{document}}
       \begin{{figure}}[htp]

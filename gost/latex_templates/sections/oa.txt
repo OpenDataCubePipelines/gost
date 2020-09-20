@@ -1,0 +1,17 @@
+% arara: pdflatex
+% arara: pdflatex
+% arara: clean: {{files: [{stem}.aux, {stem}.lof, {stem}.lot, {stem}.toc]}}
+\documentclass[../{main_doc}]{{subfiles}}
+
+\begin{{document}}
+
+  \subsubsection{{Extrema and Proportionality of Difference}}
+
+    \subfile{{../tables/{tables}}}
+
+  \clearpage
+
+  \subsubsection{{Spatial Distribution}}
+
+{figures}
+\end{{document}}

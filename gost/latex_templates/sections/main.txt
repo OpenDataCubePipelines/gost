@@ -1,0 +1,117 @@
+% arara: pdflatex
+% arara: pdflatex
+% arara: clean: {{files: [{stem}.aux, {stem}.lof, {stem}.lot, {stem}.toc]}}
+% Python string formatting template
+\documentclass[a4paper]{{article}}
+
+\usepackage{{graphicx}}
+\usepackage{{caption}}
+\usepackage{{subcaption}}
+\usepackage{{subfiles}}
+\usepackage{{array}}
+\usepackage{{listings}}
+\usepackage{{appendix}}
+\usepackage{{booktabs}}
+\usepackage{{pgfplotstable}}
+\usepackage[T1]{{fontenc}}
+
+\pgfplotstableset{{col sep=comma}}
+\pgfplotsset{{compat=1.17}}
+
+\graphicspath{{ {{../plots/nbar/}}{{../../plots/nbar/}} {{../plots/nbart/}}{{../../plots/nbart/}} }}
+
+\title{{Residuals Analysis \\ ARD Processing Pipeline}}
+\author{{ARD Team}}
+\date{{\today}}
+
+\begin{{document}}
+  \pagenumbering{{gobble}}
+  \maketitle
+  \newpage
+  \tableofcontents
+  \listoftables
+  \listoffigures
+  \newpage
+  \pagenumbering{{arabic}}
+
+  \section{{Metadata}}
+
+  \subsection{{Software Versions}}
+
+    \subfile{{sections/{software_section}}}
+
+  \subsection{{Ancillary}}
+
+    \subfile{{sections/{ancillary_section}}}
+
+  \subsection{{Geometric Quality}}
+
+    \subfile{{sections/{gqa_section}}}
+
+  \clearpage
+
+  \section{{Residual Analysis}}
+
+  \subsection{{Extrema and Proportionality of Difference}}
+
+    \begin{{flushleft}}
+      The statistics reported here are derived from all acquisitions used within the analysis, and not specific to any individual data acquisition.\par
+      They're meant to provide a quick overall assessment, which the principle investigator can use to make a judgement call on the validity of the data produced from the ARD Pipeline.
+    \end{{flushleft}}
+
+    \begin{{itemize}}
+      \item Minimum
+      \item Maximum
+      \item Percentage of pixels not equal to zero
+    \end{{itemize}}
+
+    \begin{{flushleft}}
+      The minimum and maximum difference in surface reflectance provide a quick indication of extrema, and as to whether or not further investigation is required.\par
+      Depending on the whether the testing is for routine production inspection, or as part of algorithmic testing, the magnitude of extrema can differ.\par
+      For weekly routine testing, the ideal magnitude is within 1\% reflectance.\par
+      While extrema are reported (maximal and minimal residuals), they are often misinterpreted leading to biased assumptions as they don't describe the proportionality of change.\par
+    \end{{flushleft}}
+
+    \begin{{flushleft}}
+      The percent different was simply describing the proportionality of change. For routine integration tests, it is ideal to have this number closer 0. As routine testing that is occurring on the same machine should exhibit less noise in floating point calculations. If deploying the codebase to a different machine, it is expected that there will be some floating point differences. This can occur due to slight differences in machine architecture, and/or different compilers. As such, this metric coupled with minimal and maximal differences/residuals, can help in aiding a user to ignore noise such as compiler or machine architecture differences. \par
+    \end{{flushleft}}
+
+  \subsection{{Spatial Distribution}}
+
+    \begin{{flushleft}}
+      Presenting the spatial distribution of residual metrics provides the capability to understand the impact of change spatially across the continent.\par
+      The idea is to pictorially represent whether there are any spatial patterns or localised effects associated with the changes to the processing pipeline.\par
+      Such changes could be algorithmic, ancillary inputs, or different processing environments.\par
+      This has an added advantage of informing users that while there might be change within the data collection that is being processed, their application may not be affected if differences are located in particular regions.
+    \end{{flushleft}}
+
+    \begin{{itemize}}
+      \item Minimum residual
+      \item Maximum residual
+      \item Mean residual
+      \item Standard deviation
+      \item Skewness
+      \item Kurtosis
+      \item 90th percentile
+      \item 99th percentile
+      \item Percentage of pixels not equal to zero
+    \end{{itemize}}
+
+    \begin{{flushleft}}
+      The metrics are designed to provide an better understanding of the distribution and proportionality of change across the spatial domain.\par
+      The distribution of change could be negatively or positively skewed. The proportionality could be centred around 0, or have high weight within the tails of the distribution.
+    \end{{flushleft}}
+
+  \clearpage
+
+  \subsection{{NBAR}}
+
+  \subfile{{sections/{nbar-section}}}
+
+  \clearpage
+
+  \subsection{{NBART}}
+
+  \subfile{{sections/{nbart-section}}}
+
+\end{{document}}

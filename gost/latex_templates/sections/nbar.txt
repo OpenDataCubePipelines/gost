@@ -1,0 +1,34 @@
+% arara: pdflatex
+% arara: pdflatex
+% arara: clean: {{files: [{stem}.aux, {stem}.lof, {stem}.lot, {stem}.toc]}}
+\documentclass[../{main_doc}]{{subfiles}}
+
+\begin{{document}}
+
+  \begin{{flushleft}}
+    NBAR (Nadir Bi-directional reflectance distribution function Adjusted Reflectance) is a sub-product of the ARD product distributed by Geoscience Australia through Digital Earth Australia.\par
+    The output is a standardised surface reflectance product produced from a physics based algorithm. The process involves corrections for:
+  \end{{flushleft}}
+
+  \begin{{itemize}}
+    \item normalisation of satellite and solar geometry
+    \item BRDF
+  \end{{itemize}}
+
+
+  \begin{{flushleft}}
+    A threshold of 1\% reflectance is used as the baseline for weekly routine testing when no changes to the base algorithm or ancillary inputs have been made. As such, the test can be ignored if the analysis is anything other than weekly routine testing.\par
+    \ \\ \
+    Test outcome: \textit{{{pass_fail}}}
+  \end{{flushleft}}
+
+  \subsubsection{{Extrema and Proportionality of Difference}}
+
+    \subfile{{../tables/{tables}}}
+
+  \clearpage
+
+  \subsubsection{{Spatial Distribution}}
+
+{figures}
+\end{{document}}

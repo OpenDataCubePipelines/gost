@@ -1,0 +1,28 @@
+% arara: pdflatex
+% arara: pdflatex
+% arara: clean: {{files: [{stem}.aux, {stem}.lof, {stem}.lot, {stem}.toc]}}
+\documentclass[../{main_doc}]{{subfiles}}
+
+\begin{{document}}
+
+  \begin{{flushleft}}
+    NBART (Nadir Bi-directional reflectance distribution function Adjusted Reflectance Terrain illumination correction) is a sub-product of the ARD product distributed by Geoscience Australia through Digital Earth Australia.\par
+    The output is a standardised surface reflectance product produced from a physics based algorithm. The process involves corrections for:
+  \end{{flushleft}}
+
+  \begin{{itemize}}
+    \item normalisation of satellite and solar geometry
+    \item BRDF
+    \item terrain illumination
+  \end{{itemize}}
+
+  \subsubsection{{Extrema and Proportionality of Difference}}
+
+    \subfile{{../tables/{tables}}
+
+  \clearpage
+
+  \subsubsection{{Spatial Distribution}}
+
+{figures}
+\end{{document}}

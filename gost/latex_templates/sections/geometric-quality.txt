@@ -1,6 +1,6 @@
 % arara: pdflatex
 % arara: pdflatex
-% arara: clean: {{files: [{basename}.aux, {basename}.lof, {basename}.lot, {basename}.toc]}}
+% arara: clean: {{files: [{stem}.aux, {stem}.lof, {stem}.lot, {stem}.toc]}}
 % Python string formatting template
 \documentclass[../{main_doc}]{{subfiles}}
 
@@ -12,6 +12,6 @@
     For the weekly routine testing, the difference should be as close to, if not zero between the reference and test data. \par
   \end{{flushleft}}
 
-  \subfile{{../tables/{basename}}}
+  \subfile{{../tables/{stem}}}
 
 \end{{document}}

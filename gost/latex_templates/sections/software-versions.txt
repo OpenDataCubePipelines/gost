@@ -1,6 +1,6 @@
 % arara: pdflatex
 % arara: pdflatex
-% arara: clean: {{files: [{basename}.aux, {basename}.lof, {basename}.lot, {basename}.toc]}}
+% arara: clean: {{files: [{stem}.aux, {stem}.lof, {stem}.lot, {stem}.toc]}}
 % Python string formatting template
 \documentclass[../{main_doc}]{{subfiles}}
 
@@ -10,6 +10,6 @@
     The software versions listed are those found within the \textit{{*.proc-info.yaml}} file. 
   \end{{flushleft}}
 
-  \subfile{{../tables/{basename}}}
+  \subfile{{../tables/{stem}}}
 
 \end{{document}}

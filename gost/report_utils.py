@@ -15,6 +15,7 @@ from gost.constants import (
     DirectoryNames,
     FileNames,
     LatexTableFileNames,
+    LatexSectionFnames,
     MEASUREMENT_TEMPLATE,
     DOCUMENT_TEMPLATE,
     MIN_MAX_TABLE_TEMPLATE,
@@ -64,8 +65,9 @@ def _write_measurement_figures(
 
         out_string = measurement_template.format(
             measurement_name=name,
-            product_group=product_group,
             figure_caption=figure_caption,
+            stem=name,
+            main_doc=LatexSectionFnames.MAIN.value,
         )
 
         # need relative names to insert into the main tex doc of each product
@@ -140,7 +142,9 @@ def _write_product_tables(outdir: Path, table_template: str) -> Dict[str, str]:
             out_fname.parent.mkdir(parents=True)
 
         out_string = table_template.format(
-            caption=table.caption, product_name=table.product_name
+            caption=table.caption,
+            product_name=table.product_name,
+            main_doc=LatexSectionFnames.MAIN.value,
         )
 
         write_latex_document(out_string, out_fname)
@@ -151,18 +155,18 @@ def _write_product_tables(outdir: Path, table_template: str) -> Dict[str, str]:
 def _write_ancillary_gqa_tables(outdir: Path, template: str) -> None:
     """Create the ancillary and GQA LaTeX document tables."""
 
-    Table = namedtuple("Table", ["basename", "caption", "basename"])
+    Table = namedtuple("Table", ["basename", "caption", "csv_basename"])
 
     tables = [
         Table(
             basename=LatexTableFileNames.ANCILLARY.value,
             caption="Ancillary Minimum and Maximum Residual",
-            basename=CsvFileNames.ANCILLARY.value,
+            csv_basename=CsvFileNames.ANCILLARY.value,
         ),
         Table(
             basename=LatexTableFileNames.GQA.value,
             caption="GQA Minimum and Maximum Residual",
-            basename=CsvFileNames.GQA.value,
+            csv_basename=CsvFileNames.GQA.value,
         ),
     ]
 
@@ -170,7 +174,9 @@ def _write_ancillary_gqa_tables(outdir: Path, template: str) -> None:
         out_fname = outdir.joinpath(DirectoryNames.REPORT_TABLES.value, table.basename)
 
         out_string = template.format(
-            caption=table.caption, basename=table.basename
+            caption=table.caption,
+            csv_basename=table.csv_basename,
+            main_doc=LatexSectionFnames.MAIN.value,
         )
 
         write_latex_document(out_string, out_fname)
@@ -179,7 +185,9 @@ def _write_ancillary_gqa_tables(outdir: Path, template: str) -> None:
 def _write_software_versions_table(outdir: Path, template: str) -> None:
     """Create the software versions LaTeX document table."""
 
-    out_string = template.format(basename=CsvFileNames.SOFTWARE.value)
+    out_string = template.format(
+        basename=CsvFileNames.SOFTWARE.value, main_doc=LatexSectionFnames.MAIN.value
+    )
 
     out_fname = outdir.joinpath(
         DirectoryNames.REPORT_TABLES.value, LatexTableFileNames.SOFTWARE.value

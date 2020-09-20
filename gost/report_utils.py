@@ -1,30 +1,43 @@
 """
 Utils pertaining to the creation of the LaTeX reports.
 """
+from collections import namedtuple
 import io
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-import pandas
+import pandas  # type: ignore
 import geopandas  # type: ignore
 import structlog  # type: ignore
 
 from gost.collate import reflectance_pass_fail
 from gost.constants import (
+    CsvFileNames,
     DirectoryNames,
     FileNames,
+    LatexTableFileNames,
     MEASUREMENT_TEMPLATE,
     DOCUMENT_TEMPLATE,
     MIN_MAX_TABLE_TEMPLATE,
-    PROC_INFO_TABLE_TEMPLATE,
+    METADATA_MIN_MAX_TABLE_TEMPLATE,
+    SOFTWARE_VERSIONS_TABLE_TEMPLATE,
 )
 
-MIN_MAX_PCT_CAPTION = {
-    "nbar": "Difference in Surface Reflectance",
-    "nbart": "Difference in Surface reflectance",
-    "oa": "Difference",
-}
-
 _LOG = structlog.get_logger()
+
+
+def write_latex_document(out_string: str, out_fname: Path) -> None:
+    """
+    Small proxy for writing a LaTeX formatted string as a LaTeX
+    document.
+    """
+
+    _LOG.info("writing LaTeX document", out_fname=str(out_fname))
+
+    if not out_fname.parent.exists():
+        out_fname.parent.mkdir(parents=True)
+
+    with open(out_fname, "w") as src:
+        src.write(out_string)
 
 
 def _write_measurement_figures(
@@ -61,13 +74,8 @@ def _write_measurement_figures(
         measurement_doc_fnames[product_group].append(relative_fname)
 
         out_fname = outdir.joinpath(relative_fname)
-        if not out_fname.parent.exists():
-            out_fname.parent.mkdir(parents=True)
 
-        _LOG.info("writing tex document to disk", out_fname=str(out_fname))
-
-        with open(out_fname, "w") as outf:
-            outf.write(out_string)
+        write_latex_document(out_string, out_fname)
 
     return measurement_doc_fnames
 
@@ -101,59 +109,83 @@ def _write_product_docs(
             FileNames.REPORT.value.format(product_group=product_group)
         )
 
-        _LOG.info("writing tex document to disk", out_fname=str(out_fname))
-
-        with open(out_fname, "w") as outf:
-            outf.write(out_string)
+        write_latex_document(out_string, out_fname)
 
 
 def _write_product_tables(outdir: Path, table_template: str) -> Dict[str, str]:
     """Create LaTeX tables from various CSV's."""
 
-    product_groups = ["nbar", "nbart", "oa"]
+    # product_groups = ["nbar", "nbart", "oa"]
+    Table = namedtuple("Table", ["product_name", "caption"])
+
+    tables = [
+        Table(product_name="nbar", caption="Difference in Surface Reflectance"),
+        Table(product_name="nbar", caption="Difference in Surface Reflectance"),
+        Table(product_name="oa", caption="Difference"),
+    ]
 
     table_fnames: Dict[str, str] = dict()
 
-    for product_name in product_groups:
+    # for product_name in product_groups:
+    for table in tables:
 
-        basename = f"{product_name}_tables.tex"
+        basename = LatexTableFileNames.PRODUCT_FORMAT.value.format(
+            product_name=table.product_name
+        )
         relative_fname = Path(DirectoryNames.REPORT_TABLES.value, basename)
-        table_fnames[product_name] = str(relative_fname)
+        table_fnames[table.product_name] = str(relative_fname)
 
         out_fname = outdir.joinpath(relative_fname)
         if not out_fname.parent.exists():
             out_fname.parent.mkdir(parents=True)
 
         out_string = table_template.format(
-            caption=MIN_MAX_PCT_CAPTION[product_name], product_name=product_name
+            caption=table.caption, product_name=table.product_name
         )
 
-        _LOG.info("writing tex document to disk", out_fname=str(out_fname))
-
-        with open(out_fname, "w") as src:
-            src.write(out_string)
+        write_latex_document(out_string, out_fname)
 
     return table_fnames
 
 
-def _write_proc_info_tables(outdir: Path, table_template: str) -> Dict[str, str]:
-    """Create the ancillary and GQA tables."""
+def _write_ancillary_gqa_tables(outdir: Path, template: str) -> None:
+    """Create the ancillary and GQA LaTeX document tables."""
 
-    table_fname: Dict[str, str] = dict()
+    Table = namedtuple("Table", ["basename", "caption", "basename"])
 
-    basename = "proc_info_tables.tex"
-    relative_fname = Path(DirectoryNames.REPORT_TABLES.value, basename)
-    table_fname["proc_info_tables"] = str(relative_fname)
+    tables = [
+        Table(
+            basename=LatexTableFileNames.ANCILLARY.value,
+            caption="Ancillary Minimum and Maximum Residual",
+            basename=CsvFileNames.ANCILLARY.value,
+        ),
+        Table(
+            basename=LatexTableFileNames.GQA.value,
+            caption="GQA Minimum and Maximum Residual",
+            basename=CsvFileNames.GQA.value,
+        ),
+    ]
 
-    out_fname = outdir.joinpath(relative_fname)
+    for table in tables:
+        out_fname = outdir.joinpath(DirectoryNames.REPORT_TABLES.value, table.basename)
 
-    if not out_fname.parent.exists():
-        out_fname.parent.mkdir(parents=True)
+        out_string = template.format(
+            caption=table.caption, basename=table.basename
+        )
 
-    with open(out_fname, "w") as src:
-        src.write(table_template)
+        write_latex_document(out_string, out_fname)
 
-    return table_fname
+
+def _write_software_versions_table(outdir: Path, template: str) -> None:
+    """Create the software versions LaTeX document table."""
+
+    out_string = template.format(basename=CsvFileNames.SOFTWARE.value)
+
+    out_fname = outdir.joinpath(
+        DirectoryNames.REPORT_TABLES.value, LatexTableFileNames.SOFTWARE.value
+    )
+
+    write_latex_document(out_string, out_fname)
 
 
 def latex_documents(
@@ -171,23 +203,23 @@ def latex_documents(
         The base output directory of the entire intercomparison workflow.
     """
 
-    _LOG.info("reading LaTeX main document template")
+    def _reader(pathname: Path) -> str:
+        """Small proxy for reading the plaintext LaTeX templates."""
 
-    with open(DOCUMENT_TEMPLATE, "r") as src:
-        doc_template = src.read()
+        _LOG.info("reading LaTeX template", pathname=str(pathname))
 
-    _LOG.info("reading LaTeX measurement template")
+        with open(pathname, "r") as src:
+            document = src.read()
 
-    with open(MEASUREMENT_TEMPLATE, "r") as src:
-        measurement_template = src.read()
+        return document
 
-    _LOG.info("reading LaTeX table template")
+    _LOG.info("reading LaTeX document templates")
 
-    with open(MIN_MAX_TABLE_TEMPLATE, "r") as src:
-        min_max_table_template = src.read()
-
-    with open(PROC_INFO_TABLE_TEMPLATE, "r") as src:
-        proc_info_table_template = src.read()
+    doc_template = _reader(Path(DOCUMENT_TEMPLATE))
+    measurement_template = _reader(Path(MEASUREMENT_TEMPLATE))
+    min_max_table_template = _reader(Path(MIN_MAX_TABLE_TEMPLATE))
+    metadata_template = _reader(Path(METADATA_MIN_MAX_TABLE_TEMPLATE))
+    software_template = _reader(Path(SOFTWARE_VERSIONS_TABLE_TEMPLATE))
 
     measurement_doc_fnames = _write_measurement_figures(
         gdf, outdir, measurement_template
@@ -195,7 +227,8 @@ def latex_documents(
 
     table_fnames = _write_product_tables(outdir, min_max_table_template)
 
-    proc_info_fnames = _write_proc_info_tables(outdir, proc_info_table_template)
+    _write_ancillary_gqa_tables(outdir, metadata_template)
+    _write_software_versions_table(outdir, software_template)
 
     pass_fail_result = reflectance_pass_fail(dataframe)
     nbar_pass_fail = "Pass" if pass_fail_result[0]["test_passed"] else "Fail"

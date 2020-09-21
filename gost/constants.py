@@ -35,19 +35,16 @@ TM_WORLD_BORDERS_FNAME = pkg_resources.resource_filename(
     "gost", "data/TM_WORLD_BORDERS-0.3.geojsonl.zst"
 )
 MEASUREMENT_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "data/measurement-template.txt"
+    "gost", "latex_templates/figures/measurement.txt"
 )
 MIN_MAX_TABLE_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "data/min-max-pct-table-template.txt"
-)
-PROC_INFO_TABLE_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "data/proc-info-table-template.txt"
+    "gost", "latex_templates/tables/measurement-min-max-pct.txt"
 )
 METADATA_MIN_MAX_TABLE_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "data/metadata-min-max-template.txt"
+    "gost", "latex_templates/tables/metadata-min-max.txt"
 )
 SOFTWARE_VERSIONS_TABLE_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "data/software-versions.txt"
+    "gost", "latex_templates/tables/software-versions.txt"
 )
 NBAR_SECTION_TEMPLATE = pkg_resources.resource_filename(
     "gost", "latex_templates/sections/nbar.txt"
@@ -125,6 +122,20 @@ class LatexSectionFnames(Enum):
     NBART = "nbart.tex"
     OA = "oa.tex"
     PRODUCT_FMT = "{product_name}.tex"
+
+
+class FigureTemplates(Enum):
+    """Figure templates for the report."""
+
+    MEASUREMENT = MEASUREMENT_TEMPLATE
+
+
+class TableTemplates(Enum):
+    """Table templates for the report."""
+
+    MEASUREMENT = MIN_MAX_TABLE_TEMPLATE
+    METADATA = METADATA_MIN_MAX_TABLE_TEMPLATE
+    SOFTWARE = SOFTWARE_VERSIONS_TABLE_TEMPLATE
 
 
 class SectionTemplates(Enum):

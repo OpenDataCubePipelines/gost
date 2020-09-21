@@ -42,9 +42,13 @@
 
     \subfile{{sections/{software_section}}}
 
+  \clearpage
+
   \subsection{{Ancillary}}
 
     \subfile{{sections/{ancillary_section}}}
+
+  \clearpage
 
   \subsection{{Geometric Quality}}
 
@@ -77,6 +81,8 @@
     \begin{{flushleft}}
       The percent different was simply describing the proportionality of change. For routine integration tests, it is ideal to have this number closer 0. As routine testing that is occurring on the same machine should exhibit less noise in floating point calculations. If deploying the codebase to a different machine, it is expected that there will be some floating point differences. This can occur due to slight differences in machine architecture, and/or different compilers. As such, this metric coupled with minimal and maximal differences/residuals, can help in aiding a user to ignore noise such as compiler or machine architecture differences. \par
     \end{{flushleft}}
+
+  \clearpage
 
   \subsection{{Spatial Distribution}}
 

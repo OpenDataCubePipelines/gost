@@ -23,7 +23,7 @@
 
   \subsubsection{{Extrema and Proportionality of Difference}}
 
-    \subfile{{../tables/{tables}}}
+    \subfile{{\main/{tables}}}
 
   \clearpage
 

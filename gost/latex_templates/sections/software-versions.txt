@@ -10,6 +10,6 @@
     The software versions listed are those found within the \textit{{*.proc-info.yaml}} file. 
   \end{{flushleft}}
 
-  \subfile{{../tables/{stem}}}
+  \subfile{{\main/tables/{stem}}}
 
 \end{{document}}

@@ -20,6 +20,8 @@
 
 \graphicspath{{ {{../plots/nbar/}}{{../../plots/nbar/}} {{../plots/nbart/}}{{../../plots/nbart/}} {{../plots/oa/}}{{../../plots/oa}} }}
 
+\providecommand{\main}{..}
+
 \title{{Residuals Analysis \\ ARD Processing Pipeline}}
 \author{{ARD Team}}
 \date{{\today}}

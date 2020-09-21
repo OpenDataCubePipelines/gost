@@ -17,11 +17,8 @@ from gost.constants import (
     LatexTableFileNames,
     LatexSectionFnames,
     SectionTemplates,
-    MEASUREMENT_TEMPLATE,
-    DOCUMENT_TEMPLATE,
-    MIN_MAX_TABLE_TEMPLATE,
-    METADATA_MIN_MAX_TABLE_TEMPLATE,
-    SOFTWARE_VERSIONS_TABLE_TEMPLATE,
+    FigureTemplates,
+    TableTemplates,
 )
 
 _LOG = structlog.get_logger()
@@ -217,6 +214,24 @@ def _write_metadata_sections(
         write_latex_document(out_string, out_fname)
 
 
+def _write_main_section(outdir: Path, template: str) -> None:
+    """Write the main level LaTeX document."""
+
+    out_fname = outdir.joinpath(LatexSectionFnames.MAIN.value)
+
+    out_string = template.format(
+        stem=out_fname.stem,
+        software_section=LatexSectionFnames.SOFTWARE.value,
+        ancillary_section=LatexSectionFnames.ANCILLARY.value,
+        gqa_section=LatexSectionFnames.GQA.value,
+        nbar_section=LatexSectionFnames.NBAR.value,
+        nbart_section=LatexSectionFnames.NBART.value,
+        oa_section=LatexSectionFnames.OA.value
+    )
+
+    write_latex_document(out_string, out_fname)
+
+
 def latex_documents(
     gdf: geopandas.GeoDataFrame, dataframe: pandas.DataFrame, outdir: Path
 ) -> None:
@@ -244,10 +259,10 @@ def latex_documents(
 
     _LOG.info("reading LaTeX document templates")
 
-    measurement_template = _reader(Path(MEASUREMENT_TEMPLATE))
-    min_max_table_template = _reader(Path(MIN_MAX_TABLE_TEMPLATE))
-    metadata_template = _reader(Path(METADATA_MIN_MAX_TABLE_TEMPLATE))
-    software_template = _reader(Path(SOFTWARE_VERSIONS_TABLE_TEMPLATE))
+    measurement_template = _reader(Path(FigureTemplates.MEASUREMENT.value))
+    min_max_table_template = _reader(Path(TableTemplates.MEASUREMENT.value))
+    metadata_template = _reader(Path(TableTemplates.METADATA.value))
+    software_template = _reader(Path(TableTemplates.SOFTWARE.value))
 
     figure_fnames = _write_measurement_figures(gdf, outdir, measurement_template)
 
@@ -265,6 +280,7 @@ def latex_documents(
         "nbart": nbart_pass_fail,
     }
 
+    # measurements per product group
     product_sections = {
         "nbar": _reader(Path(SectionTemplates.NBAR.value)),
         "nbart": _reader(Path(SectionTemplates.NBART.value)),
@@ -275,6 +291,7 @@ def latex_documents(
         figure_fnames, table_fnames, pass_fail, outdir, product_sections
     )
 
+    # metadata
     metadata_sections = {
         LatexSectionFnames.SOFTWARE: _reader(Path(SectionTemplates.SOFTWARE.value)),
         LatexSectionFnames.ANCILLARY: _reader(Path(SectionTemplates.ANCILLARY.value)),
@@ -282,5 +299,9 @@ def latex_documents(
     }
 
     _write_metadata_sections(outdir, metadata_sections)
+
+    # main document
+    main_template = _reader(Path(SectionTemplates.MAIN.value))
+    _write_main_section(outdir, main_template)
 
     _LOG.info("finished writing LaTeX documents")

@@ -34,9 +34,6 @@ FRAMING = {
 TM_WORLD_BORDERS_FNAME = pkg_resources.resource_filename(
     "gost", "data/TM_WORLD_BORDERS-0.3.geojsonl.zst"
 )
-DOCUMENT_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "data/doc-template.txt"
-)
 MEASUREMENT_TEMPLATE = pkg_resources.resource_filename(
     "gost", "data/measurement-template.txt"
 )
@@ -51,6 +48,27 @@ METADATA_MIN_MAX_TABLE_TEMPLATE = pkg_resources.resource_filename(
 )
 SOFTWARE_VERSIONS_TABLE_TEMPLATE = pkg_resources.resource_filename(
     "gost", "data/software-versions.txt"
+)
+NBAR_SECTION_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "latex_templates/sections/nbar.txt"
+)
+NBART_SECTION_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "latex_templates/sections/nbart.txt"
+)
+OA_SECTION_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "latex_templates/sections/oa.txt"
+)
+ANCILLARY_SECTION_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "latex_templates/sections/ancillary.txt"
+)
+GQA_SECTION_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "latex_templates/sections/geometric-quality.txt"
+)
+SOFTWARE_SECTION_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "latex_templates/sections/software-versions.txt"
+)
+MAIN_SECTION_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "latex_templates/sections/main.txt"
 )
 
 
@@ -94,7 +112,6 @@ class FileNames(Enum):
     SHADOW_FRAMING = "results-per-framing-geometry-shadow.geojsonl"
     GQA_FRAMING = "results-per-framing-geometry-gqa.geojsonl"
     ANCILLARY_FRAMING = "results-per-framing-geometry-ancillary.geojsonl"
-    REPORT = "{product_group}-residuals-analysis.tex"
 
 
 class LatexSectionFnames(Enum):
@@ -104,7 +121,22 @@ class LatexSectionFnames(Enum):
     ANCILLARY = "ancillary.tex"
     GQA = "geometric-quality.tex"
     SOFTWARE = "software-versions.tex"
+    NBAR = "nbar.tex"
+    NBART = "nbart.tex"
+    OA = "oa.tex"
     PRODUCT_FMT = "{product_name}.tex"
+
+
+class SectionTemplates(Enum):
+    """Templates for each section of the report."""
+
+    MAIN = MAIN_SECTION_TEMPLATE
+    SOFTWARE = SOFTWARE_SECTION_TEMPLATE
+    ANCILLARY = ANCILLARY_SECTION_TEMPLATE
+    GQA = GQA_SECTION_TEMPLATE
+    NBAR = NBAR_SECTION_TEMPLATE
+    NBART = NBART_SECTION_TEMPLATE
+    OA = OA_SECTION_TEMPLATE
 
 
 class CsvFileNames(Enum):

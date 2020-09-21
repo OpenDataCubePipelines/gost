@@ -93,7 +93,7 @@ def _write_product_sections(
 
         sub_doc_names = figure_doc_fnames[product_group].copy()
 
-        figures = "".join([f"    \\subfile{{{s}}}\n" for s in sub_doc_names])
+        figures = "".join([f"    \\subfile{{\\main/{s}}}\n" for s in sub_doc_names])
 
         format_kwargs = {
             "main_doc": LatexSectionFnames.MAIN.value,

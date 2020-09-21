@@ -227,7 +227,7 @@ def create_csv(dataframe: pandas.DataFrame, out_fname: Path) -> None:
     """
 
     dataframe.reset_index(inplace=True)
-    dataframe.rename(columns={"index": "Fields"}, inplace=True)
+    dataframe.rename(columns={"index": "Field"}, inplace=True)
 
     _LOG.info("writing CSV", out_fname=str(out_fname))
     dataframe.to_csv(out_fname, index=False)

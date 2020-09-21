@@ -162,7 +162,7 @@ class LatexTableFileNames(Enum):
     """Filenames specific to LaTeX tables."""
 
     ANCILLARY = "ancillary.tex"
-    GQA = "gqa.tex"
+    GQA = "geometric-quality.tex"
     SOFTWARE = "software-versions.tex"
     PRODUCT_FORMAT = "{product_name}.tex"
 

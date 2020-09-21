@@ -18,7 +18,7 @@
 \pgfplotstableset{{col sep=comma}}
 \pgfplotsset{{compat=1.17}}
 
-\graphicspath{{ {{../plots/nbar/}}{{../../plots/nbar/}} {{../plots/nbart/}}{{../../plots/nbart/}} }}
+\graphicspath{{ {{../plots/nbar/}}{{../../plots/nbar/}} {{../plots/nbart/}}{{../../plots/nbart/}} {{../plots/oa/}}{{../../plots/oa}} }}
 
 \title{{Residuals Analysis \\ ARD Processing Pipeline}}
 \author{{ARD Team}}
@@ -106,18 +106,18 @@
 
   \subsection{{NBAR}}
 
-  \subfile{{sections/{nbar-section}}}
+  \subfile{{sections/{nbar_section}}}
 
   \clearpage
 
   \subsection{{NBART}}
 
-  \subfile{{sections/{nbart-section}}}
+  \subfile{{sections/{nbart_section}}}
 
   \clearpage
 
   \subsection{{OA}}
 
-  \subfile{{sections/{oa-section}}}
+  \subfile{{sections/{oa_section}}}
 
 \end{{document}}

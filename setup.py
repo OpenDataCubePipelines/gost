@@ -26,7 +26,12 @@ setup(
         "git+https://github.com/sixy6e/mpi-structlog@develop#egg=mpi_structlog",
     ],
     package_data={
-        "gost": ["data/*.zst", "data/*.txt"],
+        "gost": [
+            "data/*.zst",
+            "latex_templates/figures/*.txt",
+            "latex_templates/sections/*.txt",
+            "latex_templates/tables/*.txt",
+        ],
     },
     license="MIT",
     zip_safe=False,

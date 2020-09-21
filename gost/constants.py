@@ -161,10 +161,10 @@ class CsvFileNames(Enum):
 class LatexTableFileNames(Enum):
     """Filenames specific to LaTeX tables."""
 
-    ANCILLARY = "ancillary-table.tex"
-    GQA = "gqa-table.tex"
-    SOFTWARE = "software-versions-table.tex"
-    PRODUCT_FORMAT = "{product_name}-tables.tex"
+    ANCILLARY = "ancillary.tex"
+    GQA = "gqa.tex"
+    SOFTWARE = "software-versions.tex"
+    PRODUCT_FORMAT = "{product_name}.tex"
 
 
 class DatasetGroups(Enum):

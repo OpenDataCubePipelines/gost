@@ -122,7 +122,7 @@ def _write_product_tables(outdir: Path, table_template: str) -> Dict[str, str]:
 
     tables = [
         Table(product_name="nbar", caption="Difference in Surface Reflectance"),
-        Table(product_name="nbar", caption="Difference in Surface Reflectance"),
+        Table(product_name="nbart", caption="Difference in Surface Reflectance"),
         Table(product_name="oa", caption="Difference"),
     ]
 

@@ -16,6 +16,7 @@ from gost.constants import (
     FileNames,
     LatexTableFileNames,
     LatexSectionFnames,
+    SectionTemplates,
     MEASUREMENT_TEMPLATE,
     DOCUMENT_TEMPLATE,
     MIN_MAX_TABLE_TEMPLATE,
@@ -53,9 +54,7 @@ def _write_measurement_figures(
 
     # currently the groups are nbar, nbart, oa
     product_groups = set(meas.split("_")[0] for meas in gdf.measurement.unique())
-    measurement_doc_fnames: Dict[str, List] = {
-        p_group: [] for p_group in product_groups
-    }
+    figure_fnames: Dict[str, List] = {p_group: [] for p_group in product_groups}
 
     for name, grp in gdf.groupby("measurement"):
         product_group = name.split("_")[0]
@@ -73,42 +72,46 @@ def _write_measurement_figures(
         # need relative names to insert into the main tex doc of each product
         basename = f"{name}.tex"
         relative_fname = Path(DirectoryNames.REPORT_FIGURES.value, basename)
-        measurement_doc_fnames[product_group].append(relative_fname)
+        figure_fnames[product_group].append(relative_fname)
 
         out_fname = outdir.joinpath(relative_fname)
 
         write_latex_document(out_string, out_fname)
 
-    return measurement_doc_fnames
+    return figure_fnames
 
 
-def _write_product_docs(
-    measurement_doc_fnames: Dict[str, List],
+def _write_product_sections(
+    figure_doc_fnames: Dict[str, List],
     table_fnames: Dict[str, str],
     pass_fail: Dict[str, str],
     outdir: Path,
-    document_template: str,
+    product_templates: Dict[str, str],
 ) -> None:
-    """Write each of the LaTeX main level product documents."""
+    """Write each of the LaTeX product section documents."""
 
-    for product_group in measurement_doc_fnames:
+    skip_pass_fail_test = ["oa"]
 
-        sub_doc_names = measurement_doc_fnames[product_group].copy()
+    for product_group in figure_doc_fnames:
 
-        # only have 1 table doc to insert at this stage
-        sub_doc_names.insert(0, table_fnames[product_group])
+        sub_doc_names = figure_doc_fnames[product_group].copy()
 
-        doc_sections = "".join([f"    \\subfile{{{s}}}\n" for s in sub_doc_names])
+        figures = "".join([f"    \\subfile{{{s}}}\n" for s in sub_doc_names])
 
-        out_string = document_template.format(
-            product_group=product_group,
-            product_group2=product_group.upper(),
-            sections=doc_sections,
-            pass_fail=pass_fail[product_group],
-        )
+        format_kwargs = {
+            "main_doc": LatexSectionFnames.MAIN.value,
+            "stem": product_group,
+            "tables": table_fnames[product_group],
+            "figures": figures,
+        }
+        if product_group not in skip_pass_fail_test:
+            format_kwargs["pass_fail"] = pass_fail[product_group]
+
+        out_string = product_templates[product_group].format(**format_kwargs)
 
         out_fname = outdir.joinpath(
-            FileNames.REPORT.value.format(product_group=product_group)
+            DirectoryNames.REPORT_SECTIONS.value,
+            LatexSectionFnames.PRODUCT_FMT.value.format(product_name=product_group),
         )
 
         write_latex_document(out_string, out_fname)
@@ -196,6 +199,24 @@ def _write_software_versions_table(outdir: Path, template: str) -> None:
     write_latex_document(out_string, out_fname)
 
 
+def _write_metadata_sections(
+    outdir: Path, templates: Dict[LatexSectionFnames, str]
+) -> None:
+    """
+    Write the LaTeX document sections for ancillary, gqa and
+    software versions.
+    """
+
+    for key in templates:
+        out_fname = outdir.joinpath(DirectoryNames.REPORT_SECTIONS.value, key.value)
+
+        out_string = templates[key].format(
+            main_doc=LatexSectionFnames.MAIN.value, stem=out_fname.stem
+        )
+
+        write_latex_document(out_string, out_fname)
+
+
 def latex_documents(
     gdf: geopandas.GeoDataFrame, dataframe: pandas.DataFrame, outdir: Path
 ) -> None:
@@ -223,15 +244,12 @@ def latex_documents(
 
     _LOG.info("reading LaTeX document templates")
 
-    doc_template = _reader(Path(DOCUMENT_TEMPLATE))
     measurement_template = _reader(Path(MEASUREMENT_TEMPLATE))
     min_max_table_template = _reader(Path(MIN_MAX_TABLE_TEMPLATE))
     metadata_template = _reader(Path(METADATA_MIN_MAX_TABLE_TEMPLATE))
     software_template = _reader(Path(SOFTWARE_VERSIONS_TABLE_TEMPLATE))
 
-    measurement_doc_fnames = _write_measurement_figures(
-        gdf, outdir, measurement_template
-    )
+    figure_fnames = _write_measurement_figures(gdf, outdir, measurement_template)
 
     table_fnames = _write_product_tables(outdir, min_max_table_template)
 
@@ -243,13 +261,26 @@ def latex_documents(
     nbart_pass_fail = "Pass" if pass_fail_result[1]["test_passed"] else "Fail"
 
     pass_fail = {
-        "nbar": f"Result Outcome: {nbar_pass_fail}",
-        "nbart": f"Result Outcome: {nbart_pass_fail}",
-        "oa": "",
+        "nbar": nbar_pass_fail,
+        "nbart": nbart_pass_fail,
     }
 
-    _write_product_docs(
-        measurement_doc_fnames, table_fnames, pass_fail, outdir, doc_template
+    product_sections = {
+        "nbar": _reader(Path(SectionTemplates.NBAR.value)),
+        "nbart": _reader(Path(SectionTemplates.NBART.value)),
+        "oa": _reader(Path(SectionTemplates.OA.value)),
+    }
+
+    _write_product_sections(
+        figure_fnames, table_fnames, pass_fail, outdir, product_sections
     )
+
+    metadata_sections = {
+        LatexSectionFnames.SOFTWARE: _reader(Path(SectionTemplates.SOFTWARE.value)),
+        LatexSectionFnames.ANCILLARY: _reader(Path(SectionTemplates.ANCILLARY.value)),
+        LatexSectionFnames.GQA: _reader(Path(SectionTemplates.GQA.value)),
+    }
+
+    _write_metadata_sections(outdir, metadata_sections)
 
     _LOG.info("finished writing LaTeX documents")

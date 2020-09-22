@@ -8,42 +8,42 @@
           \hspace{{-30mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-             \fbox{{\includegraphics[scale=0.9]{{{measurement_name}-min_residual.png}}}}
+            \fbox{{\includegraphics[]{{{measurement_name}-min_residual.png}}}}
             \caption{{Min Residual}}
           \end{{subfigure}}%
           \hspace{{30mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-            \fbox{{\includegraphics[scale=0.9]{{{measurement_name}-max_residual.png}}}}
+            \fbox{{\includegraphics[]{{{measurement_name}-max_residual.png}}}}
             \caption{{Max Residual}}
           \end{{subfigure}}
 
           \hspace{{-30mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-            \fbox{{\includegraphics[scale=0.9]{{{measurement_name}-mean_residual.png}}}}
+            \fbox{{\includegraphics[]{{{measurement_name}-mean_residual.png}}}}
             \caption{{Mean Residual}}
           \end{{subfigure}}%
           \hspace{{30mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-            \fbox{{\includegraphics[scale=0.9]{{{measurement_name}-standard_deviation.png}}}}
+            \fbox{{\includegraphics[]{{{measurement_name}-standard_deviation.png}}}}
             \caption{{Standard Deviation}}
           \end{{subfigure}}
   
           \hspace{{-30mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-            \fbox{{\includegraphics[scale=0.9]{{{measurement_name}-skewness.png}}}}
+            \fbox{{\includegraphics[]{{{measurement_name}-skewness.png}}}}
             \caption{{Skewness}}
           \end{{subfigure}}%
           \hspace{{30mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-            \fbox{{\includegraphics[scale=0.9]{{{measurement_name}-kurtosis.png}}}}
+            \fbox{{\includegraphics[]{{{measurement_name}-kurtosis.png}}}}
             \caption{{Kurtosis}}
           \end{{subfigure}}
-        \caption{{{figure_caption} summary stats}}\label{{figure:1}}
+        \caption{{{figure_caption} Summary Stats}}\label{{figure:1}}
       \end{{figure}}
   
   \clearpage
@@ -52,20 +52,20 @@
         \hspace{{-30mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-            \fbox{{\includegraphics[scale=0.9]{{{measurement_name}-percentile_90.png}}}}
+            \fbox{{\includegraphics[]{{{measurement_name}-percentile_90.png}}}}
             \caption{{90th Percentile}}
           \end{{subfigure}}%
           \hspace{{30mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-            \fbox{{\includegraphics[scale=0.9]{{{measurement_name}-percentile_99.png}}}}
+            \fbox{{\includegraphics[]{{{measurement_name}-percentile_99.png}}}}
             \caption{{99th Percentile}}
           \end{{subfigure}}
 
         \hspace{{15mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-            \fbox{{\includegraphics[scale=0.9]{{{measurement_name}-percent_different.png}}}}
+            \fbox{{\includegraphics[]{{{measurement_name}-percent_different.png}}}}
             \caption{{\% Pixels != 0}}
           \end{{subfigure}}
         \caption{{{figure_caption} percentiles and percentage different}}\label{{figure:1}}

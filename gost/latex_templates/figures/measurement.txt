@@ -22,7 +22,7 @@
           \hspace{{25mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
-            \fbox{{\includegraphics[]{{{measurement_name}-max_absolute.png}}
+            \fbox{{\includegraphics[]{{{measurement_name}-max_absolute.png}}}}
             \caption{{Absolute}}
           \end{{subfigure}}
         \caption{{NBAR BLUE Minimum, Maximum, Maximum Absolute}}\label{{figure:1}}

@@ -139,7 +139,9 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 general_records.percent_null_2_data.append(null_info[1])
 
                 diff = evaluate(reference_measurement, test_measurement)
+                abs_diff = numpy.abs(diff)
                 h = distribution(diff)
+                h_abs = distribution(abs_diff)
 
                 # store results
                 general_records.add_base_info(
@@ -154,17 +156,18 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                     # get difference as a percent reflectance (0->100)
                     general_records.min_residual.append(h["omin"] / 100)
                     general_records.max_residual.append(h["omax"] / 100)
+                    general_records.max_absolute.append(h_abs["omax"] / 100)
                 else:
                     general_records.min_residual.append(h["omin"])
                     general_records.max_residual.append(h["omax"])
+                    general_records.max_absolute.append(h_abs["omax"])
 
                 general_records.percent_different.append(
                     (diff != 0).sum() / diff.size * 100
                 )
 
                 # percentiles of the cumulative distribution
-                h = distribution(numpy.abs(diff))
-                hist = h["histogram"]
+                hist = h_abs["histogram"]
                 cdf = numpy.cumsum(hist / hist.sum())
                 p1_idx = numpy.searchsorted(cdf, 0.9)
                 p2_idx = numpy.searchsorted(cdf, 0.99)

@@ -101,6 +101,7 @@ class GeneralRecords(MeasurementRecords):
     standard_deviation: List = attr.ib(default=attr.Factory(list))
     skewness: List = attr.ib(default=attr.Factory(list))
     kurtosis: List = attr.ib(default=attr.Factory(list))
+    max_absolute: List = attr.ib(default=attr.Factory(list))
 
 
 def _make_thematic_class(themes, name):

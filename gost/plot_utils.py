@@ -33,9 +33,22 @@ REFLECTANCE_INFO = [
     PlotInfo(column="percent_different", label="% of Pixels where residiual != 0", colormap=COLORMAP),
     PlotInfo(column="mean_residual", label=REFLECTANCE_LABEL, colormap="gist_rainbow"),
     PlotInfo(column="standard_deviation", label=REFLECTANCE_LABEL, colormap=COLORMAP),
-    PlotInfo(column="skewness", label="Skewness", colormap=COLORMAP),
+    PlotInfo(column="skewness", label="Skewness", colormap="gist_rainbow"),
     PlotInfo(column="kurtosis", label="Kurtosis", colormap=COLORMAP),
     PlotInfo(column="max_absolute", label=REFLECTANCE_LABEL, colormap=COLORMAP),
+]
+PlotInfoOa = namedtuple("PlotInfoOa", ["column", "colormap"])
+OA_INFO = [
+    PlotInfoOa(column="min_residual", colormap="rainbow_r"),
+    PlotInfoOa(column="max_residual", colormap=COLORMAP),
+    PlotInfoOa(column="percentile_90", colormap=COLORMAP),
+    PlotInfoOa(column="percentile_99", colormap=COLORMAP),
+    PlotInfoOa(column="percent_different", colormap=COLORMAP),
+    PlotInfoOa(column="mean_residual", colormap="gist_rainbow"),
+    PlotInfoOa(column="standard_deviation", colormap=COLORMAP),
+    PlotInfoOa(column="skewness", colormap="gist_rainbow"),
+    PlotInfoOa(column="kurtosis", colormap=COLORMAP),
+    PlotInfoOa(column="max_absolute", colormap=COLORMAP),
 ]
 OA_COLUMNS = [
     "min_residual",
@@ -125,12 +138,11 @@ def _plot_oa_stats(
         "oa_time_delta": "Seconds",
         "oa_relative_slope": "Slope",
     }
-    other_labels = {
+    specific_labels = {
         "kurtosis": "Kurtosis",
         "skewness": "Skewness",
+        "percent_different": "% of Pixels where residiual != 0",
     }
-
-    label = labels.get(name, "Degrees")
 
     for column in OA_COLUMNS:
         prefix = Path(outdir, name.split("_")[0])
@@ -138,7 +150,8 @@ def _plot_oa_stats(
             _LOG.info("creating output directory", outdir=str(prefix))
             prefix.mkdir(parents=True)
 
-        label = other_labels.get(label, label)
+        label = labels.get(name, "Degrees")
+        label = specific_labels.get(column, label)
 
         out_fname = prefix.joinpath(f"{name}-{column}.png")
 

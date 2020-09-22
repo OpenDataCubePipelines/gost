@@ -35,7 +35,7 @@ REFLECTANCE_INFO = [
     PlotInfo(column="standard_deviation", label=REFLECTANCE_LABEL, colormap=COLORMAP),
     PlotInfo(column="skewness", label="Skewness", colormap=COLORMAP),
     PlotInfo(column="kurtosis", label="Kurtosis", colormap=COLORMAP),
-    PlotInfo(column="Absolute", label=REFLECTANCE_LABEL, colormap=COLORMAP),
+    PlotInfo(column="max_absolute", label=REFLECTANCE_LABEL, colormap=COLORMAP),
 ]
 OA_COLUMNS = [
     "min_residual",

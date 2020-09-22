@@ -5,7 +5,7 @@
 
 \begin{{document}}
       \begin{{figure}}[htp]
-          \hspace{{-20mm}}
+          \hspace{{-35mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-min_residual.png}}}}
@@ -19,7 +19,7 @@
           \end{{subfigure}}
 
           \vspace{{15mm}}
-          \hspace{{25mm}}
+          \hspace{{20mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-max_absolute.png}}}}
@@ -31,7 +31,7 @@
   \clearpage
 
       \begin{{figure}}[b]
-          \hspace{{-20mm}}
+          \hspace{{-35mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-mean_residual.png}}}}
@@ -45,7 +45,7 @@
           \end{{subfigure}}
   
           \vspace{{15mm}}
-          \hspace{{-20mm}}
+          \hspace{{-35mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-skewness.png}}}}
@@ -63,7 +63,7 @@
   \clearpage
 
       \begin{{figure}}[htp]
-        \hspace{{-20mm}}
+        \hspace{{-35mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-percentile_90.png}}}}
@@ -77,7 +77,7 @@
           \end{{subfigure}}
 
         \vspace{{15mm}}
-        \hspace{{25mm}}
+        \hspace{{20mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-percent_different.png}}}}

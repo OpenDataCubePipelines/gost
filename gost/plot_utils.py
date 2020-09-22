@@ -35,6 +35,7 @@ REFLECTANCE_INFO = [
     PlotInfo(column="standard_deviation", label=REFLECTANCE_LABEL, colormap=COLORMAP),
     PlotInfo(column="skewness", label="Skewness", colormap=COLORMAP),
     PlotInfo(column="kurtosis", label="Kurtosis", colormap=COLORMAP),
+    PlotInfo(column="Absolute", label=REFLECTANCE_LABEL, colormap=COLORMAP),
 ]
 OA_COLUMNS = [
     "min_residual",
@@ -46,6 +47,7 @@ OA_COLUMNS = [
     "standard_deviation",
     "skewness",
     "kurtosis",
+    "absolute",
 ]
 _LOG = structlog.get_logger()
 

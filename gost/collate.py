@@ -91,7 +91,7 @@ def summarise(
 
         result = pandas.DataFrame()
         result["Minimum"] = subset.min(axis=0)
-        result["Minimum"] = subset.max(axis=0)
+        result["Maximum"] = subset.max(axis=0)
     else:
         if thematic:
             _LOG.info("summarising thematic datasets")

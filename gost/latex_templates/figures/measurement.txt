@@ -25,7 +25,7 @@
             \fbox{{\includegraphics[]{{{measurement_name}-max_absolute.png}}}}
             \caption{{Maximum Absolute}}
           \end{{subfigure}}
-        \caption{{NBAR BLUE Minimum, Maximum, Maximum Absolute}}\label{{figure:1}}
+        \caption{{{figure_caption} Minimum, Maximum, Maximum Absolute}}\label{{figure:1}}
       \end{{figure}}
 
   \clearpage

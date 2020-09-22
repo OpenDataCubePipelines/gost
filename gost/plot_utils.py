@@ -180,6 +180,7 @@ def _plot_oa_stats(
 
         _LOG.info("saving figure as png", out_fname=str(out_fname))
 
+        plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
         plt.savefig(out_fname, bbox_inches="tight")
         plt.close(fig)
 
@@ -262,5 +263,6 @@ def plot_proc_info_pngs(gdf: geopandas.GeoDataFrame, outdir: Path) -> None:
 
         _LOG.info("saving figure as png", out_fname=str(out_fname))
 
+        plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
         plt.savefig(out_fname, bbox_inches="tight")
         plt.close(fig)

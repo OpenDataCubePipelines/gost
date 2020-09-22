@@ -5,39 +5,53 @@
 
 \begin{{document}}
       \begin{{figure}}[htp]
-          \hspace{{-30mm}}
+          \hspace{{-20mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-min_residual.png}}}}
             \caption{{Min Residual}}
           \end{{subfigure}}%
-          \hspace{{30mm}}
+          \hspace{{25mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-max_residual.png}}}}
             \caption{{Max Residual}}
           \end{{subfigure}}
 
-          \hspace{{-30mm}}
+          \vspace{{15mm}}
+          \hspace{{25mm}}
+          \begin{{subfigure}}{{0.35\paperwidth}}
+            \centering
+            \fbox{{\includegraphics[]{{nbar_blue-absolute.png}}
+            \caption{{Absolute}}
+          \end{{subfigure}}
+        \caption{{NBAR BLUE Minimum, Maximum, Absolute}}\label{{figure:1}}
+      \end{{figure}}
+
+  \clearpage
+
+      \begin{{figure}}[b]
+          \hspace{{-20mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-mean_residual.png}}}}
             \caption{{Mean Residual}}
           \end{{subfigure}}%
-          \hspace{{30mm}}
+          \hspace{{25mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-standard_deviation.png}}}}
             \caption{{Standard Deviation}}
           \end{{subfigure}}
   
-          \hspace{{-30mm}}
+          \vspace{{15mm}}
+          \hspace{{-20mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-skewness.png}}}}
             \caption{{Skewness}}
           \end{{subfigure}}%
-          \hspace{{30mm}}
+          \hspace{{25mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-kurtosis.png}}}}
@@ -49,20 +63,21 @@
   \clearpage
 
       \begin{{figure}}[htp]
-        \hspace{{-30mm}}
+        \hspace{{-20mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-percentile_90.png}}}}
             \caption{{90th Percentile}}
           \end{{subfigure}}%
-          \hspace{{30mm}}
+          \hspace{{25mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-percentile_99.png}}}}
             \caption{{99th Percentile}}
           \end{{subfigure}}
 
-        \hspace{{15mm}}
+        \vspace{{15mm}}
+        \hspace{{25mm}}
           \begin{{subfigure}}{{0.35\paperwidth}}
             \centering
             \fbox{{\includegraphics[]{{{measurement_name}-percent_different.png}}}}

@@ -47,7 +47,7 @@ OA_COLUMNS = [
     "standard_deviation",
     "skewness",
     "kurtosis",
-    "absolute",
+    "max_absolute",
 ]
 _LOG = structlog.get_logger()
 

@@ -24,20 +24,24 @@ COLORMAP = "rainbow"
 REFLECTANCE_LABEL = "% Reflectance"
 DEGREES_LABEL = "Degrees"
 PlotInfo = namedtuple("PlotInfo", ["column", "label", "colormap"])
+PlotInfoOa = namedtuple("PlotInfoOa", ["column", "colormap"])
 
 REFLECTANCE_INFO = [
     PlotInfo(column="min_residual", label=REFLECTANCE_LABEL, colormap="rainbow_r"),
     PlotInfo(column="max_residual", label=REFLECTANCE_LABEL, colormap=COLORMAP),
     PlotInfo(column="percentile_90", label=REFLECTANCE_LABEL, colormap=COLORMAP),
     PlotInfo(column="percentile_99", label=REFLECTANCE_LABEL, colormap=COLORMAP),
-    PlotInfo(column="percent_different", label="% of Pixels where residiual != 0", colormap=COLORMAP),
+    PlotInfo(
+        column="percent_different",
+        label="% of Pixels where residiual != 0",
+        colormap=COLORMAP,
+    ),
     PlotInfo(column="mean_residual", label=REFLECTANCE_LABEL, colormap="gist_rainbow"),
     PlotInfo(column="standard_deviation", label=REFLECTANCE_LABEL, colormap=COLORMAP),
     PlotInfo(column="skewness", label="Skewness", colormap="gist_rainbow"),
     PlotInfo(column="kurtosis", label="Kurtosis", colormap=COLORMAP),
     PlotInfo(column="max_absolute", label=REFLECTANCE_LABEL, colormap=COLORMAP),
 ]
-PlotInfoOa = namedtuple("PlotInfoOa", ["column", "colormap"])
 OA_INFO = [
     PlotInfoOa(column="min_residual", colormap="rainbow_r"),
     PlotInfoOa(column="max_residual", colormap=COLORMAP),
@@ -50,18 +54,7 @@ OA_INFO = [
     PlotInfoOa(column="kurtosis", colormap=COLORMAP),
     PlotInfoOa(column="max_absolute", colormap=COLORMAP),
 ]
-OA_COLUMNS = [
-    "min_residual",
-    "max_residual",
-    "percentile_90",
-    "percentile_99",
-    "percent_different",
-    "mean_residual",
-    "standard_deviation",
-    "skewness",
-    "kurtosis",
-    "max_absolute",
-]
+
 _LOG = structlog.get_logger()
 
 
@@ -91,7 +84,8 @@ def _plot_reflectance_stats(
         cax = divider.append_axes("right", size="5%", pad=0.1)
 
         norm = colors.Normalize(
-            vmin=gdf_subset[plot_info.column].min(), vmax=gdf_subset[plot_info.column].max()
+            vmin=gdf_subset[plot_info.column].min(),
+            vmax=gdf_subset[plot_info.column].max(),
         )
         colourbar = plt.cm.ScalarMappable(norm=norm, cmap=plot_info.colormap)
 
@@ -104,7 +98,9 @@ def _plot_reflectance_stats(
         ax_cbar.set_label(plot_info.label, size=8)
         ax_cbar.ax.tick_params(labelsize=8)
 
-        gdf_subset.plot(column=plot_info.column, cmap=plot_info.colormap, legend=False, ax=axes)
+        gdf_subset.plot(
+            column=plot_info.column, cmap=plot_info.colormap, legend=False, ax=axes
+        )
 
         tm_gdf.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
 
@@ -116,8 +112,8 @@ def _plot_reflectance_stats(
         axes.xaxis.label.set_size(8)
         axes.yaxis.label.set_size(8)
 
-        axes.tick_params(axis='x', labelsize=8)
-        axes.tick_params(axis='y', labelsize=8)
+        axes.tick_params(axis="x", labelsize=8)
+        axes.tick_params(axis="y", labelsize=8)
 
         _LOG.info("saving figure as png", out_fname=str(out_fname))
 
@@ -144,16 +140,16 @@ def _plot_oa_stats(
         "percent_different": "% of Pixels where residiual != 0",
     }
 
-    for column in OA_COLUMNS:
+    for plot_info in OA_INFO:
         prefix = Path(outdir, name.split("_")[0])
         if not prefix.exists():
             _LOG.info("creating output directory", outdir=str(prefix))
             prefix.mkdir(parents=True)
 
         label = labels.get(name, "Degrees")
-        label = specific_labels.get(column, label)
+        label = specific_labels.get(plot_info.column, label)
 
-        out_fname = prefix.joinpath(f"{name}-{column}.png")
+        out_fname = prefix.joinpath(f"{name}-{plot_info.column}.png")
 
         fig = plt.figure(figsize=(2.40, 2.40))
         axes = fig.add_subplot()
@@ -163,9 +159,10 @@ def _plot_oa_stats(
         cax = divider.append_axes("right", size="5%", pad=0.1)
 
         norm = colors.Normalize(
-            vmin=gdf_subset[column].min(), vmax=gdf_subset[column].max()
+            vmin=gdf_subset[plot_info.column].min(),
+            vmax=gdf_subset[plot_info.column].max(),
         )
-        colourbar = plt.cm.ScalarMappable(norm=norm, cmap=COLORMAP)
+        colourbar = plt.cm.ScalarMappable(norm=norm, cmap=plot_info.colormap)
 
         ax_cbar = fig.colorbar(colourbar, cax=cax)
 
@@ -176,7 +173,9 @@ def _plot_oa_stats(
         ax_cbar.set_label(label, size=8)
         ax_cbar.ax.tick_params(labelsize=8)
 
-        gdf_subset.plot(column=column, cmap=COLORMAP, legend=False, ax=axes)
+        gdf_subset.plot(
+            column=plot_info.column, cmap=plot_info.colormap, legend=False, ax=axes
+        )
 
         tm_gdf.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
 
@@ -188,8 +187,8 @@ def _plot_oa_stats(
         axes.xaxis.label.set_size(8)
         axes.yaxis.label.set_size(8)
 
-        axes.tick_params(axis='x', labelsize=8)
-        axes.tick_params(axis='y', labelsize=8)
+        axes.tick_params(axis="x", labelsize=8)
+        axes.tick_params(axis="y", labelsize=8)
 
         _LOG.info("saving figure as png", out_fname=str(out_fname))
 

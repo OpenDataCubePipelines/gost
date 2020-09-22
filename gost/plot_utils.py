@@ -1,30 +1,40 @@
 """
 Utils pertaining to the creation of the PNG plots.
+
+Useful links:
+
+* https://moonbooks.org/Articles/How-to-match-the-colorbar-size-with-the-figure-size-in-matpltolib-/
+* https://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
+* https://matplotlib.org/3.1.0/gallery/axes_grid1/demo_colorbar_with_inset_locator.html
+* https://stackoverflow.com/questions/40705614/hide-axis-label-only-not-entire-axis-in-pandas-plot
+* https://github.com/geopandas/geopandas/issues/318
 """
+from collections import namedtuple
 from pathlib import Path
 import matplotlib.pyplot as plt  # type: ignore
 import matplotlib.colors as colors  # type: ignore
+from mpl_toolkits.axes_grid1 import make_axes_locatable  # type: ignore
 import geopandas  # type: ignore
 import structlog  # type: ignore
 import zstandard  # type: ignore
 
 from gost.constants import TM_WORLD_BORDERS_FNAME
 
-COLOURMAP = "rainbow"
-REFLECTANCE_MAPPING = [
-    (
-        "min_residual",
-        "% Reflectance",
-        "rainbow_r",
-    ),  # reverse so red indicates greater change
-    ("max_residual", "% Reflectance", COLOURMAP),
-    ("percentile_90", "% Reflectance", COLOURMAP),
-    ("percentile_99", "% Reflectance", COLOURMAP),
-    ("percent_different", "% of Pixels where residiual != 0", COLOURMAP),
-    ("mean_residual", "% Reflectance", COLOURMAP),
-    ("standard_deviation", "% Reflectance", COLOURMAP),
-    ("skewness", "Skewness", COLOURMAP),
-    ("kurtosis", "Kurtosis", COLOURMAP),
+COLORMAP = "rainbow"
+REFLECTANCE_LABEL = "% Reflectance"
+DEGREES_LABEL = "Degrees"
+PlotInfo = namedtuple("PlotInfo", ["column", "label", "colormap"])
+
+REFLECTANCE_INFO = [
+    PlotInfo(column="min_residual", label=REFLECTANCE_LABEL, colormap="rainbow_r"),
+    PlotInfo(column="max_residual", label=REFLECTANCE_LABEL, colormap=COLORMAP),
+    PlotInfo(column="percentile_90", label=REFLECTANCE_LABEL, colormap=COLORMAP),
+    PlotInfo(column="percentile_99", label=REFLECTANCE_LABEL, colormap=COLORMAP),
+    PlotInfo(column="percent_different", label="% of Pixels where residiual != 0", colormap=COLORMAP),
+    PlotInfo(column="mean_residual", label=REFLECTANCE_LABEL, colormap="gist_rainbow"),
+    PlotInfo(column="standard_deviation", label=REFLECTANCE_LABEL, colormap=COLORMAP),
+    PlotInfo(column="skewness", label="Skewness", colormap=COLORMAP),
+    PlotInfo(column="kurtosis", label="Kurtosis", colormap=COLORMAP),
 ]
 OA_COLUMNS = [
     "min_residual",
@@ -49,27 +59,37 @@ def _plot_reflectance_stats(
 ) -> None:
     """Plotting func specifically for the reflectance datasets."""
 
-    for column, label, colourmap in REFLECTANCE_MAPPING:
+    for plot_info in REFLECTANCE_INFO:
 
         prefix = Path(outdir, name.split("_")[0])
         if not prefix.exists():
             _LOG.info("creating output directory", outdir=str(prefix))
             prefix.mkdir(parents=True)
 
-        out_fname = prefix.joinpath(f"{name}-{column}.png")
+        out_fname = prefix.joinpath(f"{name}-{plot_info.column}.png")
 
-        fig = plt.figure(figsize=(3, 3))
+        fig = plt.figure(figsize=(2.40, 2.40))
         axes = fig.add_subplot()
 
+        # new rather than shared axes for colorbar
+        divider = make_axes_locatable(axes)
+        cax = divider.append_axes("right", size="5%", pad=0.1)
+
         norm = colors.Normalize(
-            vmin=gdf_subset[column].min(), vmax=gdf_subset[column].max()
+            vmin=gdf_subset[plot_info.column].min(), vmax=gdf_subset[plot_info.column].max()
         )
-        colourbar = plt.cm.ScalarMappable(norm=norm, cmap=colourmap)
+        colourbar = plt.cm.ScalarMappable(norm=norm, cmap=plot_info.colormap)
 
-        ax_cbar = fig.colorbar(colourbar, ax=axes)
-        ax_cbar.set_label(label)
+        ax_cbar = fig.colorbar(colourbar, cax=cax)
 
-        gdf_subset.plot(column=column, cmap=colourmap, legend=False, ax=axes)
+        # set sci formatting to 3 d.p. (aids in consistent plot sizes)
+        ax_cbar.formatter.set_powerlimits((0, 3))
+        ax_cbar.update_ticks()
+
+        ax_cbar.set_label(plot_info.label, size=8)
+        ax_cbar.ax.tick_params(labelsize=8)
+
+        gdf_subset.plot(column=plot_info.column, cmap=plot_info.colormap, legend=False, ax=axes)
 
         tm_gdf.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
 
@@ -78,8 +98,15 @@ def _plot_reflectance_stats(
         axes.set_xlabel("longitude")
         axes.set_ylabel("latitude")
 
+        axes.xaxis.label.set_size(8)
+        axes.yaxis.label.set_size(8)
+
+        axes.tick_params(axis='x', labelsize=8)
+        axes.tick_params(axis='y', labelsize=8)
+
         _LOG.info("saving figure as png", out_fname=str(out_fname))
 
+        plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
         plt.savefig(out_fname, bbox_inches="tight")
         plt.close(fig)
 
@@ -113,18 +140,28 @@ def _plot_oa_stats(
 
         out_fname = prefix.joinpath(f"{name}-{column}.png")
 
-        fig = plt.figure(figsize=(3, 3))
+        fig = plt.figure(figsize=(2.40, 2.40))
         axes = fig.add_subplot()
+
+        # new rather than shared axes for colorbar
+        divider = make_axes_locatable(axes)
+        cax = divider.append_axes("right", size="5%", pad=0.1)
 
         norm = colors.Normalize(
             vmin=gdf_subset[column].min(), vmax=gdf_subset[column].max()
         )
-        colourbar = plt.cm.ScalarMappable(norm=norm, cmap=COLOURMAP)
+        colourbar = plt.cm.ScalarMappable(norm=norm, cmap=COLORMAP)
 
-        ax_cbar = fig.colorbar(colourbar, ax=axes)
-        ax_cbar.set_label(label)
+        ax_cbar = fig.colorbar(colourbar, cax=cax)
 
-        gdf_subset.plot(column=column, cmap=COLOURMAP, legend=False, ax=axes)
+        # set sci formatting to 3 d.p. (aids in consistent plot sizes)
+        ax_cbar.formatter.set_powerlimits((0, 3))
+        ax_cbar.update_ticks()
+
+        ax_cbar.set_label(label, size=8)
+        ax_cbar.ax.tick_params(labelsize=8)
+
+        gdf_subset.plot(column=column, cmap=COLORMAP, legend=False, ax=axes)
 
         tm_gdf.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
 
@@ -132,6 +169,12 @@ def _plot_oa_stats(
         axes.set_ylim(-45, -5)
         axes.set_xlabel("longitude")
         axes.set_ylabel("latitude")
+
+        axes.xaxis.label.set_size(8)
+        axes.yaxis.label.set_size(8)
+
+        axes.tick_params(axis='x', labelsize=8)
+        axes.tick_params(axis='y', labelsize=8)
 
         _LOG.info("saving figure as png", out_fname=str(out_fname))
 
@@ -206,7 +249,7 @@ def plot_proc_info_pngs(gdf: geopandas.GeoDataFrame, outdir: Path) -> None:
         ax_cbar = fig.colorbar(colourbar, ax=axes)
         ax_cbar.set_label(label.format(variable=column))
 
-        gdf.plot(column=column, cmap=COLOURMAP, legend=False, ax=axes)
+        gdf.plot(column=column, cmap=COLORMAP, legend=False, ax=axes)
 
         tm_gdf.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
 

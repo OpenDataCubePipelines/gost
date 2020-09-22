@@ -25,16 +25,10 @@
       columns/Minimum/.style={{
         fixed,
         precision=6,
-        postproc cell content/.append style={{
-          /pgfplots/table/@cell content/.add={{}}{{\%{{}}}},
-        }},
       }},
       columns/Maximum/.style={{
         fixed,
         precision=6,
-        postproc cell content/.append style={{
-          /pgfplots/table/@cell content/.add={{}}{{\%{{}}}},
-        }},
       }},
     ]{{../results/{csv_basename}}}
   \end{{table}}

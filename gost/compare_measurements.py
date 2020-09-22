@@ -171,8 +171,8 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 cdf = numpy.cumsum(hist / hist.sum())
                 p1_idx = numpy.searchsorted(cdf, 0.9)
                 p2_idx = numpy.searchsorted(cdf, 0.99)
-                pct_90 = h["loc"][p1_idx]
-                pct_99 = h["loc"][p2_idx]
+                pct_90 = h_abs["loc"][p1_idx]
+                pct_99 = h_abs["loc"][p2_idx]
 
                 # moments
                 mean = numpy.mean(diff)

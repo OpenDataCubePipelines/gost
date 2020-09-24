@@ -102,6 +102,8 @@ def reporting(
             _LOG.info("reading dataset", dataset_name=str(dataset_name))
             dataframe = read_h5_table(fid, str(dataset_name))
 
+            n_datasets = fid[DatasetNames.QUERY.value].attrs["nrows"]
+
             # read and convert metadata tables
             _extract_proc_info_results(fid, outdir)
 
@@ -120,7 +122,7 @@ def reporting(
         reports_outdir = outdir.joinpath(DirectoryNames.REPORT.value)
 
         _LOG.info("producing LaTeX documents of general results")
-        latex_documents(gdf, dataframe, reports_outdir)
+        latex_documents(gdf, dataframe, reports_outdir, n_datasets)
 
         # TODO GQA and ancillary
 

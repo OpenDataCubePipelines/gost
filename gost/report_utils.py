@@ -20,6 +20,7 @@ from gost.constants import (
     FigureTemplates,
     TableTemplates,
 )
+from gost.version import version
 
 _LOG = structlog.get_logger()
 

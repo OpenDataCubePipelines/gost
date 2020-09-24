@@ -3,7 +3,7 @@
 \begin{{document}}
 
   \begin{{table}}[ht!]
-    \caption{{caption}}\label{{table:1}}
+    \caption{{Ancillary Minimum and Maximum Residual}}\label{{table:1}}
     \centering
     \pgfplotstabletypeset[
       column type={{>{{\fontseries{{bx}}\selectfont\centering\arraybackslash}}c}},

@@ -2,7 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name="gost",
-    version="0.0.1",
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     url="https://github.com/sixy6e/gost",
     author="Josh Sixsmith",
     description="Intercomparison workflow for DEA's ARD.",

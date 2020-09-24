@@ -40,8 +40,8 @@ MEASUREMENT_TEMPLATE = pkg_resources.resource_filename(
 MIN_MAX_TABLE_TEMPLATE = pkg_resources.resource_filename(
     "gost", "latex_templates/tables/measurement-min-max-pct.txt"
 )
-METADATA_MIN_MAX_TABLE_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "latex_templates/tables/metadata-min-max.txt"
+ANCILLARY_TABLE_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "latex_templates/tables/ancillary.txt"
 )
 SOFTWARE_VERSIONS_TABLE_TEMPLATE = pkg_resources.resource_filename(
     "gost", "latex_templates/tables/software-versions.txt"
@@ -137,8 +137,9 @@ class TableTemplates(Enum):
     """Table templates for the report."""
 
     MEASUREMENT = MIN_MAX_TABLE_TEMPLATE
-    METADATA = METADATA_MIN_MAX_TABLE_TEMPLATE
+    ANCILLARY = ANCILLARY_TABLE_TEMPLATE
     SOFTWARE = SOFTWARE_VERSIONS_TABLE_TEMPLATE
+    GQA = GQA_TABLE_TEMPLATE
 
 
 class SectionTemplates(Enum):

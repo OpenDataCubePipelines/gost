@@ -14,6 +14,14 @@
 \usepackage{{booktabs}}
 \usepackage{{pgfplotstable}}
 \usepackage[T1]{{fontenc}}
+\usepackage{{hyperref}}
+
+\hypersetup{{
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,
+  urlcolor=cyan,
+}}
 
 \pgfplotstableset{{col sep=comma}}
 \pgfplotsset{{compat=1.17}}
@@ -35,6 +43,14 @@
   \listoffigures
   \newpage
   \pagenumbering{{arabic}}
+
+  \section{{Background}}
+
+    \begin{{flushleft}}
+      This report aims to present information regarding the consistency of Geoscience Australia's and Digital Earth Australia's Surface Reflectance Analysis Ready Data products.\par
+      The information presented in this report has been compiled from an intercomparison analysis involving {n_datasets} baseline datasets (or acquisitions) acquired across the Australian Continent.\par
+      The intercomparison analysis and report were automatically generated via the \href{{https://github.com/OpenDataCubePipelines/gost}}{{gost}} Python package, version {version}.\par
+    \end{{flushleft}}
 
   \section{{Metadata}}
 

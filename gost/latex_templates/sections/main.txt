@@ -96,6 +96,7 @@
     \begin{{itemize}}
       \item Minimum residual
       \item Maximum residual
+      \item Maximum absolute residual
       \item Mean residual
       \item Standard deviation
       \item Skewness
@@ -107,7 +108,7 @@
 
     \begin{{flushleft}}
       The metrics are designed to provide an better understanding of the distribution and proportionality of change across the spatial domain.\par
-      The distribution of change could be negatively or positively skewed. The proportionality could be centred around 0, or have high weight within the tails of the distribution.
+      The distribution of change could be negatively or positively skewed. The proportionality could be centred around 0, or have high weight within the tails of the distribution.\par
     \end{{flushleft}}
 
   \clearpage

@@ -215,10 +215,12 @@ def _write_metadata_sections(
         write_latex_document(out_string, out_fname)
 
 
-def _write_main_section(outdir: Path, template: str) -> None:
+def _write_main_section(outdir: Path, template: str, n_datasets: int) -> None:
     """Write the main level LaTeX document."""
 
     out_fname = outdir.joinpath(LatexSectionFnames.MAIN.value)
+
+    # TODO VERSION
 
     out_string = template.format(
         stem=out_fname.stem,
@@ -228,13 +230,18 @@ def _write_main_section(outdir: Path, template: str) -> None:
         nbar_section=LatexSectionFnames.NBAR.value,
         nbart_section=LatexSectionFnames.NBART.value,
         oa_section=LatexSectionFnames.OA.value,
+        n_datasets=n_datasets,
+        version=version,
     )
 
     write_latex_document(out_string, out_fname)
 
 
 def latex_documents(
-    gdf: geopandas.GeoDataFrame, dataframe: pandas.DataFrame, outdir: Path
+    gdf: geopandas.GeoDataFrame,
+    dataframe: pandas.DataFrame,
+    outdir: Path,
+    n_datasets: int,
 ) -> None:
     """
     Utility to create the latex document strings.
@@ -244,8 +251,14 @@ def latex_documents(
     :param gdf:
         A geopandas GeoDataFrame containing the 'general' results.
 
+    :param dataframe:
+        A pandas DataFrame containing the summarised `general` results.
+
     :param outdir:
         The base output directory of the entire intercomparison workflow.
+
+    :param n_datasets:
+        The number of datasets used in the intercomparison.
     """
 
     def _reader(pathname: Path) -> str:
@@ -304,6 +317,6 @@ def latex_documents(
 
     # main document
     main_template = _reader(Path(SectionTemplates.MAIN.value))
-    _write_main_section(outdir, main_template)
+    _write_main_section(outdir, main_template, n_datasets)
 
     _LOG.info("finished writing LaTeX documents")

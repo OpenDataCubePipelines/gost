@@ -152,29 +152,30 @@ def _write_product_tables(outdir: Path, table_template: str) -> Dict[str, str]:
     return table_fnames
 
 
-def _write_ancillary_gqa_tables(outdir: Path, template: str) -> None:
+def _write_ancillary_gqa_tables(
+    outdir: Path, ancillary_template: str, gqa_template: str
+) -> None:
     """Create the ancillary and GQA LaTeX document tables."""
 
-    Table = namedtuple("Table", ["basename", "caption", "csv_basename"])
+    Table = namedtuple("Table", ["basename", "csv_basename", "template"])
 
     tables = [
         Table(
             basename=LatexTableFileNames.ANCILLARY.value,
-            caption="Ancillary Minimum and Maximum Residual",
             csv_basename=CsvFileNames.ANCILLARY.value,
+            template=ancillary_template,
         ),
         Table(
             basename=LatexTableFileNames.GQA.value,
-            caption="GQA Minimum and Maximum Residual",
             csv_basename=CsvFileNames.GQA.value,
+            template=gqa_template,
         ),
     ]
 
     for table in tables:
         out_fname = outdir.joinpath(DirectoryNames.REPORT_TABLES.value, table.basename)
 
-        out_string = template.format(
-            caption=table.caption,
+        out_string = table.template.format(
             csv_basename=table.csv_basename,
             main_doc=LatexSectionFnames.MAIN.value,
         )
@@ -226,7 +227,7 @@ def _write_main_section(outdir: Path, template: str) -> None:
         gqa_section=LatexSectionFnames.GQA.value,
         nbar_section=LatexSectionFnames.NBAR.value,
         nbart_section=LatexSectionFnames.NBART.value,
-        oa_section=LatexSectionFnames.OA.value
+        oa_section=LatexSectionFnames.OA.value,
     )
 
     write_latex_document(out_string, out_fname)
@@ -261,14 +262,15 @@ def latex_documents(
 
     measurement_template = _reader(Path(FigureTemplates.MEASUREMENT.value))
     min_max_table_template = _reader(Path(TableTemplates.MEASUREMENT.value))
-    metadata_template = _reader(Path(TableTemplates.METADATA.value))
+    ancillary_template = _reader(Path(TableTemplates.ANCILLARY.value))
     software_template = _reader(Path(TableTemplates.SOFTWARE.value))
+    gqa_template = _reader(Path(TableTemplates.GQA.value))
 
     figure_fnames = _write_measurement_figures(gdf, outdir, measurement_template)
 
     table_fnames = _write_product_tables(outdir, min_max_table_template)
 
-    _write_ancillary_gqa_tables(outdir, metadata_template)
+    _write_ancillary_gqa_tables(outdir, ancillary_template, gqa_template)
     _write_software_versions_table(outdir, software_template)
 
     pass_fail_result = reflectance_pass_fail(dataframe)

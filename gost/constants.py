@@ -46,7 +46,7 @@ ANCILLARY_TABLE_TEMPLATE = pkg_resources.resource_filename(
 SOFTWARE_VERSIONS_TABLE_TEMPLATE = pkg_resources.resource_filename(
     "gost", "latex_templates/tables/software-versions.txt"
 )
-GQA_TABLE_TEMPLATE = pkg_resources.resource_filename
+GQA_TABLE_TEMPLATE = pkg_resources.resource_filename(
     "gost", "latex_templates/tables/geometric-quality.txt"
 )
 NBAR_SECTION_TEMPLATE = pkg_resources.resource_filename(

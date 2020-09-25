@@ -13,7 +13,7 @@ import numpy  # type: ignore
 
 from idl_functions import histogram  # type: ignore
 
-from gost.odc_documents import Granule, Measurement
+from gost.data_model import Granule, Measurement
 
 
 class FmaskThemes(Enum):

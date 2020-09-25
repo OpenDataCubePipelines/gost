@@ -10,11 +10,11 @@ from mpi4py import MPI  # type: ignore
 import pandas  # type: ignore
 import structlog  # type: ignore
 
-from mpi_structlog.mpi_logger import (
+from mpi_structlog.mpi_logger import (  # type: ignore # noqa: E501 # pylint: disable=line-too-long
     DEFAULT_PROCESSORS,
     MPIStreamIO,
     MPILoggerFactory,
-)  # type: ignore # noqa: E501 # pylint: disable=line-too-long
+)
 from wagl.tiling import scatter  # type: ignore
 from wagl.hdf5 import read_h5_table, write_dataframe  # type: ignore
 
@@ -26,7 +26,8 @@ from gost.constants import (
     LogNames,
 )
 from gost import compare_measurements, compare_proc_info
-from gost.odc_documents import load_odc_metadata, Granule
+from gost.data_model import Granule
+from gost.odc_documents import load_odc_metadata
 from ._shared_commands import io_dir_options
 
 # comm info

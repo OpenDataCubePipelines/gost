@@ -6,12 +6,8 @@ from typing import Any, Dict, List, Tuple
 import pandas  # type: ignore
 import structlog  # type: ignore
 
-from gost.odc_documents import (
-    AncillaryInfo,
-    GeometricQuality,
-    load_odc_metadata,
-    load_proc_info,
-)
+from gost.data_model import AncillaryInfo, GeometricQuality
+from gost.odc_documents import load_odc_metadata, load_proc_info
 
 _LOG = structlog.get_logger()
 
@@ -28,11 +24,7 @@ def compare_software(dataframe: pandas.DataFrame) -> pandas.DataFrame:
     ref_doc = load_proc_info(Path(record.proc_info_pathname_reference))
     test_doc = load_proc_info(Path(record.proc_info_pathname_test))
 
-    data: Dict[str, List] = {
-        "Name": list(),
-        "Reference": list(),
-        "Test": list(),
-    }
+    data: Dict[str, List] = {"Name": list(), "Reference": list(), "Test": list()}
 
     for key, value in ref_doc.software_versions.items():
         data["Name"].append(key)

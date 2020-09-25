@@ -26,3 +26,4 @@ exclude = '''
 
 [tool.setuptools_scm]
 write_to = "gost/version.py"
+version_scheme = "post-release"

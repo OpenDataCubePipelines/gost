@@ -453,7 +453,9 @@ def load_odc_metadata(path: Path) -> Granule:
             doc["measurements"][meas]["path"] = measurements[meas]["path"]
             doc["measurements"][meas]["file_format"] = "GeoTIFF"
             doc["measurements"][meas]["parent_dir"] = str(path.parent)
-            doc["measurements"][meas]["transform"] = measurements[meas]["info"]["geotransform"]
+            doc["measurements"][meas]["transform"] = measurements[meas]["info"][
+                "geotransform"
+            ]
             doc["measurements"][meas]["shape"] = [
                 measurements[meas]["info"]["height"],
                 measurements[meas]["info"]["width"],

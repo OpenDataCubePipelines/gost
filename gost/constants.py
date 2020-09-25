@@ -24,9 +24,7 @@ SUMMARISE_FUNCS = [numpy.min, numpy.max, numpy.mean]
 WRS2_FNAME = pkg_resources.resource_filename(
     "gost", "data/landsat_wrs2_descending.geojsonl.zst"
 )
-MGRS_FNAME = pkg_resources.resource_filename(
-    "gost", "data/sentinel-2-mgrs.geojsonl.zst"
-)
+MGRS_FNAME = pkg_resources.resource_filename("gost", "data/sentinel-2-mgrs.geojsonl.zst")
 FRAMING = {
     "WRS2": WRS2_FNAME,
     "MGRS": MGRS_FNAME,

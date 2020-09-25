@@ -120,15 +120,15 @@ SKIP = {
 def plot_png(gdf, outdir):
     for name, grp in gdf.groupby("Measurement"):
         for col in COLS:
-            prefix = Path(outdir, name.split('_')[0])
+            prefix = Path(outdir, name.split("_")[0])
             if not prefix.exists():
                 prefix.mkdir()
 
             out_fname = prefix.joinpath(f"{name}-{col}.png")
             fig, axes = plt.subplots()
             # fig = plt.figure(figsize=(3, 3), constrained_layout=True)
-            #fig = plt.figure(figsize=(3, 3))
-            #axes = fig.add_subplot()
+            # fig = plt.figure(figsize=(3, 3))
+            # axes = fig.add_subplot()
 
             label = LABELS[name]
 
@@ -143,27 +143,26 @@ def plot_png(gdf, outdir):
                 # series = grp[col] / 10000
 
                 norm = colors.Normalize(vmin=series.min(), vmax=series.max())
-                cbar = plt.cm.ScalarMappable(norm=norm, cmap='rainbow')
+                cbar = plt.cm.ScalarMappable(norm=norm, cmap="rainbow")
 
                 ax_cbar = fig.colorbar(cbar, ax=axes)
                 ax_cbar.set_label(label)
 
-            TM_GDF.plot(linewidth=0.25, edgecolor="black",
-                        facecolor="none", ax=axes)
+            TM_GDF.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
             # axes.set_title("{} {}".format(name, col))
             axes.set_xlim(105, 160)
             axes.set_ylim(-45, -5)
             axes.set_xlabel("longitude")
             axes.set_ylabel("latitude")
             # axes.colorbar(title='% Reflectance (Scaled)')
-            plt.savefig(out_fname, bbox_inches='tight')
+            plt.savefig(out_fname, bbox_inches="tight")
             plt.close(fig)
 
 
 def plot_png_s2(gdf, outdir):
     for name, grp in gdf.groupby("Measurement"):
         for col in COLS:
-            prefix = Path(outdir, name.split('_')[0])
+            prefix = Path(outdir, name.split("_")[0])
             if not prefix.exists():
                 prefix.mkdir()
 
@@ -186,27 +185,26 @@ def plot_png_s2(gdf, outdir):
                 # series = grp[col] / 10000
 
                 norm = colors.Normalize(vmin=series.min(), vmax=series.max())
-                cbar = plt.cm.ScalarMappable(norm=norm, cmap='rainbow')
+                cbar = plt.cm.ScalarMappable(norm=norm, cmap="rainbow")
 
                 ax_cbar = fig.colorbar(cbar, ax=axes)
                 ax_cbar.set_label(label)
 
-            TM_GDF.plot(linewidth=0.25, edgecolor="black",
-                        facecolor="none", ax=axes)
+            TM_GDF.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
             # axes.set_title("{} {}".format(name, col))
             axes.set_xlim(105, 160)
             axes.set_ylim(-45, -5)
             axes.set_xlabel("longitude")
             axes.set_ylabel("latitude")
             # axes.colorbar(title='% Reflectance (Scaled)')
-            plt.savefig(out_fname, bbox_inches='tight')
+            plt.savefig(out_fname, bbox_inches="tight")
             plt.close(fig)
 
 
 def plot_pcts_png(gdf, outdir):
     for name, grp in gdf.groupby("Measurement"):
-        for col in ['PercentDifferent']:
-            prefix = Path(outdir, name.split('_')[0])
+        for col in ["PercentDifferent"]:
+            prefix = Path(outdir, name.split("_")[0])
             if not prefix.exists():
                 prefix.mkdir()
 
@@ -222,18 +220,17 @@ def plot_pcts_png(gdf, outdir):
 
             series = grp[col]
             norm = colors.Normalize(vmin=series.min(), vmax=series.max())
-            cbar = plt.cm.ScalarMappable(norm=norm, cmap='rainbow')
+            cbar = plt.cm.ScalarMappable(norm=norm, cmap="rainbow")
 
             ax_cbar = fig.colorbar(cbar, ax=axes)
             ax_cbar.set_label(label)
 
-            TM_GDF.plot(linewidth=0.25, edgecolor="black",
-                        facecolor="none", ax=axes)
+            TM_GDF.plot(linewidth=0.25, edgecolor="black", facecolor="none", ax=axes)
             # axes.set_title("{} {}".format(name, col))
             axes.set_xlim(105, 160)
             axes.set_ylim(-45, -5)
             axes.set_xlabel("longitude")
             axes.set_ylabel("latitude")
             # axes.colorbar(title='% Reflectance (Scaled)')
-            plt.savefig(out_fname, bbox_inches='tight')
+            plt.savefig(out_fname, bbox_inches="tight")
             plt.close(fig)

@@ -140,9 +140,7 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
     rank = COMM.Get_rank()
     n_processors = COMM.Get_size()
 
-    results_fname = outdir.joinpath(
-        DirectoryNames.RESULTS.value, FileNames.RESULTS.value
-    )
+    results_fname = outdir.joinpath(DirectoryNames.RESULTS.value, FileNames.RESULTS.value)
 
     with h5py.File(str(results_fname), "r") as fid:
         dataframe = read_h5_table(fid, DatasetNames.QUERY.value)

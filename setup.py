@@ -3,12 +3,12 @@ from setuptools import setup, find_packages
 setup(
     name="gost",
     use_scm_version=True,
-    setup_requires=['setuptools_scm'],
+    setup_requires=["setuptools_scm"],
     url="https://github.com/sixy6e/gost",
     author="Josh Sixsmith",
     description="Intercomparison workflow for DEA's ARD.",
     keywords=[
-        "logging", 
+        "logging",
         "structured",
         "structure",
         "log",

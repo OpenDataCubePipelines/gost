@@ -110,7 +110,9 @@ def _make_thematic_class(themes, name):
     result = attr.make_class(
         name,
         {
-            f"{theme.name.lower()}_2_{theme2.name.lower()}": attr.ib(default=attr.Factory(list))
+            f"{theme.name.lower()}_2_{theme2.name.lower()}": attr.ib(
+                default=attr.Factory(list)
+            )
             for theme in themes
             for theme2 in themes
         },

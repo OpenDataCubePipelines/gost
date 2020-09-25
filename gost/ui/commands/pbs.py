@@ -85,9 +85,7 @@ def _qsub(job_string, out_fname, dependency=None):
         raise
 
     if hasattr(raw_output, "decode"):
-        matches = re.match(
-            r"^(?P<nci_job_id>\d+\.gadi-pbs)$", raw_output.decode("utf-8")
-        )
+        matches = re.match(r"^(?P<nci_job_id>\d+\.gadi-pbs)$", raw_output.decode("utf-8"))
         if matches:
             nci_job_id = matches.groupdict()["nci_job_id"].split(".")[0]
         else:

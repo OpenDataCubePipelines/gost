@@ -64,10 +64,16 @@ def db_query_options(option):
         help="The time range to query.",
     )(option)
     option = click.option(
-        "--lon", type=(float, float), default=(None, None), help="Longitudinal bounds.",
+        "--lon",
+        type=(float, float),
+        default=(None, None),
+        help="Longitudinal bounds.",
     )(option)
     option = click.option(
-        "--lat", type=(float, float), default=(None, None), help="Latitudinal bounds.",
+        "--lat",
+        type=(float, float),
+        default=(None, None),
+        help="Latitudinal bounds.",
     )(option)
     option = click.option(
         "--additional-filters",

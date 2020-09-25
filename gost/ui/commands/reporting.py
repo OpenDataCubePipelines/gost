@@ -59,9 +59,7 @@ def _extract_proc_info_results(fid: h5py.File, outdir: Path) -> None:
     out_fname = outdir.joinpath(DirectoryNames.RESULTS.value, CsvFileNames.GQA.value)
     create_csv(gqa_df, out_fname)
 
-    out_fname = outdir.joinpath(
-        DirectoryNames.RESULTS.value, CsvFileNames.SOFTWARE.value
-    )
+    out_fname = outdir.joinpath(DirectoryNames.RESULTS.value, CsvFileNames.SOFTWARE.value)
     _LOG.info("writing CSV", out_fname=str(out_fname))
     software_df.to_csv(out_fname, index=False)
 

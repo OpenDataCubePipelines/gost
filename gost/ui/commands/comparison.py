@@ -10,7 +10,11 @@ from mpi4py import MPI  # type: ignore
 import pandas  # type: ignore
 import structlog  # type: ignore
 
-from mpi_structlog.mpi_logger import DEFAULT_PROCESSORS, MPIStreamIO, MPILoggerFactory  # type: ignore
+from mpi_structlog.mpi_logger import (
+    DEFAULT_PROCESSORS,
+    MPIStreamIO,
+    MPILoggerFactory,
+)  # type: ignore # noqa: E501 # pylint: disable=line-too-long
 from wagl.tiling import scatter  # type: ignore
 from wagl.hdf5 import read_h5_table, write_dataframe  # type: ignore
 
@@ -188,12 +192,7 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
                     DatasetGroups.INTERCOMPARISON.value, DatasetNames.GQA_RESULTS.value
                 )
 
-                write_dataframe(
-                    gqa_dataframe,
-                    str(dataset_name),
-                    fid,
-                    attrs=attrs,
-                )
+                write_dataframe(gqa_dataframe, str(dataset_name), fid, attrs=attrs)
 
             _LOG.info("saving ancillary dataframe results to tables")
 
@@ -206,28 +205,16 @@ def comparison(outdir: Union[str, Path], proc_info: bool) -> None:
                     DatasetNames.ANCILLARY_RESULTS.value,
                 )
 
-                write_dataframe(
-                    ancillary_dataframe,
-                    str(dataset_name),
-                    fid,
-                    attrs=attrs,
-                )
+                write_dataframe(ancillary_dataframe, str(dataset_name), fid, attrs=attrs)
 
             _LOG.info("saving software versions dataframe to tables")
 
             with h5py.File(str(results_fname), "a") as fid:
                 dataset_name = PPath(DatasetNames.SOFTWARE_VERSIONS.value)
 
-                software_attrs = {
-                    "description": "ARD Pipeline software versions",
-                }
+                software_attrs = {"description": "ARD Pipeline software versions"}
                 software_df = compare_proc_info.compare_software(dataframe)
-                write_dataframe(
-                    software_df,
-                    str(dataset_name),
-                    fid,
-                    attrs=software_attrs,
-                )
+                write_dataframe(software_df, str(dataset_name), fid, attrs=software_attrs)
 
     else:
         if rank == 0:

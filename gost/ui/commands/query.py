@@ -103,7 +103,7 @@ def query(
     "--glob-pattern-reference",
     type=click.STRING,
     required=True,
-    help="Pattern to glob for the reference product, eg '*/*/2019/05/*/*.odc-metadata.yaml' ",
+    help="Pattern to glob for the reference product, eg '*/*/2019/05/*/*.odc-metadata.yaml' ",  # noqa: E501 # pylint: disable=line-too-long
 )
 def query_filesystem(
     outdir,

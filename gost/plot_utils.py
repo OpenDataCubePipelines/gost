@@ -8,7 +8,7 @@ Useful links:
 * https://matplotlib.org/3.1.0/gallery/axes_grid1/demo_colorbar_with_inset_locator.html
 * https://stackoverflow.com/questions/40705614/hide-axis-label-only-not-entire-axis-in-pandas-plot
 * https://github.com/geopandas/geopandas/issues/318
-"""
+"""  # noqa: E501 # pylint: disable=line-too-long
 from collections import namedtuple
 from pathlib import Path
 import matplotlib.pyplot as plt  # type: ignore
@@ -130,10 +130,7 @@ def _plot_oa_stats(
 ) -> None:
     """Plotting func specifically for the observation attribute datasets."""
 
-    labels = {
-        "oa_time_delta": "Seconds",
-        "oa_relative_slope": "Slope",
-    }
+    labels = {"oa_time_delta": "Seconds", "oa_relative_slope": "Slope"}
     specific_labels = {
         "kurtosis": "Kurtosis",
         "skewness": "Skewness",

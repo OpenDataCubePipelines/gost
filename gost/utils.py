@@ -7,7 +7,7 @@ scripts will be designed and executed properly.
 
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 import attr
 import numpy  # type: ignore
 

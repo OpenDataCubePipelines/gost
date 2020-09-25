@@ -12,6 +12,8 @@ from ._shared_commands import io_dir_options, db_query_options
 
 _LOG = structlog.get_logger()
 
+# flake8: noqa
+
 PBS_RESOURCES = """#!/bin/bash
 #PBS -P {project}
 #PBS -W umask=017
@@ -112,13 +114,7 @@ def _ncpus_memory(length, loading=3, node_cpus=48, node_memory=192):
 
 
 def _initial_query(
-    product_name_test,
-    db_env_test,
-    time,
-    lon,
-    lat,
-    additional_filters,
-    query_filesystem,
+    product_name_test, db_env_test, time, lon, lat, additional_filters, query_filesystem
 ):
     """
     Initial listing to see how many datasets we'll (at most) have to compare.
@@ -306,12 +302,7 @@ def _setup_comparison_pbs_job(
 
 
 def _setup_collate_pbs_job(
-    dependency_jobids,
-    project,
-    filesystem_projects,
-    email_construct,
-    env,
-    outdir,
+    dependency_jobids, project, filesystem_projects, email_construct, env, outdir
 ):
     """Setup and submit the PBS job for collating the results of the comparison."""
 
@@ -336,12 +327,7 @@ def _setup_collate_pbs_job(
 
 
 def _setup_plotting_pbs_job(
-    dependency_jobid,
-    project,
-    filesystem_projects,
-    email_construct,
-    env,
-    outdir,
+    dependency_jobid, project, filesystem_projects, email_construct, env, outdir
 ):
     """Setup and submit the PBS job for plotting the results of the comparison."""
 
@@ -366,12 +352,7 @@ def _setup_plotting_pbs_job(
 
 
 def _setup_reporting_pbs_job(
-    dependency_jobid,
-    project,
-    filesystem_projects,
-    email_construct,
-    env,
-    outdir,
+    dependency_jobid, project, filesystem_projects, email_construct, env, outdir
 ):
     """Setup and submit the PBS job for plotting the results of the comparison."""
 

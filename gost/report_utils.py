@@ -2,9 +2,8 @@
 Utils pertaining to the creation of the LaTeX reports.
 """
 from collections import namedtuple
-import io
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List
 import pandas  # type: ignore
 import geopandas  # type: ignore
 import structlog  # type: ignore
@@ -13,7 +12,6 @@ from gost.collate import reflectance_pass_fail
 from gost.constants import (
     CsvFileNames,
     DirectoryNames,
-    FileNames,
     LatexTableFileNames,
     LatexSectionFnames,
     SectionTemplates,
@@ -41,9 +39,7 @@ def write_latex_document(out_string: str, out_fname: Path) -> None:
 
 
 def _write_measurement_figures(
-    gdf: geopandas.GeoDataFrame,
-    outdir: Path,
-    measurement_template: str,
+    gdf: geopandas.GeoDataFrame, outdir: Path, measurement_template: str
 ) -> Dict[str, List]:
     """
     Write the measurement sub-documents containing figures for each
@@ -177,8 +173,7 @@ def _write_ancillary_gqa_tables(
         out_fname = outdir.joinpath(DirectoryNames.REPORT_TABLES.value, table.basename)
 
         out_string = table.template.format(
-            csv_basename=table.csv_basename,
-            main_doc=LatexSectionFnames.MAIN.value,
+            csv_basename=table.csv_basename, main_doc=LatexSectionFnames.MAIN.value
         )
 
         write_latex_document(out_string, out_fname)
@@ -291,10 +286,7 @@ def latex_documents(
     nbar_pass_fail = "Pass" if pass_fail_result[0]["test_passed"] else "Fail"
     nbart_pass_fail = "Pass" if pass_fail_result[1]["test_passed"] else "Fail"
 
-    pass_fail = {
-        "nbar": nbar_pass_fail,
-        "nbart": nbart_pass_fail,
-    }
+    pass_fail = {"nbar": nbar_pass_fail, "nbart": nbart_pass_fail}
 
     # measurements per product group
     product_sections = {

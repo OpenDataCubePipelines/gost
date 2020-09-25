@@ -147,3 +147,27 @@ Depending on how much data there is, the filesystem query could be slower to dis
 ```bash
 ard-intercomparison pbs --outdir $PWD/test --env $PWD/c3.env --time 2020-5-1 2020-5-2 --db-env-reference "*/*/2019/05/*/*.odc-metadata.yaml" --db-env-test "*/*/2019/05/*/*.odc-metadata.yaml" --product-name-reference /g/data/xu18/ga/ga_ls8c_ard_3/ --product-name-test $PWD/pkgdir/ga_ls8c_ard_3/ --query-filesystem --project u46
 ```
+
+Pre-commit setup
+----------------
+
+A [pre-commit](https://pre-commit.com/) config is provided to automatically format
+and check your code changes. This allows you to immediately catch and fix
+issues before you raise a failing pull request (which run the same checks under
+Travis).
+
+If you don't use Conda, install pre-commit from pip:
+
+    pip install pre-commit
+
+If you do use Conda, install from conda-forge (*required* because the pip
+version uses virtualenvs which are incompatible with Conda's environments)
+
+    conda install pre_commit
+
+Now install the pre-commit hook to the current repository:
+
+    pre-commit install
+
+Your code will now be formatted and validated before each commit. You can also
+invoke it manually by running `pre-commit run`

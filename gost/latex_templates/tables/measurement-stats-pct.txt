@@ -3,7 +3,7 @@
 \begin{{document}}
 
   \begin{{table}}[ht!]
-    \caption{{Minimum and Maximum {caption}}}\label{{table:1}}
+    \caption{{Mean, Minimum and Maximum {caption}}}\label{{table:1}}
     \centering
     \pgfplotstabletypeset[
       column type={{>{{\fontseries{{bx}}\selectfont\centering\arraybackslash}}c}},
@@ -22,6 +22,13 @@
         string type,
         string replace*={{_}}{{\_}},
       }},
+      columns/Mean/.style={{
+        fixed,
+        precision=6,
+        postproc cell content/.append style={{
+          /pgfplots/table/@cell content/.add={{}}{{\%{{}}}},
+        }},
+      }},
       columns/Minimum/.style={{
         fixed,
         precision=6,
@@ -36,7 +43,7 @@
           /pgfplots/table/@cell content/.add={{}}{{\%{{}}}},
         }},
       }},
-    ]{{../results/{product_name}_min_max_residual.csv}}
+    ]{{../results/{product_name}_stats_residual.csv}}
   \end{{table}}
 
   \begin{{table}}[ht!]

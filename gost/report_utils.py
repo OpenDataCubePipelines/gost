@@ -270,14 +270,14 @@ def latex_documents(
     _LOG.info("reading LaTeX document templates")
 
     measurement_template = _reader(Path(FigureTemplates.MEASUREMENT.value))
-    min_max_table_template = _reader(Path(TableTemplates.MEASUREMENT.value))
+    stats_table_template = _reader(Path(TableTemplates.MEASUREMENT.value))
     ancillary_template = _reader(Path(TableTemplates.ANCILLARY.value))
     software_template = _reader(Path(TableTemplates.SOFTWARE.value))
     gqa_template = _reader(Path(TableTemplates.GQA.value))
 
     figure_fnames = _write_measurement_figures(gdf, outdir, measurement_template)
 
-    table_fnames = _write_product_tables(outdir, min_max_table_template)
+    table_fnames = _write_product_tables(outdir, stats_table_template)
 
     _write_ancillary_gqa_tables(outdir, ancillary_template, gqa_template)
     _write_software_versions_table(outdir, software_template)

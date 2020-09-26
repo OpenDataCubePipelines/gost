@@ -25,18 +25,15 @@ WRS2_FNAME = pkg_resources.resource_filename(
     "gost", "data/landsat_wrs2_descending.geojsonl.zst"
 )
 MGRS_FNAME = pkg_resources.resource_filename("gost", "data/sentinel-2-mgrs.geojsonl.zst")
-FRAMING = {
-    "WRS2": WRS2_FNAME,
-    "MGRS": MGRS_FNAME,
-}
+FRAMING = {"WRS2": WRS2_FNAME, "MGRS": MGRS_FNAME}
 TM_WORLD_BORDERS_FNAME = pkg_resources.resource_filename(
     "gost", "data/TM_WORLD_BORDERS-0.3.geojsonl.zst"
 )
 MEASUREMENT_TEMPLATE = pkg_resources.resource_filename(
     "gost", "latex_templates/figures/measurement.txt"
 )
-MIN_MAX_TABLE_TEMPLATE = pkg_resources.resource_filename(
-    "gost", "latex_templates/tables/measurement-min-max-pct.txt"
+MEASUREMENT_STATS_TABLE_TEMPLATE = pkg_resources.resource_filename(
+    "gost", "latex_templates/tables/measurement-stats-pct.txt"
 )
 ANCILLARY_TABLE_TEMPLATE = pkg_resources.resource_filename(
     "gost", "latex_templates/tables/ancillary.txt"
@@ -134,7 +131,7 @@ class FigureTemplates(Enum):
 class TableTemplates(Enum):
     """Table templates for the report."""
 
-    MEASUREMENT = MIN_MAX_TABLE_TEMPLATE
+    MEASUREMENT = MEASUREMENT_STATS_TABLE_TEMPLATE
     ANCILLARY = ANCILLARY_TABLE_TEMPLATE
     SOFTWARE = SOFTWARE_VERSIONS_TABLE_TEMPLATE
     GQA = GQA_TABLE_TEMPLATE

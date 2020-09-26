@@ -65,9 +65,7 @@ def merge_framing(dataframe: pandas.DataFrame, framing: str) -> geopandas.GeoDat
 
 
 def summarise(
-    geo_dataframe: geopandas.GeoDataFrame,
-    thematic: bool,
-    proc_info: bool,
+    geo_dataframe: geopandas.GeoDataFrame, thematic: bool, proc_info: bool
 ) -> pandas.DataFrame:
     """
     Produce summary statistics for the generic and thematic datasets.
@@ -98,7 +96,7 @@ def summarise(
             cols = [i for i in geo_dataframe.columns if "_2_" in i]
         else:
             _LOG.info("summarising generic datasets")
-            cols = ["min_residual", "max_residual", "percent_different"]
+            cols = ["min_residual", "max_residual", "mean_residual", "percent_different"]
 
         result = pandas.pivot_table(
             geo_dataframe, index=["measurement"], values=cols, aggfunc=SUMMARISE_FUNCS
@@ -183,16 +181,13 @@ def create_general_csvs(dataframe: pandas.DataFrame, outdir: Path) -> None:
     nbart_keep = [col for col in reflectance_keep if "nbart" in col]
     oa_keep = [col for col in measurements if "oa_" in col]
 
-    col_groups = {
-        "nbar": nbar_keep,
-        "nbart": nbart_keep,
-        "oa": oa_keep,
-    }
+    col_groups = {"nbar": nbar_keep, "nbart": nbart_keep, "oa": oa_keep}
 
     min_max_df = pandas.concat(
         [
             dataframe.xs((slice(None), "min_residual"))["Minimum"],
             dataframe.xs((slice(None), "max_residual"))["Maximum"],
+            dataframe.xs((slice(None), "mean_residual"))["Mean"],
         ],
         axis=1,
     )
@@ -201,10 +196,7 @@ def create_general_csvs(dataframe: pandas.DataFrame, outdir: Path) -> None:
         columns=["Minimum", "Mean"]
     )
 
-    dataframes = {
-        "min_max_residual": min_max_df,
-        "percent_different": percent_df,
-    }
+    dataframes = {"stats_residual": min_max_df, "percent_different": percent_df}
 
     for key in dataframes:
         for product_group in col_groups:

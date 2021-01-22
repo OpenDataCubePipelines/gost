@@ -1,0 +1,161 @@
+---
+# Dataset
+$schema: https://schemas.opendatacube.org/dataset
+id: 1a65419d-308e-4400-a18a-a700c7bb0666
+
+label: ga_ls7e_ard_3-1-0_092080_2020-12-07_final
+product:
+  name: ga_ls7e_ard_3
+  href: https://collections.dea.ga.gov.au/product/ga_ls7e_ard_3
+
+crs: epsg:32655
+geometry:
+  type: Polygon
+  coordinates: [[[509328.7885016656, -3265246.924845146], [511485.79976152454, -3255818.1191517254],
+      [522195.8033749633, -3210368.10383538], [550605.8096353885, -3090128.0773838866],
+      [550858.3589941133, -3089150.03849117], [550878.7075755105, -3089136.5951784193],
+      [551077.9635423912, -3088353.7998107905], [551107.5, -3088327.5], [722910.5851709329,
+        -3118609.084933198], [728000.2107556742, -3119505.4559984887], [732992.4321585156,
+        -3120386.0862340434], [750290.4897368684, -3123434.9988843435], [750292.0423533579,
+        -3123437.745720183], [753170.2135600173, -3123945.4564932357], [755440.5239399208,
+        -3124379.235213578], [756075.0, -3125415.0], [755654.263230062, -3127341.607826143],
+      [718724.2048771244, -3284541.861133445], [714682.9778699437, -3301573.9197785463],
+      [713769.8285900474, -3301814.5509140147], [708602.3303389034, -3300905.2386658476],
+      [708596.7452620285, -3300906.886721319], [708379.9080078299, -3300877.2743553696],
+      [537768.8964174987, -3270844.0898639592], [513789.8006857772, -3266624.546017187],
+      [512656.8160537692, -3266423.532623856], [509242.5, -3265822.5], [509308.49062786804,
+        -3265359.948925839], [509303.7867965644, -3265356.2132034358], [509317.70074099157,
+        -3265295.392065932], [509317.87640809553, -3265294.1607546043], [509328.7885016656,
+        -3265246.924845146]]]
+grids:
+  default:
+    shape: [7131, 8271]
+    transform: [30.0, 0.0, 508785.0, 0.0, -30.0, -3088185.0, 0.0, 0.0, 1.0]
+  panchromatic:
+    shape: [14261, 16541]
+    transform: [15.0, 0.0, 508792.5, 0.0, -15.0, -3088192.5, 0.0, 0.0, 1.0]
+
+properties:
+  datetime: 2020-12-07 23:21:18.481572Z
+  dea:dataset_maturity: final
+  dtr:end_datetime: 2020-12-07 23:21:32.017323Z
+  dtr:start_datetime: 2020-12-07 23:21:04.826970Z
+  eo:cloud_cover: 2.142397913033231
+  eo:gsd: 15.0  # Ground sample distance (m)
+  eo:instrument: ETM
+  eo:platform: landsat-7
+  eo:sun_azimuth: 89.35806745
+  eo:sun_elevation: 54.27909847
+  fmask:clear: 97.39899564984958
+  fmask:cloud: 2.142397913033231
+  fmask:cloud_shadow: 0.4245506163354008
+  fmask:snow: 0.0
+  fmask:water: 0.03405582078178086
+  gqa:abs_iterative_mean_x: 0.21
+  gqa:abs_iterative_mean_xy: 0.27
+  gqa:abs_iterative_mean_y: 0.17
+  gqa:abs_x: 0.29
+  gqa:abs_xy: 0.4
+  gqa:abs_y: 0.27
+  gqa:cep90: 0.5
+  gqa:iterative_mean_x: -0.2
+  gqa:iterative_mean_xy: 0.22
+  gqa:iterative_mean_y: 0.11
+  gqa:iterative_stddev_x: 0.16
+  gqa:iterative_stddev_xy: 0.24
+  gqa:iterative_stddev_y: 0.18
+  gqa:mean_x: -0.19
+  gqa:mean_xy: 0.22
+  gqa:mean_y: 0.12
+  gqa:stddev_x: 0.37
+  gqa:stddev_xy: 0.55
+  gqa:stddev_y: 0.4
+  landsat:collection_category: T1
+  landsat:collection_number: 1
+  landsat:landsat_product_id: LE07_L1TP_092080_20201207_20210103_01_T1
+  landsat:landsat_scene_id: LE70920802020342ASA00
+  landsat:wrs_path: 92
+  landsat:wrs_row: 80
+  odc:dataset_version: 3.1.0
+  odc:file_format: GeoTIFF
+  odc:processing_datetime: 2021-01-06 16:44:18.798405Z
+  odc:producer: ga.gov.au
+  odc:product_family: ard
+  odc:region_code: '092080'
+
+measurements:
+  nbar_blue:
+    path: ga_ls7e_nbar_3-1-0_092080_2020-12-07_final_band01.tif
+  nbar_green:
+    path: ga_ls7e_nbar_3-1-0_092080_2020-12-07_final_band02.tif
+  nbar_nir:
+    path: ga_ls7e_nbar_3-1-0_092080_2020-12-07_final_band04.tif
+  nbar_panchromatic:
+    path: ga_ls7e_nbar_3-1-0_092080_2020-12-07_final_band08.tif
+    grid: panchromatic
+  nbar_red:
+    path: ga_ls7e_nbar_3-1-0_092080_2020-12-07_final_band03.tif
+  nbar_swir_1:
+    path: ga_ls7e_nbar_3-1-0_092080_2020-12-07_final_band05.tif
+  nbar_swir_2:
+    path: ga_ls7e_nbar_3-1-0_092080_2020-12-07_final_band07.tif
+  nbart_blue:
+    path: ga_ls7e_nbart_3-1-0_092080_2020-12-07_final_band01.tif
+  nbart_green:
+    path: ga_ls7e_nbart_3-1-0_092080_2020-12-07_final_band02.tif
+  nbart_nir:
+    path: ga_ls7e_nbart_3-1-0_092080_2020-12-07_final_band04.tif
+  nbart_panchromatic:
+    path: ga_ls7e_nbart_3-1-0_092080_2020-12-07_final_band08.tif
+    grid: panchromatic
+  nbart_red:
+    path: ga_ls7e_nbart_3-1-0_092080_2020-12-07_final_band03.tif
+  nbart_swir_1:
+    path: ga_ls7e_nbart_3-1-0_092080_2020-12-07_final_band05.tif
+  nbart_swir_2:
+    path: ga_ls7e_nbart_3-1-0_092080_2020-12-07_final_band07.tif
+  oa_azimuthal_exiting:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_azimuthal-exiting.tif
+  oa_azimuthal_incident:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_azimuthal-incident.tif
+  oa_combined_terrain_shadow:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_combined-terrain-shadow.tif
+  oa_exiting_angle:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_exiting-angle.tif
+  oa_fmask:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_fmask.tif
+  oa_incident_angle:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_incident-angle.tif
+  oa_nbar_contiguity:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_nbar-contiguity.tif
+  oa_nbart_contiguity:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_nbart-contiguity.tif
+  oa_relative_azimuth:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_relative-azimuth.tif
+  oa_relative_slope:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_relative-slope.tif
+  oa_satellite_azimuth:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_satellite-azimuth.tif
+  oa_satellite_view:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_satellite-view.tif
+  oa_solar_azimuth:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_solar-azimuth.tif
+  oa_solar_zenith:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_solar-zenith.tif
+  oa_time_delta:
+    path: ga_ls7e_oa_3-1-0_092080_2020-12-07_final_time-delta.tif
+
+accessories:
+  thumbnail:nbart:
+    path: ga_ls7e_nbart_3-1-0_092080_2020-12-07_final_thumbnail.jpg
+  thumbnail:nbar:
+    path: ga_ls7e_nbar_3-1-0_092080_2020-12-07_final_thumbnail.jpg
+  checksum:sha1:
+    path: ga_ls7e_ard_3-1-0_092080_2020-12-07_final.sha1
+  metadata:processor:
+    path: ga_ls7e_ard_3-1-0_092080_2020-12-07_final.proc-info.yaml
+
+lineage:
+  level1:
+  - 44c60952-6745-57c6-b9ab-4d1d6fb559ad
+...

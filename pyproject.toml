@@ -27,3 +27,9 @@ exclude = '''
 [tool.setuptools_scm]
 write_to = "gost/version.py"
 version_scheme = "post-release"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests",
+]

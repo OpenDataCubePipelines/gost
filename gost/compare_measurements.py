@@ -61,7 +61,7 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 _LOG.info(
                     "shape mismatch",
                     test_shape=str(test_measurement.shape),
-                    reference_shape=str(reference_measurement.shape)
+                    reference_shape=str(reference_measurement.shape),
                 )
                 continue
 

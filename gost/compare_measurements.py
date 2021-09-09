@@ -57,6 +57,14 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
             test_measurement = doc_test.measurements[measurement_name]
             reference_measurement = doc_reference.measurements[measurement_name]
 
+            if not (test_measurement.shape == reference_measurement.shape):
+                _LOG.info(
+                    "shape mismatch",
+                    test_shape=str(test_measurement.shape),
+                    reference_shape=str(reference_measurement.shape)
+                )
+                continue
+
             if not reference_measurement.pathname().exists():
                 _LOG.info(
                     "missing reference measurement",

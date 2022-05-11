@@ -140,11 +140,10 @@ def _initial_query(
             lat=lat,
         )
 
-        n_datasets = len(
-            dc.find_products(
-                product_name_test, time=time, lon=lon, lat=lat, **additional_filters
-            )
-        )
+        if lat[0] is None or Lon[0] is None:
+            n_datasets = len(dc.find_datasets(product=product_name_test, time=time))
+        else:
+            n_datasets = len(dc.find_datasets(product=product_name_test, time=time, lat=lat, lon=lon))
 
     return n_datasets
 

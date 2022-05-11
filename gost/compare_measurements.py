@@ -54,8 +54,11 @@ def process_yamls(dataframe: pandas.DataFrame) -> Tuple[Dict[str, List[Any]], ..
                 measurement=measurement_name,
             )
 
-            test_measurement = doc_test.measurements[measurement_name]
-            reference_measurement = doc_reference.measurements[measurement_name]
+            try:
+                test_measurement = doc_test.measurements[measurement_name]
+                reference_measurement = doc_reference.measurements[measurement_name]
+            except:
+                continue
 
             if not (test_measurement.shape == reference_measurement.shape):
                 _LOG.info(

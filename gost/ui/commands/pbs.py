@@ -28,7 +28,7 @@ source {env}
 
 """
 QUERY_CMD = """{resources}
-ard-intercomparison query --outdir {outdir} --product-name-test {product_name_test} product-name-reference {product_name_reference} --db-env-test {db_env_test} --db-env-reference {db_env_reference} --time {time_from} {time_to}
+ard-intercomparison query --outdir {outdir} --product-name-test {product_name_test} --product-name-reference {product_name_reference} --db-env-test {db_env_test} --db-env-reference {db_env_reference} --time {time_from} {time_to}
 """
 QUERY_FS_CMD = """{resources}
 ard-intercomparison query-filesystem --outdir {outdir} --product-pathname-test {product_pathname_test} --product-pathname-reference {product_pathname_reference} --glob-pattern-test "{glob_pattern_test}" --glob-pattern-reference "{glob_pattern_reference}"
@@ -392,7 +392,7 @@ def _setup_reporting_pbs_job(
     "--filesystem-projects",
     "-fsp",
     multiple=True,
-    default=["v10", "xu18", "up71", "u46", "r78", "fj7", "da82"],
+    default=["v10", "xu18", "up71", "u46", "r78", "fj7", "da82", "if87"],
     help="Required filesystem projects.",
 )
 @click.option(

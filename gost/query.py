@@ -62,9 +62,14 @@ def query_db(
         lon=lon,
         lat=lat,
     )
-    datasets = dc.find_datasets(
-        product_name, time=time, lon=lon, lat=lat, **additional_filters
-    )
+    try:
+        datasets = dc.find_datasets(
+            product=product_name, time=time, lon=lon, lat=lat
+        )
+    except TypeError:
+        datasets = dc.find_datasets(
+            product=product_name, time=time
+        )
 
     granule_id = []
     uuid = []
@@ -84,8 +89,7 @@ def query_db(
             proc_info_pathname.append(str(dataset.local_path))
         else:
             # procssing info document
-            proc_info_pathname = dataset.local_path.parent.joinpath(doc.proc_info)
-            proc_info_pathname.append(str(proc_info_pathname))
+            proc_info_pathname.append(str(dataset.local_path.parent.joinpath(doc.proc_info)))
 
     dataframe = pandas.DataFrame(
         {
@@ -144,12 +148,12 @@ def query_products(
 
     _LOG.info("querying the test datasets")
     test_dataframe = query_db(
-        db_env_test, product_name_test, time, lon, lat, **additional_filters
+        db_env_test, product_name_test, time, lon, lat
     )
 
     _LOG.info("querying the reference datasets")
     reference_dataframe = query_db(
-        db_env_reference, product_name_reference, time, lon, lat, **additional_filters
+        db_env_reference, product_name_reference, time, lon, lat
     )
 
     _LOG.info("filtering test and reference datasets for common ancestor")

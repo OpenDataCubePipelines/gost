@@ -85,8 +85,8 @@ def query_db(
         yaml_pathname.append(str(dataset.local_path))
 
         # proc info is stored in dataset yaml for S2 C1
-        if doc.product_name is 'S2MSIARD':
-            proc_info_pathname.append(str(dataset.local_path))
+        if doc.product_name == 'S2MSIARD':
+            proc_info_pathname.append(str(dataset.local_path.parent.joinpath('ARD-METADATA.yaml')))
         else:
             # procssing info document
             proc_info_pathname.append(str(dataset.local_path.parent.joinpath(doc.proc_info)))

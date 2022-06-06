@@ -92,7 +92,7 @@ def load_odc_metadata(path: Path) -> Granule:
 
         doc["measurements"] = {(key_map_dict[k] if k in key_map_dict else k):v  for (k,v) in doc["measurements"].items()}
 
-    elif raw_doc["product"]["name"] == "ga_s2am_ard_3":
+    elif raw_doc["product"]["name"] == "ga_s2am_ard_3" or raw_doc["product"]["name"] == "ga_s2bm_ard_3":
         # Sentinel Collection-3
         doc["product_name"] = raw_doc["product"]["name"]
         doc["granule_id"] = raw_doc["properties"]["sentinel:sentinel_tile_id"]
@@ -186,10 +186,28 @@ def load_proc_info(path: Path) -> GranuleProcInfo:
                 },
                 "brdf":{
                     "alpha_1":{
-                        "band_1": 0.0
+                        "band_2": doc["lineage"]["ancillary"]["brdf_vol_band_2"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_2"]["value"]
                     },
                     "alpha_2":{
-                        "band_1": 0.0
+                        "band_2": doc["lineage"]["ancillary"]["brdf_geo_band_2"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_2"]["value"]
+                    },
+                    "alpha_1":{
+                        "band_3": doc["lineage"]["ancillary"]["brdf_vol_band_3"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_3"]["value"]
+                    },
+                    "alpha_2":{
+                        "band_3": doc["lineage"]["ancillary"]["brdf_geo_band_3"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_3"]["value"]
+                    },
+                    "alpha_1":{
+                        "band_4": doc["lineage"]["ancillary"]["brdf_vol_band_4"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_4"]["value"]
+                    },
+                    "alpha_2":{
+                        "band_4": doc["lineage"]["ancillary"]["brdf_geo_band_4"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_4"]["value"]
+                    },
+                    "alpha_1":{
+                        "band_8": doc["lineage"]["ancillary"]["brdf_vol_band_8"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_8"]["value"]
+                    },
+                    "alpha_2":{
+                        "band_8": doc["lineage"]["ancillary"]["brdf_geo_band_8"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_8"]["value"]
                     },
                     "id":[
                         ""

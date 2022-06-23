@@ -186,29 +186,17 @@ def load_proc_info(path: Path) -> GranuleProcInfo:
                 },
                 "brdf":{
                     "alpha_1":{
-                        "band_2": doc["lineage"]["ancillary"]["brdf_vol_band_2"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_2"]["value"]
+                        "band_2": doc["lineage"]["ancillary"]["brdf_vol_band_2"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_2"]["value"],
+                        "band_3": doc["lineage"]["ancillary"]["brdf_vol_band_3"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_3"]["value"],
+                        "band_4": doc["lineage"]["ancillary"]["brdf_vol_band_4"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_4"]["value"],
+                        "band_8": doc["lineage"]["ancillary"]["brdf_vol_band_8"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_8"]["value"],
                     },
                     "alpha_2":{
-                        "band_2": doc["lineage"]["ancillary"]["brdf_geo_band_2"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_2"]["value"]
-                    },
-                    "alpha_1":{
-                        "band_3": doc["lineage"]["ancillary"]["brdf_vol_band_3"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_3"]["value"]
-                    },
-                    "alpha_2":{
-                        "band_3": doc["lineage"]["ancillary"]["brdf_geo_band_3"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_3"]["value"]
-                    },
-                    "alpha_1":{
-                        "band_4": doc["lineage"]["ancillary"]["brdf_vol_band_4"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_4"]["value"]
-                    },
-                    "alpha_2":{
-                        "band_4": doc["lineage"]["ancillary"]["brdf_geo_band_4"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_4"]["value"]
-                    },
-                    "alpha_1":{
-                        "band_8": doc["lineage"]["ancillary"]["brdf_vol_band_8"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_8"]["value"]
-                    },
-                    "alpha_2":{
-                        "band_8": doc["lineage"]["ancillary"]["brdf_geo_band_8"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_8"]["value"]
-                    },
+                        "band_2": doc["lineage"]["ancillary"]["brdf_geo_band_2"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_2"]["value"],
+                        "band_3": doc["lineage"]["ancillary"]["brdf_geo_band_3"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_3"]["value"],
+                        "band_4": doc["lineage"]["ancillary"]["brdf_geo_band_4"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_4"]["value"],
+                        "band_8": doc["lineage"]["ancillary"]["brdf_geo_band_8"]["value"]/doc["lineage"]["ancillary"]["brdf_iso_band_8"]["value"],
+                },
                     "id":[
                         ""
                     ],

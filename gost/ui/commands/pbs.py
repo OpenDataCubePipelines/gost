@@ -140,11 +140,10 @@ def _initial_query(
             lat=lat,
         )
 
-        n_datasets = len(
-            dc.find_products(
-                product_name_test, time=time, lon=lon, lat=lat, **additional_filters
-            )
-        )
+        if lat[0] is None or Lon[0] is None:
+            n_datasets = len(dc.find_datasets(product=product_name_test, time=time))
+        else:
+            n_datasets = len(dc.find_datasets(product=product_name_test, time=time, lat=lat, lon=lon))
 
     return n_datasets
 
@@ -393,7 +392,7 @@ def _setup_reporting_pbs_job(
     "--filesystem-projects",
     "-fsp",
     multiple=True,
-    default=["v10", "xu18", "up71", "u46", "r78", "fj7", "da82"],
+    default=["v10", "xu18", "up71", "u46", "r78", "fj7", "da82", "if87"],
     help="Required filesystem projects.",
 )
 @click.option(

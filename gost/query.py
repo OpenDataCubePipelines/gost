@@ -62,10 +62,16 @@ def query_db(
         lon=lon,
         lat=lat,
     )
-    datasets = dc.find_datasets(
-        product_name, time=time, lon=lon, lat=lat, **additional_filters
-    )
+    try:
+        datasets = dc.find_datasets(
+            product=product_name, time=time, lon=lon, lat=lat
+        )
+    except TypeError:
+        datasets = dc.find_datasets(
+            product=product_name, time=time
+        )
 
+    granule_id = []
     uuid = []
     yaml_pathname = []
     proc_info_pathname = []
@@ -74,15 +80,20 @@ def query_db(
         _LOG.info("processing dataset", dataset=str(dataset.local_path))
         doc = load_odc_metadata(dataset.local_path)
 
+        granule_id.append(doc.granule_id)
         uuid.append(doc.parent_uuid)
         yaml_pathname.append(str(dataset.local_path))
 
-        # procssing info document
-        proc_info_pathname = dataset.local_path.parent.joinpath(doc.proc_info)
-        proc_info_pathname.append(str(proc_info_pathname))
+        # proc info is stored in dataset yaml for S2 C1
+        if doc.product_name == 'S2MSIARD':
+            proc_info_pathname.append(str(dataset.local_path.parent.joinpath('ARD-METADATA.yaml')))
+        else:
+            # procssing info document
+            proc_info_pathname.append(str(dataset.local_path.parent.joinpath(doc.proc_info)))
 
     dataframe = pandas.DataFrame(
         {
+            "granule_id": granule_id,
             "level1_uuid": uuid,
             "yaml_pathname": yaml_pathname,
             "proc_info_pathname": proc_info_pathname,
@@ -137,19 +148,20 @@ def query_products(
 
     _LOG.info("querying the test datasets")
     test_dataframe = query_db(
-        db_env_test, product_name_test, time, lon, lat, **additional_filters
+        db_env_test, product_name_test, time, lon, lat
     )
 
     _LOG.info("querying the reference datasets")
     reference_dataframe = query_db(
-        db_env_reference, product_name_reference, time, lon, lat, **additional_filters
+        db_env_reference, product_name_reference, time, lon, lat
     )
 
     _LOG.info("filtering test and reference datasets for common ancestor")
     merged = pandas.merge(
         test_dataframe,
         reference_dataframe,
-        on="uuid",
+        #on="uuid",
+        on="granule_id",
         how="inner",
         suffixes=["_test", "_reference"],
     )
@@ -170,6 +182,7 @@ def query_filepath(path: Path, pattern: str) -> pandas.DataFrame:
     """
     files = list(path.rglob(pattern))
 
+    granule_id = []
     uuid = []
     yaml_pathname = []
     proc_info_pathname = []
@@ -185,14 +198,20 @@ def query_filepath(path: Path, pattern: str) -> pandas.DataFrame:
 
         doc = load_odc_metadata(fname)
         uuid.append(doc.parent_uuid)
+        granule_id.append(doc.granule_id)
         yaml_pathname.append(str(fname))
 
-        # procssing info document
-        pathname = fname.parent.joinpath(doc.proc_info)
-        proc_info_pathname.append(str(pathname))
+        # proc info is stored in dataset yaml for S2 C1
+        if doc.product_name is 'S2MSIARD':
+            proc_info_pathname.append(dataset)
+        else:
+            # procssing info document
+            pathname = fname.parent.joinpath(doc.proc_info)
+            proc_info_pathname.append(str(pathname))
 
     dataframe = pandas.DataFrame(
         {
+            "granule_id": granule_id,
             "level1_uuid": uuid,
             "yaml_pathname": yaml_pathname,
             "proc_info_pathname": proc_info_pathname,
@@ -239,7 +258,8 @@ def query_via_filepath(
     merged = pandas.merge(
         test_dataframe,
         reference_dataframe,
-        on="level1_uuid",
+        #on="level1_uuid",
+        on="granule_id",
         how="inner",
         suffixes=["_test", "_reference"],
     )

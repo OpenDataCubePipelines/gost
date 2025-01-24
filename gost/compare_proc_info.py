@@ -43,8 +43,14 @@ def compare_gqa(
 
     result: Dict[str, Any] = dict()
 
-    for field, value in test_gqa.fields.items():
-        result[field] = reference_gqa.fields[field] - value
+    ref_error = reference_gqa.error_message
+    test_error = test_gqa.error_message
+
+    if ref_error == 'no errors' and test_error == 'no errors':
+        for field, value in test_gqa.fields.items():
+            result[field] = reference_gqa.fields[field] - value
+    else:
+        result = None
 
     return result
 
@@ -58,7 +64,8 @@ def compare_ancillary(
 
     ref_data = reference_ancillary.flatten()
     for field, value in test_ancillary.flatten().items():
-        result[field] = ref_data[field] - value
+        if field in ref_data:        
+            result[field] = ref_data[field] - value
 
     return result
 
@@ -107,8 +114,10 @@ def process_yamls(
         gqa_result = compare_gqa(
             proc_info_reference.geometric_quality, proc_info_test.geometric_quality
         )
-        for key in gqa_result:
-            gqa_results[key].append(gqa_result[key])
+
+        if gqa_result != None:
+            for key in gqa_result:
+                gqa_results[key].append(gqa_result[key])
 
         ancillary_result = compare_ancillary(
             proc_info_reference.ancillary, proc_info_test.ancillary

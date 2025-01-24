@@ -38,11 +38,20 @@ _LOG = structlog.get_logger()
 
 def _concatenate_records(records: Union[List[Any], None]) -> pandas.DataFrame:
     """Concatenates a list of dicts into a pandas.DataFrame."""
-
+    #_LOG.msg('records: ' + str(len(records)))
+    #_LOG.msg(type(records))
     if records:
-        dataframe = pandas.DataFrame(records[0])
+        #dataframe = pandas.DataFrame(records[0])
+        dataframe = pandas.DataFrame.from_dict(records[0], orient='index')
+        dataframe = dataframe.transpose()
+        dataframe = dataframe.fillna(0)
+        #_LOG.msg(str(dataframe))
         for record in records[1:]:
-            dataframe = dataframe.append(pandas.DataFrame(record))
+            #_LOG.msg(str(record))
+            df = pandas.DataFrame.from_dict(record, orient='index')
+            df = df.transpose()
+            df = df.fillna(0)
+            dataframe = dataframe.append(df)
 
         _LOG.info("reset dataframe index")
 
@@ -66,13 +75,12 @@ def _process_proc_info(
     gqa_records = COMM.gather(gqa_results, root=0)
 
     if rank == 0:
-        _LOG.info("gathering gqa field records from all workers")
+        _LOG.info("gathering ancillary field records from all workers")
 
     ancillary_records = COMM.gather(ancillary_results, root=0)
 
     if rank == 0:
         _LOG.info("appending proc-info dataframes")
-
         gqa_df = _concatenate_records(gqa_records)
         ancillary_df = _concatenate_records(ancillary_records)
 

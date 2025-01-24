@@ -80,18 +80,21 @@ def collate(outdir: Union[str, Path]) -> None:
                 )
 
                 _LOG.info("saving as GeoJSON", out_fname=str(out_fname))
-                geo_dataframe.to_file(str(out_fname), driver="GeoJSONSeq")
+                try:
+                    geo_dataframe.to_file(str(out_fname), driver="GeoJSONSeq")
 
-                _LOG.info("summarising")
+                    _LOG.info("summarising")
 
-                summary_dataframe = summarise(geo_dataframe, thematic, proc_info)
+                    summary_dataframe = summarise(geo_dataframe, thematic, proc_info)
 
-                out_dname = PPath(
-                    DatasetGroups.SUMMARY.value,
-                    DatasetNames[
-                        SummaryLookup[DatasetNames(dataset_name).name].value
-                    ].value,
-                )
+                    out_dname = PPath(
+                        DatasetGroups.SUMMARY.value,
+                        DatasetNames[
+                            SummaryLookup[DatasetNames(dataset_name).name].value
+                        ].value,
+                    )
 
-                _LOG.info("saving summary table", out_dataset_name=str(out_dname))
-                write_dataframe(summary_dataframe, str(out_dname), fid)
+                    _LOG.info("saving summary table", out_dataset_name=str(out_dname))
+                    write_dataframe(summary_dataframe, str(out_dname), fid)
+                except:
+                    continue
